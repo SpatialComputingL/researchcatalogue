@@ -362,7 +362,8 @@ body {
 }
 
 .mobile-reload-button {
-  display: none;
+  left: 16px;
+  bottom: 16px;
 }
 
 #folding-menu {
@@ -483,11 +484,11 @@ body.contents-open {
 @media (max-width: 760px) {
   .toolbar {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-rows: 32px 36px;
     grid-template-areas:
-      "title title"
-      "content search";
+      "title title title"
+      "content search navigation";
     min-height: 0;
     overflow: visible;
     padding: 0 !important;
@@ -537,9 +538,14 @@ body.contents-open {
     align-self: center;
   }
 
+  #minimap-toolbar-button {
+    display: block !important;
+    grid-area: navigation;
+    align-self: center;
+  }
+
   .zoom-out-button,
   .zoom-in-button,
-  #minimap-toolbar-button,
   .reset-zoom-button {
     display: none !important;
   }
@@ -1026,7 +1032,7 @@ body.contents-open {
 }
 
 .canvas-overview .node-content {
-  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 

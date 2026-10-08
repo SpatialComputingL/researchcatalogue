@@ -1921,6 +1921,15 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       const canvasShell = document.getElementById("canvas-shell");
       const edgeLayer = document.getElementById("edge-layer");
       const canvas = document.getElementById("canvas");
+      const originalNodePositions = new Map(
+        Array.from(canvas.querySelectorAll(".node[data-node-id]"), (node) => [
+          node.getAttribute("data-node-id"),
+          {
+            left: Number(node.getAttribute("data-canvas-left") || 0),
+            top: Number(node.getAttribute("data-canvas-top") || 0),
+          },
+        ]),
+      );
       const viewport = document.querySelector(".viewport");
       const singlePageView = document.getElementById("single-page-view");
       const singlePageBody = document.getElementById("single-page-body");
@@ -2256,6 +2265,62 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         minimapNode.setAttribute("y", node.getAttribute("data-canvas-top") || "0");
       }
 
+      function restorePackageNodePositions() {
+        if (exportFormat !== "package") return;
+        for (const node of canvas.querySelectorAll(".node[data-node-id]")) {
+          const position = packageNodePositions[node.getAttribute("data-node-id")];
+          if (!position) continue;
+          node.setAttribute("data-canvas-left", String(position.left));
+          node.setAttribute("data-canvas-top", String(position.top));
+          node.style.left = position.left + "px";
+          node.style.top = position.top + "px";
+          syncMinimapNodePosition(node);
+        }
+        drawEdges();
+        updateMinimapViewport();
+      }
+
+      function storePackageNodePositions() {
+        if (exportFormat !== "package") return;
+        packageNodePositions = Object.fromEntries(
+          [...canvas.querySelectorAll(".node[data-node-id]")]
+            .filter((node) => {
+              const id = node.getAttribute("data-node-id");
+              const original = originalNodePositions.get(id);
+              return original && (
+                Number(node.getAttribute("data-canvas-left")) !== original.left
+                || Number(node.getAttribute("data-canvas-top")) !== original.top
+              );
+            })
+            .map((node) => [
+              node.getAttribute("data-node-id"),
+              {
+                left: Number(node.getAttribute("data-canvas-left")),
+                top: Number(node.getAttribute("data-canvas-top")),
+              },
+            ]),
+        );
+        storePackageNavigationState();
+      }
+
+      function resetNodePositions() {
+        packageNodePositions = {};
+        for (const node of canvas.querySelectorAll(".node[data-node-id]")) {
+          const position = originalNodePositions.get(node.getAttribute("data-node-id"));
+          if (!position) continue;
+          node.setAttribute("data-canvas-left", String(position.left));
+          node.setAttribute("data-canvas-top", String(position.top));
+          node.style.left = position.left + "px";
+          node.style.top = position.top + "px";
+          syncMinimapNodePosition(node);
+        }
+        drawEdges();
+        updateMinimapViewport();
+        storePackageNavigationState();
+      }
+      window.resetNodePositions = resetNodePositions;
+      window.storeNodePositions = storePackageNodePositions;
+
       function getCanvasScale() {
         const matrix = new DOMMatrixReadOnly(getComputedStyle(canvas).transform);
         return Math.max(0.001, Math.hypot(matrix.a, matrix.b));
@@ -2340,6 +2405,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
           syncMinimapNodePosition(nodeDrag.node);
           drawEdges();
           updateMinimapViewport();
+          storePackageNodePositions();
         }
         nodeDrag = null;
       }
@@ -2369,6 +2435,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         };
         storePackageNavigationState();
       }
+      window.storeCanvasState = storePackageViewportState;
 
       function storePackageViewportBeforeNavigation(event) {
         if (exportFormat !== "package") return;
@@ -2718,6 +2785,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       let globalNavigationOpen = navigationInitiallyOpen;
       let navigationPageStates = {};
       let packageViewportStates = {};
+      let packageNodePositions = {};
       const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
 
       function normalizeNavigationPageStates(value) {
@@ -2736,6 +2804,17 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
             && Number.isFinite(state.scale)
             && Number.isFinite(state.left)
             && Number.isFinite(state.top);
+        }));
+      }
+
+      function normalizePackageNodePositions(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter((entry) => {
+          const position = entry[1];
+          return typeof entry[0] === "string"
+            && position && typeof position === "object" && !Array.isArray(position)
+            && Number.isFinite(position.left)
+            && Number.isFinite(position.top);
         }));
       }
 
@@ -2803,6 +2882,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
           if (Object.prototype.hasOwnProperty.call(stored, "viewportStates")) {
             packageViewportStates = normalizePackageViewportStates(stored.viewportStates);
           }
+          packageNodePositions = normalizePackageNodePositions(stored.nodePositions);
         } catch {
           // Ignore unrelated or malformed window state.
         }
@@ -2815,6 +2895,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
           globalOpen: globalNavigationOpen,
           pageStates: navigationPageStates,
           viewportStates: packageViewportStates,
+          nodePositions: packageNodePositions,
         });
       }
 
@@ -2949,6 +3030,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
 
       readPackageNavigationState();
       readPackageWindowState();
+      restorePackageNodePositions();
       storePackageNavigationState();
       restoreContentsForCanvasView();
 
@@ -4084,6 +4166,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
 
       window.resetZoom = function() {
         cancelZoomAreaDrag();
+        window.resetNodePositions();
         const fitPadding = 48;
         const fitBounds = getFitNodeBounds();
         const availableWidth = Math.max(100, viewport.clientWidth);

@@ -16,10 +16,15 @@ buttons, navigation, and connection lines remain in place.
 
 Node focus is capped to keep previews readable; reset returns to the full map.
 Nodes can be repositioned by dragging, with their connection lines and minimap
-positions following along. The navigation minimap can be repositioned from its
-frame. Day/night mode follows local time unless a visitor saves a preference;
-the toolbar adapts to mobile with a compact control row and reload control.
-On touch screens, two-finger pinching zooms the Canvas directly, nodes are not
-draggable, and the minimap has wider handles. At overview scale, node previews
-switch to labelled, hatched boxes to stay legible. Resizing the page updates
-the fitted map continuously without resetting a manually chosen zoom level.
+positions following along, and their positions persist when the page reloads.
+Reset restores the exported node positions as well as the full-map view. The
+navigation minimap can be repositioned from its frame. Day/night mode follows
+local time unless a visitor saves a preference; the toolbar adapts to mobile
+with Content, Search, Navigation, and reload controls. The Content and
+Navigation arrows indicate when their panels are open. On touch screens,
+two-finger pinching zooms the Canvas directly, nodes are not draggable, and
+the minimap can be repositioned using its wider frame handles. Mobile zoom has
+a higher minimum scale to avoid rendering failures in iPhone Safari. At
+overview scale, node previews switch to labelled, hatched boxes to stay
+legible. Resizing the page updates the fitted map continuously without
+resetting a manually chosen zoom level.

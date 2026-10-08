@@ -36,7 +36,11 @@
   reloadButton.className = "mobile-reload-button";
   reloadButton.setAttribute("aria-label", "Reload canvas");
   reloadButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"></path><path d="M19 12a7 7 0 1 1-2.05-4.95L20 12"></path></svg>';
-  reloadButton.addEventListener("click", () => window.location.reload());
+  reloadButton.addEventListener("click", () => {
+    window.storeNodePositions?.();
+    window.storeCanvasState?.();
+    window.location.reload();
+  });
 
   let toolbarHideTimer = 0;
   const hideToolbar = () => {
@@ -64,6 +68,7 @@
   navigationDropdown.append(navigationButton, contentsOverlay);
   navigationButton.textContent = "↓ CONTENT";
   const minimapButton = document.querySelector("#minimap-toolbar-button");
+  const minimapPanel = document.querySelector("#minimap-panel");
   if (minimapButton) minimapButton.textContent = "↓ NAVIGATION";
   const minimapTitle = document.querySelector("#minimap-panel .minimap-header strong");
   if (minimapTitle) minimapTitle.textContent = "";
@@ -103,10 +108,24 @@
 
   navigationButton.setAttribute("aria-haspopup", "true");
   const syncExpandedState = () => {
-    navigationButton.setAttribute("aria-expanded", String(!contentsOverlay.hidden));
+    const isOpen = !contentsOverlay.hidden;
+    navigationButton.setAttribute("aria-expanded", String(isOpen));
+    navigationButton.textContent = `${isOpen ? "↑" : "↓"} CONTENT`;
   };
   new MutationObserver(syncExpandedState).observe(contentsOverlay, { attributes: true, attributeFilter: ["hidden"] });
   syncExpandedState();
+  if (minimapButton && minimapPanel) {
+    const syncMinimapState = () => {
+      const isOpen = minimapPanel && !minimapPanel.hidden;
+      minimapButton.textContent = `${isOpen ? "↑" : "↓"} NAVIGATION`;
+      minimapButton.setAttribute("aria-expanded", String(Boolean(isOpen)));
+    };
+    new MutationObserver(syncMinimapState).observe(minimapPanel, {
+      attributes: true,
+      attributeFilter: ["hidden"],
+    });
+    syncMinimapState();
+  }
 
   document.addEventListener("click", (event) => {
     if (contentsOverlay.hidden || navigationDropdown.contains(event.target)) return;
@@ -165,8 +184,7 @@
     const availableHeight = Math.max(100, zoomViewport.clientHeight - 64);
     const fitScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
     const maxScale = Math.max(focusedNodeScale, Math.min(1.1, Math.max(0.95, fitScale * 1.8)));
-    const preferredMinScale = zoomViewport.clientWidth <= 760 ? 0.12 : 0.35;
-    const minScale = Math.min(preferredMinScale, fitScale);
+    const minScale = zoomViewport.clientWidth <= 760 ? 0.24 : Math.min(0.35, fitScale);
     return { minScale: Math.min(minScale, maxScale), maxScale };
   };
   const readCanvasMatrix = () => new DOMMatrixReadOnly(getComputedStyle(zoomCanvas).transform);
@@ -183,7 +201,7 @@
   let focusedNode = null;
   const initialFitBounds = boundsForVisibleNodes();
   const initialFitScale = Math.max(
-    zoomViewport.clientWidth <= 760 ? 0.12 : 0.08,
+    zoomViewport.clientWidth <= 760 ? 0.24 : 0.08,
     Math.min(
       1,
       (zoomViewport.clientWidth - 64) / initialFitBounds.width,
@@ -420,8 +438,9 @@
       fitToViewport = true;
       focusedNodeScale = 0;
       focusedNode = null;
+      window.resetNodePositions?.();
       const bounds = boundsForVisibleNodes();
-      const minimumScale = zoomViewport.clientWidth <= 760 ? 0.12 : 0.08;
+      const minimumScale = zoomViewport.clientWidth <= 760 ? 0.24 : 0.08;
       const scale = Math.max(minimumScale, Math.min(
         1,
         (zoomViewport.clientWidth - 64) / bounds.width,
