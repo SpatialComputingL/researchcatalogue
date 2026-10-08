@@ -488,7 +488,7 @@ body.contents-open {
     grid-template-rows: 32px 36px;
     grid-template-areas:
       "title title title"
-      "content search navigation";
+      "content navigation search";
     min-height: 0;
     overflow: visible;
     padding: 0 !important;
@@ -1041,7 +1041,9 @@ body.contents-open {
   inset: 0;
   display: grid;
   overflow: hidden;
+  min-width: 0;
   padding: 2px;
+  box-sizing: border-box;
   place-items: center;
   color: #000;
   content: attr(data-overview-title);
