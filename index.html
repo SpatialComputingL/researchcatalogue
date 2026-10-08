@@ -61,7 +61,7 @@
       min-height: 0;
     }
     .viewport.is-zoom-area-selecting {
-      cursor: crosshair;
+      cursor: grabbing;
       user-select: none;
     }
     #canvas {
@@ -2262,11 +2262,11 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       }
 
       function startNodeDrag(event) {
+        if (event.pointerType === "touch" || window.matchMedia("(max-width: 760px)").matches) return;
         if (event.button !== 0 || nodeDrag) return;
         const target = event.target instanceof Element ? event.target : null;
         const node = target?.closest(".node[data-node-id]");
         if (!node || target?.closest("button, input, select, textarea, [contenteditable='true']")) return;
-        if (event.pointerType === "touch" && target.closest(".node-content")) return;
         if (target.closest(
           ".node-content p, .node-content li, .node-content h1, .node-content h2, .node-content h3, " +
           ".node-content h4, .node-content h5, .node-content h6, .node-content a, .node-content pre, " +
@@ -3044,6 +3044,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       function startMinimapPan(event) {
         if (!minimapSvg || minimapDrag) return;
         minimapPan = { pointerId: event.pointerId };
+        minimapPanel?.classList.add("is-panning");
         minimapSvg.setPointerCapture(event.pointerId);
         syncViewportFromMinimap(event, "auto");
         event.preventDefault();
@@ -3058,6 +3059,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         if (!minimapPan || !minimapSvg) return;
         const activePointerId = minimapPan.pointerId;
         minimapPan = null;
+        minimapPanel?.classList.remove("is-panning");
         if (typeof activePointerId === "number") {
           minimapSvg.releasePointerCapture(activePointerId);
         }
@@ -3965,7 +3967,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       function startMinimapDrag(event) {
         if (!minimapPanel || !minimapSvg || event.button !== 0) return;
         const mapRect = minimapSvg.getBoundingClientRect();
-        const grabMargin = 14;
+        const grabMargin = window.matchMedia("(max-width: 760px)").matches ? 32 : 14;
         const onFrame = event.clientX <= mapRect.left + grabMargin
           || event.clientX >= mapRect.right - grabMargin
           || event.clientY <= mapRect.top + grabMargin
@@ -4073,7 +4075,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
 
       window.zoomBy = function(factor) {
         cancelZoomAreaDrag();
-        currentScale = Math.max(0.08, Math.min(4, currentScale * factor));
+        const minimumScale = window.matchMedia("(max-width: 760px)").matches ? 0.12 : 0.08;
+        currentScale = Math.max(minimumScale, Math.min(4, currentScale * factor));
         setCssProps(canvas, { transform: "scale(" + currentScale + ")" });
         drawEdges();
         updateMinimapViewport();
@@ -4087,7 +4090,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         const availableHeight = Math.max(100, viewport.clientHeight);
         const scaleX = availableWidth / (fitBounds.width + fitPadding * 2);
         const scaleY = availableHeight / (fitBounds.height + fitPadding * 2);
-        currentScale = Math.min(scaleX, scaleY, 1);
+        const minimumScale = window.matchMedia("(max-width: 760px)").matches ? 0.12 : 0.08;
+        currentScale = Math.max(minimumScale, Math.min(scaleX, scaleY, 1));
         setCssProps(canvas, { transform: "scale(" + currentScale + ")" });
         drawEdges();
         scrollViewportToCanvasPoint(
@@ -4135,18 +4139,22 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
           if (event.persisted) restorePackageViewportState(true);
         });
       }
+      let viewportResizeFrame = 0;
       window.addEventListener("resize", () => {
-        drawEdges();
-        if (exportFormat === "package") updateMinimapViewport();
-        else window.resetZoom();
-        if (minimapPanel) {
-          if (minimapPanel.dataset.positionMode === "custom") {
-            const rect = minimapPanel.getBoundingClientRect();
-            applyMinimapPosition(rect.left, rect.top);
-          } else {
-            placeMinimapUnderToolbar();
+        if (viewportResizeFrame) return;
+        viewportResizeFrame = requestAnimationFrame(() => {
+          viewportResizeFrame = 0;
+          drawEdges();
+          updateMinimapViewport();
+          if (minimapPanel) {
+            if (minimapPanel.dataset.positionMode === "custom") {
+              const rect = minimapPanel.getBoundingClientRect();
+              applyMinimapPosition(rect.left, rect.top);
+            } else {
+              placeMinimapUnderToolbar();
+            }
           }
-        }
+        });
       });
       viewport.addEventListener("scroll", updateMinimapViewport, { passive: true });
       document.addEventListener("pointerdown", startNodeDrag, true);

@@ -19,3 +19,7 @@ Nodes can be repositioned by dragging, with their connection lines and minimap
 positions following along. The navigation minimap can be repositioned from its
 frame. Day/night mode follows local time unless a visitor saves a preference;
 the toolbar adapts to mobile with a compact control row and reload control.
+On touch screens, two-finger pinching zooms the Canvas directly, nodes are not
+draggable, and the minimap has wider handles. At overview scale, node previews
+switch to labelled, hatched boxes to stay legible. Resizing the page updates
+the fitted map continuously without resetting a manually chosen zoom level.

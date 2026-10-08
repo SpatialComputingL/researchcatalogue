@@ -163,9 +163,10 @@
     const bounds = boundsForVisibleNodes();
     const availableWidth = Math.max(100, zoomViewport.clientWidth - 64);
     const availableHeight = Math.max(100, zoomViewport.clientHeight - 64);
-    const fitScale = Math.max(availableWidth / bounds.width, availableHeight / bounds.height);
+    const fitScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
     const maxScale = Math.max(focusedNodeScale, Math.min(1.1, Math.max(0.95, fitScale * 1.8)));
-    const minScale = zoomViewport.clientWidth <= 760 ? 0.08 : 0.35;
+    const preferredMinScale = zoomViewport.clientWidth <= 760 ? 0.12 : 0.35;
+    const minScale = Math.min(preferredMinScale, fitScale);
     return { minScale: Math.min(minScale, maxScale), maxScale };
   };
   const readCanvasMatrix = () => new DOMMatrixReadOnly(getComputedStyle(zoomCanvas).transform);
@@ -180,7 +181,21 @@
   let targetScale = readTargetScale();
   let focusedNodeScale = 0;
   let focusedNode = null;
+  const initialFitBounds = boundsForVisibleNodes();
+  const initialFitScale = Math.max(
+    zoomViewport.clientWidth <= 760 ? 0.12 : 0.08,
+    Math.min(
+      1,
+      (zoomViewport.clientWidth - 64) / initialFitBounds.width,
+      (zoomViewport.clientHeight - 96) / initialFitBounds.height,
+    ),
+  );
+  let fitToViewport = Math.abs(targetScale - initialFitScale) < 0.015;
   zoomCanvas.style.transform = `scale(${targetScale})`;
+  zoomCanvas.querySelectorAll(".node[data-node-id]").forEach((node) => {
+    const title = node.querySelector(".md-card-title")?.textContent?.trim();
+    if (title) node.setAttribute("data-overview-title", title);
+  });
   const updateCanvasExtent = (scale = targetScale) => {
     canvasExtent.style.width = `${zoomCanvas.offsetWidth * scale}px`;
     canvasExtent.style.height = `${zoomCanvas.offsetHeight * scale}px`;
@@ -198,10 +213,13 @@
   const setRenderedScale = (scale) => {
     targetScale = scale;
     zoomCanvas.style.transform = `scale(${scale})`;
+    zoomCanvas.style.setProperty("--canvas-scale", String(scale));
+    document.body.classList.toggle("canvas-overview", scale <= 0.26);
     updateCanvasExtent(scale);
   };
+  setRenderedScale(targetScale);
 
-  const setScaleAtWorldPoint = (nextScale, worldPoint, anchor) => {
+  const setScaleAtWorldPoint = (nextScale, worldPoint, anchor, immediate = false) => {
     cancelZoomAnimation();
     const previousTargetScale = targetScale;
     const viewportRect = zoomViewport.getBoundingClientRect();
@@ -214,7 +232,7 @@
     const anchorX = anchor.x - viewportRect.left - zoomViewport.clientLeft;
     const anchorY = anchor.y - viewportRect.top - zoomViewport.clientTop;
     const startTime = performance.now();
-    const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 120;
+    const duration = immediate || matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 120;
     let appliedScale = previousTargetScale;
     const renderFrame = (time) => {
       const progress = duration === 0 ? 1 : Math.min(1, (time - startTime) / duration);
@@ -241,7 +259,8 @@
     if (duration === 0) renderFrame(startTime);
     else zoomAnimationFrame = requestAnimationFrame(renderFrame);
   };
-  window.zoomBy = (factor, anchor) => {
+  window.zoomBy = (factor, anchor, immediate = false, preserveFit = false) => {
+    if (!preserveFit) fitToViewport = false;
     const rect = zoomCanvas.getBoundingClientRect();
     const viewportRect = zoomViewport.getBoundingClientRect();
     const matrix = readCanvasMatrix();
@@ -254,8 +273,43 @@
     const pointX = anchor?.x ?? viewportRect.left + viewportRect.width / 2;
     const pointY = anchor?.y ?? viewportRect.top + viewportRect.height / 2;
     const anchorWorld = { x: (pointX - rect.left) / visualScale, y: (pointY - rect.top) / visualScale };
-    setScaleAtWorldPoint(nextScale, anchorWorld, { x: pointX, y: pointY });
+    setScaleAtWorldPoint(nextScale, anchorWorld, { x: pointX, y: pointY }, immediate);
   };
+
+  let activeCanvasPinch = null;
+  const touchDistance = (touches) => Math.hypot(
+    touches[0].clientX - touches[1].clientX,
+    touches[0].clientY - touches[1].clientY,
+  );
+  const touchMidpoint = (touches) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  });
+  zoomViewport.addEventListener("touchstart", (event) => {
+    if (event.touches.length < 2) return;
+    event.preventDefault();
+    activeCanvasPinch = {
+      distance: touchDistance(event.touches),
+    };
+  }, { passive: false });
+  zoomViewport.addEventListener("touchmove", (event) => {
+    if (event.touches.length < 2) {
+      activeCanvasPinch = null;
+      return;
+    }
+    event.preventDefault();
+    const distance = touchDistance(event.touches);
+    const anchor = touchMidpoint(event.touches);
+    if (activeCanvasPinch && activeCanvasPinch.distance > 0 && distance > 0) {
+      window.zoomBy(distance / activeCanvasPinch.distance, anchor, true);
+    }
+    activeCanvasPinch = { distance };
+  }, { passive: false });
+  const endCanvasPinch = (event) => {
+    if (event.touches.length < 2) activeCanvasPinch = null;
+  };
+  zoomViewport.addEventListener("touchend", endCanvasPinch, { passive: true });
+  zoomViewport.addEventListener("touchcancel", endCanvasPinch, { passive: true });
 
   const nodeForLink = (link) => {
     let path;
@@ -302,6 +356,7 @@
     };
     focusedNodeScale = scale;
     focusedNode = node;
+    fitToViewport = false;
     setScaleAtWorldPoint(scale, center, centerClient);
     window.closeContents?.();
   };
@@ -309,6 +364,15 @@
     if (!(event.target instanceof Element)) return;
     if (Date.now() <= (window.__canvasSuppressClickUntil || 0)) return;
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (document.body.classList.contains("canvas-overview")) {
+      const overviewNode = event.target.closest(".node[data-node-id]");
+      if (overviewNode) {
+        event.preventDefault();
+        event.stopPropagation();
+        zoomToNode(overviewNode);
+        return;
+      }
+    }
     const link = event.target.closest("a[href]");
     if (!link) return;
     const node = nodeForLink(link);
@@ -353,10 +417,12 @@
   }
   if (typeof originalResetZoom === "function") {
     window.resetZoom = () => {
+      fitToViewport = true;
       focusedNodeScale = 0;
       focusedNode = null;
       const bounds = boundsForVisibleNodes();
-      const scale = Math.max(0.08, Math.min(
+      const minimumScale = zoomViewport.clientWidth <= 760 ? 0.12 : 0.08;
+      const scale = Math.max(minimumScale, Math.min(
         1,
         (zoomViewport.clientWidth - 64) / bounds.width,
         (zoomViewport.clientHeight - 96) / bounds.height,
@@ -370,23 +436,70 @@
       setScaleAtWorldPoint(scale, center, anchor);
     };
   }
-  let resizeTimer = 0;
-  window.addEventListener("resize", () => {
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => {
-      if (focusedNode) {
-        zoomToNode(focusedNode);
-        return;
-      }
-      const limits = zoomLimits();
-      if (targetScale > limits.maxScale) {
-        window.zoomBy(limits.maxScale / targetScale);
-      } else {
-        updateCanvasExtent(targetScale);
-        zoomViewport.scrollLeft = Math.min(zoomViewport.scrollLeft, zoomViewport.scrollWidth - zoomViewport.clientWidth);
-        zoomViewport.scrollTop = Math.min(zoomViewport.scrollTop, zoomViewport.scrollHeight - zoomViewport.clientHeight);
-        refreshMinimap();
-      }
-    }, 80);
+  let previousViewportWidth = zoomViewport.getBoundingClientRect().width;
+  let previousViewportHeight = zoomViewport.getBoundingClientRect().height;
+  const resizeObserver = new ResizeObserver(() => {
+    const viewportRect = zoomViewport.getBoundingClientRect();
+    const nextWidth = viewportRect.width;
+    const nextHeight = viewportRect.height;
+    const clientWidth = zoomViewport.clientWidth;
+    const widthRatio = nextWidth / Math.max(1, previousViewportWidth);
+    const heightRatio = nextHeight / Math.max(1, previousViewportHeight);
+    previousViewportWidth = nextWidth;
+    previousViewportHeight = nextHeight;
+    if (widthRatio === 1 && heightRatio === 1) return;
+    if (focusedNode) {
+      const bounds = {
+        left: Number(focusedNode.dataset.canvasLeft),
+        top: Number(focusedNode.dataset.canvasTop),
+        width: Number(focusedNode.dataset.canvasWidth),
+        height: Number(focusedNode.dataset.canvasHeight),
+      };
+      const scale = Math.max(0.2, Math.min(
+        (zoomViewport.clientWidth - 64) / bounds.width,
+        (zoomViewport.clientHeight - 96) / bounds.height,
+        2.25,
+      ));
+      focusedNodeScale = scale;
+      setScaleAtWorldPoint(
+        scale,
+        { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
+        {
+          x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
+          y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
+        },
+        true,
+      );
+      return;
+    }
+    const limits = zoomLimits();
+    if (fitToViewport) {
+      const bounds = boundsForVisibleNodes();
+      const fitScale = Math.max(
+        limits.minScale,
+        Math.min(
+          limits.maxScale,
+          1,
+          (zoomViewport.clientWidth - 64) / bounds.width,
+          (zoomViewport.clientHeight - 96) / bounds.height,
+        ),
+      );
+      setScaleAtWorldPoint(
+        fitScale,
+        { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
+        {
+          x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
+          y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
+        },
+        true,
+      );
+      return;
+    }
+    const resizeFactor = Math.min(widthRatio, heightRatio);
+    window.zoomBy(resizeFactor, {
+      x: viewportRect.left + zoomViewport.clientLeft + clientWidth / 2,
+      y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
+    }, true, true);
   });
+  resizeObserver.observe(zoomViewport);
 })();
