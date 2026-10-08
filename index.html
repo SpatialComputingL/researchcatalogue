@@ -6,8 +6,9 @@
   <meta name="generator" content="canvas-html-exporter v1.6.0">
   <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
   <base href="./">
-  <title>researchcatalogue</title>
+  <title>Spatial Computing Lab</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
+  <link rel="stylesheet" href="./site.css">
   <style>
     :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); --contents-panel-width: min(420px, calc(100vw - 32px)); }
     * { box-sizing: border-box; }
@@ -62,35 +63,6 @@
     .viewport.is-zoom-area-selecting {
       cursor: crosshair;
       user-select: none;
-    }
-    .zoom-area-selection {
-      position: fixed;
-      z-index: 1000;
-      box-sizing: border-box;
-      border: 2px solid #1967d2;
-      border-radius: 4px;
-      background: rgba(25, 103, 210, 0.14);
-      box-shadow: 0 0 0 1px #ffffff;
-      pointer-events: none;
-    }
-    .zoom-area-selection[hidden] {
-      display: none;
-    }
-    .zoom-area-hint {
-      position: fixed;
-      z-index: 1001;
-      transform: translateX(-50%);
-      padding: 6px 10px;
-      border: 1px solid #c8d0da;
-      border-radius: 6px;
-      background: #ffffff;
-      color: #24303d;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
-      font-size: 0.85rem;
-      pointer-events: none;
-    }
-    .zoom-area-hint[hidden] {
-      display: none;
     }
     #canvas {
       position: relative;
@@ -1721,8 +1693,6 @@
     </div>
   </div>
   <div class="viewport">
-    <div id="zoom-area-selection" class="zoom-area-selection" hidden></div>
-    <div id="zoom-area-hint" class="zoom-area-hint" role="status" hidden>Release to zoom · Esc to cancel</div>
     <div id="canvas">
       <svg id="edge-layer"></svg>
       <div
@@ -1948,8 +1918,6 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       const edgeLayer = document.getElementById("edge-layer");
       const canvas = document.getElementById("canvas");
       const viewport = document.querySelector(".viewport");
-      const zoomAreaSelection = document.getElementById("zoom-area-selection");
-      const zoomAreaHint = document.getElementById("zoom-area-hint");
       const singlePageView = document.getElementById("single-page-view");
       const singlePageBody = document.getElementById("single-page-body");
       const singlePageToolbar = document.getElementById("single-page-toolbar");
@@ -2277,8 +2245,9 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       function scrollViewportToCanvasPoint(x, y, behavior) {
         const canvasRect = canvas.getBoundingClientRect();
         const viewportRect = viewport.getBoundingClientRect();
-        const canvasLeft = canvasRect.left - viewportRect.left + viewport.scrollLeft;
-        const canvasTop = canvasRect.top - viewportRect.top + viewport.scrollTop;
+        const transform = new DOMMatrixReadOnly(getComputedStyle(canvas).transform);
+        const canvasLeft = canvasRect.left - viewportRect.left + viewport.scrollLeft - transform.e;
+        const canvasTop = canvasRect.top - viewportRect.top + viewport.scrollTop - transform.f;
         const targetLeft = canvasLeft + x * currentScale - viewport.clientWidth / 2;
         const targetTop = canvasTop + y * currentScale - viewport.clientHeight / 2;
         viewport.scrollTo({
@@ -3018,9 +2987,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       function placeMinimapUnderToolbar() {
         if (!minimapPanel) return;
         const toolbarRect = toolbar ? toolbar.getBoundingClientRect() : null;
-        const panelWidth = minimapPanel.offsetWidth || 240;
         const top = (toolbarRect ? toolbarRect.bottom : 48) + 8;
-        const left = window.innerWidth - panelWidth - 24;
+        const left = 8;
         applyMinimapPosition(left, top);
       }
 
@@ -3936,8 +3904,6 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         }
         if (suppressClick && zoomAreaDrag) suppressZoomAreaClick();
         zoomAreaDrag = null;
-        if (zoomAreaSelection) zoomAreaSelection.hidden = true;
-        if (zoomAreaHint) zoomAreaHint.hidden = true;
         viewport.classList.remove("is-zoom-area-selecting");
       }
 
@@ -3949,38 +3915,20 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         };
       }
 
-      function renderZoomAreaSelection(endPoint) {
-        if (!zoomAreaSelection || !zoomAreaDrag || !zoomAreaDrag.active) return null;
-        const left = Math.min(zoomAreaDrag.startX, endPoint.x);
-        const top = Math.min(zoomAreaDrag.startY, endPoint.y);
-        const width = Math.abs(endPoint.x - zoomAreaDrag.startX);
-        const height = Math.abs(endPoint.y - zoomAreaDrag.startY);
-        zoomAreaSelection.hidden = false;
-        zoomAreaSelection.style.left = left + "px";
-        zoomAreaSelection.style.top = top + "px";
-        zoomAreaSelection.style.width = width + "px";
-        zoomAreaSelection.style.height = height + "px";
-        return { left, top, width, height };
-      }
-
       function startZoomAreaSelection(event) {
         if (event.pointerType !== "mouse" || event.button !== 0) return;
         const target = event.target instanceof Element ? event.target : null;
-        if (target?.closest("a, button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
+        if (target?.closest("button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
         const point = getZoomAreaPoint(event);
         cancelledZoomAreaPointerId = null;
         zoomAreaDrag = {
           pointerId: event.pointerId,
           startX: point.x,
           startY: point.y,
+          startScrollLeft: viewport.scrollLeft,
+          startScrollTop: viewport.scrollTop,
           active: false,
         };
-        if (zoomAreaHint) {
-          const viewportRect = viewport.getBoundingClientRect();
-          zoomAreaHint.style.left = viewportRect.left + viewportRect.width / 2 + "px";
-          zoomAreaHint.style.top = viewportRect.top + 12 + "px";
-          zoomAreaHint.hidden = false;
-        }
       }
 
       function moveZoomAreaSelection(event) {
@@ -4001,7 +3949,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
             viewport.setPointerCapture(event.pointerId);
           }
         }
-        renderZoomAreaSelection(point);
+        viewport.scrollLeft = zoomAreaDrag.startScrollLeft + zoomAreaDrag.startX - point.x;
+        viewport.scrollTop = zoomAreaDrag.startScrollTop + zoomAreaDrag.startY - point.y;
         event.preventDefault();
       }
 
@@ -4018,38 +3967,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
           cancelZoomAreaDrag();
           return;
         }
-        const selection = renderZoomAreaSelection(getZoomAreaPoint(event));
-        const canvasRect = canvas.getBoundingClientRect();
-        const scaleBeforeZoom = currentScale;
-        const selectedCanvasArea = selection && selection.width >= 12 && selection.height >= 12
-          ? {
-            centerX: (selection.left + selection.width / 2 - canvasRect.left) / scaleBeforeZoom,
-            centerY: (selection.top + selection.height / 2 - canvasRect.top) / scaleBeforeZoom,
-            width: selection.width / scaleBeforeZoom,
-            height: selection.height / scaleBeforeZoom,
-          }
-          : null;
+        window.__canvasSuppressClickUntil = Date.now() + 150;
         cancelZoomAreaDrag(true);
-        if (selectedCanvasArea === null) return;
-
-        const availableWidth = Math.max(100, viewport.clientWidth - 48);
-        const availableHeight = Math.max(100, viewport.clientHeight - 48);
-        currentScale = clamp(
-          Math.min(
-            availableWidth / selectedCanvasArea.width,
-            availableHeight / selectedCanvasArea.height,
-          ),
-          0.2,
-          4,
-        );
-        setCssProps(canvas, { transform: "scale(" + currentScale + ")" });
-        drawEdges();
-        scrollViewportToCanvasPoint(
-          selectedCanvasArea.centerX,
-          selectedCanvasArea.centerY,
-          "auto",
-        );
-        event.preventDefault();
       }
 
       window.zoomBy = function(factor) {
@@ -4316,5 +4235,6 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
 
     })();
   </script>
+  <script src="./site.js"></script>
 </body>
 </html>
