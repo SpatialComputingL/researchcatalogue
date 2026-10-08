@@ -5,6 +5,39 @@
   if (!navigationButton || !contentsOverlay || !contentsPanel) return;
 
   const toolbar = document.querySelector(".toolbar");
+  const toolbarButtons = [...(toolbar?.querySelectorAll(":scope > button") || [])];
+  toolbarButtons[0]?.classList.add("zoom-out-button");
+  toolbarButtons[1]?.classList.add("zoom-in-button");
+  toolbarButtons[2]?.classList.add("reset-zoom-button");
+  const themeButton = document.createElement("button");
+  themeButton.type = "button";
+  themeButton.id = "theme-toggle-button";
+  themeButton.className = "theme-toggle-button";
+  const savedTheme = localStorage.getItem("spatial-lab-theme");
+  const initialTheme = savedTheme === "night" || (savedTheme !== "day" && (new Date().getHours() < 7 || new Date().getHours() >= 18));
+  document.body.classList.toggle("theme-night", initialTheme);
+  const syncThemeButton = () => {
+    const isNight = document.body.classList.contains("theme-night");
+    themeButton.setAttribute("aria-pressed", String(isNight));
+    themeButton.setAttribute("aria-label", isNight ? "Enable light mode" : "Enable night mode");
+    themeButton.innerHTML = isNight
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15.1A8.4 8.4 0 0 1 8.9 3.8 8.7 8.7 0 1 0 20.2 15.1Z"></path></svg>';
+  };
+  syncThemeButton();
+  themeButton.addEventListener("click", () => {
+    document.body.classList.toggle("theme-night");
+    localStorage.setItem("spatial-lab-theme", document.body.classList.contains("theme-night") ? "night" : "day");
+    syncThemeButton();
+  });
+  const reloadButton = document.createElement("button");
+  reloadButton.type = "button";
+  reloadButton.id = "mobile-reload-button";
+  reloadButton.className = "mobile-reload-button";
+  reloadButton.setAttribute("aria-label", "Reload canvas");
+  reloadButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"></path><path d="M19 12a7 7 0 1 1-2.05-4.95L20 12"></path></svg>';
+  reloadButton.addEventListener("click", () => window.location.reload());
+
   let toolbarHideTimer = 0;
   const hideToolbar = () => {
     window.clearTimeout(toolbarHideTimer);
@@ -15,7 +48,7 @@
   const showToolbar = () => toolbar?.classList.remove("is-hidden");
   hideToolbar();
   window.addEventListener("pointermove", (event) => {
-    if (event.clientY <= 24) {
+    if (event.clientY <= (window.matchMedia("(max-width: 760px)").matches ? 42 : 24)) {
       showToolbar();
       hideToolbar();
     }
@@ -91,6 +124,7 @@
   const originalZoomBy = window.zoomBy;
   const originalResetZoom = window.resetZoom;
   if (!zoomViewport || !zoomCanvas || typeof originalZoomBy !== "function") return;
+  zoomViewport.append(themeButton, reloadButton);
   const canvasExtent = document.createElement("div");
   canvasExtent.className = "canvas-extent";
   zoomCanvas.before(canvasExtent);
@@ -131,7 +165,8 @@
     const availableHeight = Math.max(100, zoomViewport.clientHeight - 64);
     const fitScale = Math.max(availableWidth / bounds.width, availableHeight / bounds.height);
     const maxScale = Math.max(focusedNodeScale, Math.min(1.1, Math.max(0.95, fitScale * 1.8)));
-    return { minScale: Math.min(0.35, maxScale), maxScale };
+    const minScale = zoomViewport.clientWidth <= 760 ? 0.08 : 0.35;
+    return { minScale: Math.min(minScale, maxScale), maxScale };
   };
   const readCanvasMatrix = () => new DOMMatrixReadOnly(getComputedStyle(zoomCanvas).transform);
   const readCanvasScale = () => {
@@ -144,54 +179,68 @@
   };
   let targetScale = readTargetScale();
   let focusedNodeScale = 0;
-  zoomCanvas.style.transform = `translate(0px, 0px) scale(${targetScale})`;
+  let focusedNode = null;
+  zoomCanvas.style.transform = `scale(${targetScale})`;
   const updateCanvasExtent = (scale = targetScale) => {
     canvasExtent.style.width = `${zoomCanvas.offsetWidth * scale}px`;
     canvasExtent.style.height = `${zoomCanvas.offsetHeight * scale}px`;
   };
   updateCanvasExtent();
-  let clampingScroll = false;
-  let refreshingMinimap = false;
   const refreshMinimap = () => {
-    refreshingMinimap = true;
     zoomViewport.dispatchEvent(new Event("scroll"));
-    refreshingMinimap = false;
   };
-  const constrainViewportScroll = () => {
-    if (clampingScroll || refreshingMinimap) return;
-    const bounds = boundsForVisibleNodes();
+  let zoomAnimationFrame = 0;
+  const cancelZoomAnimation = () => {
+    if (!zoomAnimationFrame) return;
+    cancelAnimationFrame(zoomAnimationFrame);
+    zoomAnimationFrame = 0;
+  };
+  const setRenderedScale = (scale) => {
+    targetScale = scale;
+    zoomCanvas.style.transform = `scale(${scale})`;
+    updateCanvasExtent(scale);
+  };
+
+  const setScaleAtWorldPoint = (nextScale, worldPoint, anchor) => {
+    cancelZoomAnimation();
+    const previousTargetScale = targetScale;
     const viewportRect = zoomViewport.getBoundingClientRect();
     const canvasRect = zoomCanvas.getBoundingClientRect();
     const matrix = readCanvasMatrix();
-    const scale = Math.hypot(matrix.a, matrix.b);
-    const originX = canvasRect.left - viewportRect.left + zoomViewport.scrollLeft - matrix.e;
-    const originY = canvasRect.top - viewportRect.top + zoomViewport.scrollTop - matrix.f;
-    const margin = 96;
-    const maxLeft = zoomViewport.scrollWidth - zoomViewport.clientWidth;
-    const maxTop = zoomViewport.scrollHeight - zoomViewport.clientHeight;
-    const minAllowedLeft = originX + bounds.left * scale - margin;
-    const maxAllowedLeft = originX + bounds.right * scale - zoomViewport.clientWidth + margin;
-    const minAllowedTop = originY + bounds.top * scale - margin;
-    const maxAllowedTop = originY + bounds.bottom * scale - zoomViewport.clientHeight + margin;
-    const minLeft = Math.min(maxLeft, Math.max(0, minAllowedLeft));
-    const maxLeftValue = Math.max(minLeft, Math.min(maxLeft, maxAllowedLeft));
-    const minTop = Math.min(maxTop, Math.max(0, minAllowedTop));
-    const maxTopValue = Math.max(minTop, Math.min(maxTop, maxAllowedTop));
-    const left = Math.min(maxLeftValue, Math.max(minLeft, zoomViewport.scrollLeft));
-    const top = Math.min(maxTopValue, Math.max(minTop, zoomViewport.scrollTop));
-    if (left === zoomViewport.scrollLeft && top === zoomViewport.scrollTop) return;
-    clampingScroll = true;
-    zoomViewport.scrollLeft = left;
-    zoomViewport.scrollTop = top;
-    clampingScroll = false;
-  };
-  zoomViewport.addEventListener("scroll", constrainViewportScroll, { passive: true });
-  zoomCanvas.addEventListener("transitionend", (event) => {
-    if (event.target === zoomCanvas && event.propertyName === "transform") {
+    const originX = canvasRect.left - viewportRect.left - zoomViewport.clientLeft
+      + zoomViewport.scrollLeft - matrix.e;
+    const originY = canvasRect.top - viewportRect.top - zoomViewport.clientTop
+      + zoomViewport.scrollTop - matrix.f;
+    const anchorX = anchor.x - viewportRect.left - zoomViewport.clientLeft;
+    const anchorY = anchor.y - viewportRect.top - zoomViewport.clientTop;
+    const startTime = performance.now();
+    const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 120;
+    let appliedScale = previousTargetScale;
+    const renderFrame = (time) => {
+      const progress = duration === 0 ? 1 : Math.min(1, (time - startTime) / duration);
+      const easedProgress = 1 - (1 - progress) ** 3;
+      const scale = previousTargetScale + (nextScale - previousTargetScale) * easedProgress;
+      originalZoomBy(scale / appliedScale);
+      appliedScale = scale;
+      setRenderedScale(scale);
+      zoomViewport.scrollLeft = Math.max(0, Math.min(
+        zoomViewport.scrollWidth - zoomViewport.clientWidth,
+        originX + worldPoint.x * scale - anchorX,
+      ));
+      zoomViewport.scrollTop = Math.max(0, Math.min(
+        zoomViewport.scrollHeight - zoomViewport.clientHeight,
+        originY + worldPoint.y * scale - anchorY,
+      ));
       refreshMinimap();
-    }
-  });
-
+      if (progress < 1) {
+        zoomAnimationFrame = requestAnimationFrame(renderFrame);
+      } else {
+        zoomAnimationFrame = 0;
+      }
+    };
+    if (duration === 0) renderFrame(startTime);
+    else zoomAnimationFrame = requestAnimationFrame(renderFrame);
+  };
   window.zoomBy = (factor, anchor) => {
     const rect = zoomCanvas.getBoundingClientRect();
     const viewportRect = zoomViewport.getBoundingClientRect();
@@ -205,14 +254,7 @@
     const pointX = anchor?.x ?? viewportRect.left + viewportRect.width / 2;
     const pointY = anchor?.y ?? viewportRect.top + viewportRect.height / 2;
     const anchorWorld = { x: (pointX - rect.left) / visualScale, y: (pointY - rect.top) / visualScale };
-    const nextTranslateX = matrix.e + anchorWorld.x * (visualScale - nextScale);
-    const nextTranslateY = matrix.f + anchorWorld.y * (visualScale - nextScale);
-    const previousTargetScale = targetScale;
-    targetScale = nextScale;
-    originalZoomBy(nextScale / previousTargetScale);
-    zoomCanvas.style.transform = `translate(${nextTranslateX}px, ${nextTranslateY}px) scale(${nextScale})`;
-    updateCanvasExtent(nextScale);
-    refreshMinimap();
+    setScaleAtWorldPoint(nextScale, anchorWorld, { x: pointX, y: pointY });
   };
 
   const nodeForLink = (link) => {
@@ -248,30 +290,19 @@
       height: Number(node.dataset.canvasHeight),
     };
     const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
-    const scale = Math.min(
+    const scale = Math.max(0.2, Math.min(
       (zoomViewport.clientWidth - 64) / bounds.width,
-      (zoomViewport.clientHeight - 64) / bounds.height,
-      4,
-    );
-    const rect = zoomCanvas.getBoundingClientRect();
+      (zoomViewport.clientHeight - 96) / bounds.height,
+      2.25,
+    ));
     const viewportRect = zoomViewport.getBoundingClientRect();
-    const matrix = readCanvasMatrix();
-    const currentVisualScale = Math.hypot(matrix.a, matrix.b);
     const centerClient = {
-      x: viewportRect.left + zoomViewport.clientWidth / 2,
-      y: viewportRect.top + zoomViewport.clientHeight / 2,
+      x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
+      y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
     };
-    const targetTranslateX = matrix.e + centerClient.x - (rect.left + center.x * currentVisualScale)
-      + center.x * (currentVisualScale - scale);
-    const targetTranslateY = matrix.f + centerClient.y - (rect.top + center.y * currentVisualScale)
-      + center.y * (currentVisualScale - scale);
-    const previousTargetScale = targetScale;
     focusedNodeScale = scale;
-    targetScale = scale;
-    originalZoomBy(scale / previousTargetScale);
-    zoomCanvas.style.transform = `translate(${targetTranslateX}px, ${targetTranslateY}px) scale(${scale})`;
-    updateCanvasExtent(scale);
-    refreshMinimap();
+    focusedNode = node;
+    setScaleAtWorldPoint(scale, center, centerClient);
     window.closeContents?.();
   };
   document.addEventListener("click", (event) => {
@@ -304,6 +335,15 @@
     window.zoomBy(Math.exp(-delta * 0.002), { x: event.clientX, y: event.clientY });
   }, { passive: false });
 
+  zoomViewport.addEventListener("pointerdown", (event) => {
+    if (event.target !== zoomViewport) return;
+    const rect = zoomViewport.getBoundingClientRect();
+    if (
+      event.clientX >= rect.left + zoomViewport.clientWidth - 16
+      || event.clientY >= rect.top + zoomViewport.clientHeight - 16
+    ) cancelZoomAnimation();
+  }, true);
+
   const limits = zoomLimits();
   if (targetScale < limits.minScale || targetScale > limits.maxScale) {
     window.zoomBy(limits.minScale / targetScale, {
@@ -314,19 +354,39 @@
   if (typeof originalResetZoom === "function") {
     window.resetZoom = () => {
       focusedNodeScale = 0;
-      originalResetZoom();
-      targetScale = readTargetScale();
-      zoomCanvas.style.transform = `translate(0px, 0px) scale(${targetScale})`;
-      updateCanvasExtent(targetScale);
-      const updatedLimits = zoomLimits();
-      const nextScale = Math.max(updatedLimits.minScale, Math.min(updatedLimits.maxScale, targetScale));
-      if (Math.abs(nextScale - targetScale) >= 0.0001) {
-        const viewportRect = zoomViewport.getBoundingClientRect();
-        const center = { x: viewportRect.left + viewportRect.width / 2, y: viewportRect.top + viewportRect.height / 2 };
-        window.zoomBy(nextScale / targetScale, center);
-      } else {
-        refreshMinimap();
-      }
+      focusedNode = null;
+      const bounds = boundsForVisibleNodes();
+      const scale = Math.max(0.08, Math.min(
+        1,
+        (zoomViewport.clientWidth - 64) / bounds.width,
+        (zoomViewport.clientHeight - 96) / bounds.height,
+      ));
+      const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+      const viewportRect = zoomViewport.getBoundingClientRect();
+      const anchor = {
+        x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
+        y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
+      };
+      setScaleAtWorldPoint(scale, center, anchor);
     };
   }
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      if (focusedNode) {
+        zoomToNode(focusedNode);
+        return;
+      }
+      const limits = zoomLimits();
+      if (targetScale > limits.maxScale) {
+        window.zoomBy(limits.maxScale / targetScale);
+      } else {
+        updateCanvasExtent(targetScale);
+        zoomViewport.scrollLeft = Math.min(zoomViewport.scrollLeft, zoomViewport.scrollWidth - zoomViewport.clientWidth);
+        zoomViewport.scrollTop = Math.min(zoomViewport.scrollTop, zoomViewport.scrollHeight - zoomViewport.clientHeight);
+        refreshMinimap();
+      }
+    }, 80);
+  });
 })();

@@ -1877,6 +1877,10 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       <rect class="minimap-node" data-node-id="e23741857121f4b0" x="120" y="120" width="700" height="520" rx="10" ry="10" fill="rgba(36,48,61,0.08)" stroke="#c8d0da"></rect>
       <rect id="minimap-viewport" class="minimap-viewport" x="0" y="0" width="0" height="0"></rect>
     </svg>
+    <div class="minimap-drag-zone minimap-drag-zone-top" aria-hidden="true"></div>
+    <div class="minimap-drag-zone minimap-drag-zone-right" aria-hidden="true"></div>
+    <div class="minimap-drag-zone minimap-drag-zone-bottom" aria-hidden="true"></div>
+    <div class="minimap-drag-zone minimap-drag-zone-left" aria-hidden="true"></div>
   </aside>
   <div id="search-overlay" class="search-overlay" hidden>
     <div class="search-panel" role="dialog" aria-modal="true" aria-labelledby="search-title" aria-describedby="search-scope search-summary">
@@ -1975,6 +1979,8 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       let visibleLevelLimit = null;
       let currentScale = 1;
       let zoomAreaDrag = null;
+      let nodeDrag = null;
+      let nodeDragFrame = 0;
       let cancelledZoomAreaPointerId = null;
       let suppressNextZoomAreaClick = false;
       let minimapDrag = null;
@@ -2242,17 +2248,113 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         minimapViewport.setAttribute("height", String(clamp(visible.height, 0, 2420)));
       }
 
+      function syncMinimapNodePosition(node) {
+        const id = node.getAttribute("data-node-id");
+        const minimapNode = id && minimapSvg?.querySelector(`.minimap-node[data-node-id="${id}"]`);
+        if (!minimapNode) return;
+        minimapNode.setAttribute("x", node.getAttribute("data-canvas-left") || "0");
+        minimapNode.setAttribute("y", node.getAttribute("data-canvas-top") || "0");
+      }
+
+      function getCanvasScale() {
+        const matrix = new DOMMatrixReadOnly(getComputedStyle(canvas).transform);
+        return Math.max(0.001, Math.hypot(matrix.a, matrix.b));
+      }
+
+      function startNodeDrag(event) {
+        if (event.button !== 0 || nodeDrag) return;
+        const target = event.target instanceof Element ? event.target : null;
+        const node = target?.closest(".node[data-node-id]");
+        if (!node || target?.closest("button, input, select, textarea, [contenteditable='true']")) return;
+        if (event.pointerType === "touch" && target.closest(".node-content")) return;
+        if (target.closest(
+          ".node-content p, .node-content li, .node-content h1, .node-content h2, .node-content h3, " +
+          ".node-content h4, .node-content h5, .node-content h6, .node-content a, .node-content pre, " +
+          ".node-content code, .node-content blockquote",
+        )) return;
+        nodeDrag = {
+          node,
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: parseFloat(node.getAttribute("data-canvas-left") || "0"),
+          startTop: parseFloat(node.getAttribute("data-canvas-top") || "0"),
+          active: false,
+          latestX: event.clientX,
+          latestY: event.clientY,
+        };
+      }
+
+      function moveNodeDrag(event) {
+        if (!nodeDrag || event.pointerId !== nodeDrag.pointerId || (event.buttons & 1) === 0) return;
+        nodeDrag.latestX = event.clientX;
+        nodeDrag.latestY = event.clientY;
+        if (
+          !nodeDrag.active
+          && Math.hypot(event.clientX - nodeDrag.startX, event.clientY - nodeDrag.startY) < 4
+        ) return;
+        if (!nodeDrag.active) {
+          nodeDrag.active = true;
+          nodeDrag.node.classList.add("is-node-dragging");
+          document.body.classList.add("is-dragging-node");
+        }
+        event.preventDefault();
+        if (nodeDragFrame) return;
+        nodeDragFrame = requestAnimationFrame(() => {
+          nodeDragFrame = 0;
+          if (!nodeDrag?.active) return;
+          const scale = getCanvasScale();
+          const left = nodeDrag.startLeft + (nodeDrag.latestX - nodeDrag.startX) / scale;
+          const top = nodeDrag.startTop + (nodeDrag.latestY - nodeDrag.startY) / scale;
+          nodeDrag.node.setAttribute("data-canvas-left", String(left));
+          nodeDrag.node.setAttribute("data-canvas-top", String(top));
+          nodeDrag.node.style.left = left + "px";
+          nodeDrag.node.style.top = top + "px";
+          syncMinimapNodePosition(nodeDrag.node);
+          edgeLayer.style.setProperty("--connection-flow-delay", `-${performance.now() % 420}ms`);
+          drawEdges();
+          updateMinimapViewport();
+        });
+      }
+
+      function stopNodeDrag(event) {
+        if (!nodeDrag || event.pointerId !== nodeDrag.pointerId) return;
+        if (nodeDrag.active) {
+          nodeDrag.latestX = event.clientX;
+          nodeDrag.latestY = event.clientY;
+          window.__canvasSuppressClickUntil = Date.now() + 150;
+          nodeDrag.node.classList.remove("is-node-dragging");
+          document.body.classList.remove("is-dragging-node");
+          edgeLayer.style.removeProperty("--connection-flow-delay");
+          if (nodeDragFrame) {
+            cancelAnimationFrame(nodeDragFrame);
+            nodeDragFrame = 0;
+          }
+          const scale = getCanvasScale();
+          const left = nodeDrag.startLeft + (nodeDrag.latestX - nodeDrag.startX) / scale;
+          const top = nodeDrag.startTop + (nodeDrag.latestY - nodeDrag.startY) / scale;
+          nodeDrag.node.setAttribute("data-canvas-left", String(left));
+          nodeDrag.node.setAttribute("data-canvas-top", String(top));
+          nodeDrag.node.style.left = left + "px";
+          nodeDrag.node.style.top = top + "px";
+          syncMinimapNodePosition(nodeDrag.node);
+          drawEdges();
+          updateMinimapViewport();
+        }
+        nodeDrag = null;
+      }
+
       function scrollViewportToCanvasPoint(x, y, behavior) {
         const canvasRect = canvas.getBoundingClientRect();
         const viewportRect = viewport.getBoundingClientRect();
         const transform = new DOMMatrixReadOnly(getComputedStyle(canvas).transform);
-        const canvasLeft = canvasRect.left - viewportRect.left + viewport.scrollLeft - transform.e;
-        const canvasTop = canvasRect.top - viewportRect.top + viewport.scrollTop - transform.f;
+        const canvasLeft = canvasRect.left - viewportRect.left - viewport.clientLeft + viewport.scrollLeft - transform.e;
+        const canvasTop = canvasRect.top - viewportRect.top - viewport.clientTop + viewport.scrollTop - transform.f;
         const targetLeft = canvasLeft + x * currentScale - viewport.clientWidth / 2;
         const targetTop = canvasTop + y * currentScale - viewport.clientHeight / 2;
         viewport.scrollTo({
-          left: Math.max(0, targetLeft),
-          top: Math.max(0, targetTop),
+          left: clamp(targetLeft, 0, Math.max(0, viewport.scrollWidth - viewport.clientWidth)),
+          top: clamp(targetTop, 0, Math.max(0, viewport.scrollHeight - viewport.clientHeight)),
           behavior: behavior || "auto",
         });
         window.requestAnimationFrame(updateMinimapViewport);
@@ -2290,7 +2392,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         if (!forceRestore && initialRestoreCanvasViewId !== navigationPageId) return false;
         const state = packageViewportStates[navigationPageId];
         if (!state) return false;
-        currentScale = clamp(state.scale, 0.2, 4);
+        currentScale = clamp(state.scale, 0.08, 4);
         setCssProps(canvas, { transform: "scale(" + currentScale + ")" });
         drawEdges();
         window.requestAnimationFrame(() => {
@@ -2965,11 +3067,11 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         if (!minimapPanel) return { left, top };
         const panelWidth = minimapPanel.offsetWidth;
         const panelHeight = minimapPanel.offsetHeight;
-        const maxLeft = Math.max(0, window.innerWidth - panelWidth - 8);
-        const maxTop = Math.max(0, window.innerHeight - panelHeight - 8);
+        const maxLeft = Math.max(0, window.innerWidth - panelWidth);
+        const maxTop = Math.max(0, window.innerHeight - panelHeight);
         return {
-          left: clamp(left, 8, maxLeft),
-          top: clamp(top, 8, maxTop),
+          left: clamp(left, 0, maxLeft),
+          top: clamp(top, 0, maxTop),
         };
       }
 
@@ -3861,30 +3963,37 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       };
 
       function startMinimapDrag(event) {
-        if (!minimapPanel || !minimapDragHandle) return;
+        if (!minimapPanel || !minimapSvg || event.button !== 0) return;
+        const mapRect = minimapSvg.getBoundingClientRect();
+        const grabMargin = 14;
+        const onFrame = event.clientX <= mapRect.left + grabMargin
+          || event.clientX >= mapRect.right - grabMargin
+          || event.clientY <= mapRect.top + grabMargin
+          || event.clientY >= mapRect.bottom - grabMargin;
+        if (!onFrame) return;
         const rect = minimapPanel.getBoundingClientRect();
         minimapDrag = {
           offsetX: event.clientX - rect.left,
           offsetY: event.clientY - rect.top,
+          pointerId: event.pointerId,
         };
         minimapPanel.classList.add("is-dragging");
-        minimapDragHandle.setPointerCapture(event.pointerId);
+        minimapPanel.setPointerCapture(event.pointerId);
         event.preventDefault();
+        event.stopPropagation();
       }
 
       function moveMinimap(event) {
-        if (!minimapDrag || !minimapPanel) return;
+        if (!minimapDrag || !minimapPanel || event.pointerId !== minimapDrag.pointerId) return;
         minimapPanel.dataset.positionMode = "custom";
         applyMinimapPosition(event.clientX - minimapDrag.offsetX, event.clientY - minimapDrag.offsetY);
       }
 
       function stopMinimapDrag(event) {
-        if (!minimapDrag || !minimapPanel || !minimapDragHandle) return;
+        if (!minimapDrag || !minimapPanel || event.pointerId !== minimapDrag.pointerId) return;
         minimapDrag = null;
         minimapPanel.classList.remove("is-dragging");
-        if (typeof event.pointerId === "number") {
-          minimapDragHandle.releasePointerCapture(event.pointerId);
-        }
+        if (minimapPanel.hasPointerCapture(event.pointerId)) minimapPanel.releasePointerCapture(event.pointerId);
       }
 
       function suppressZoomAreaClick() {
@@ -3895,13 +4004,6 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       }
 
       function cancelZoomAreaDrag(suppressClick = false) {
-        if (
-          zoomAreaDrag
-          && typeof viewport.hasPointerCapture === "function"
-          && viewport.hasPointerCapture(zoomAreaDrag.pointerId)
-        ) {
-          viewport.releasePointerCapture(zoomAreaDrag.pointerId);
-        }
         if (suppressClick && zoomAreaDrag) suppressZoomAreaClick();
         zoomAreaDrag = null;
         viewport.classList.remove("is-zoom-area-selecting");
@@ -3918,6 +4020,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       function startZoomAreaSelection(event) {
         if (event.pointerType !== "mouse" || event.button !== 0) return;
         const target = event.target instanceof Element ? event.target : null;
+        if (target?.closest(".node[data-node-id]")) return;
         if (target?.closest("button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
         const point = getZoomAreaPoint(event);
         cancelledZoomAreaPointerId = null;
@@ -3945,9 +4048,6 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         if (!zoomAreaDrag.active) {
           zoomAreaDrag.active = true;
           viewport.classList.add("is-zoom-area-selecting");
-          if (typeof viewport.setPointerCapture === "function") {
-            viewport.setPointerCapture(event.pointerId);
-          }
         }
         viewport.scrollLeft = zoomAreaDrag.startScrollLeft + zoomAreaDrag.startX - point.x;
         viewport.scrollTop = zoomAreaDrag.startScrollTop + zoomAreaDrag.startY - point.y;
@@ -3973,7 +4073,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
 
       window.zoomBy = function(factor) {
         cancelZoomAreaDrag();
-        currentScale = Math.max(0.2, Math.min(4, currentScale * factor));
+        currentScale = Math.max(0.08, Math.min(4, currentScale * factor));
         setCssProps(canvas, { transform: "scale(" + currentScale + ")" });
         drawEdges();
         updateMinimapViewport();
@@ -4049,12 +4149,19 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         }
       });
       viewport.addEventListener("scroll", updateMinimapViewport, { passive: true });
+      document.addEventListener("pointerdown", startNodeDrag, true);
+      window.addEventListener("pointermove", moveNodeDrag, { passive: false });
+      window.addEventListener("pointerup", stopNodeDrag);
+      window.addEventListener("pointercancel", stopNodeDrag);
       viewport.addEventListener("pointerdown", startZoomAreaSelection, true);
       viewport.addEventListener("dragstart", (event) => {
-        if (zoomAreaDrag) event.preventDefault();
+        if (zoomAreaDrag || nodeDrag?.active) event.preventDefault();
       });
       viewport.addEventListener("click", (event) => {
-        if (!suppressNextZoomAreaClick) return;
+        if (
+          !suppressNextZoomAreaClick
+          && Date.now() > (window.__canvasSuppressClickUntil || 0)
+        ) return;
         suppressNextZoomAreaClick = false;
         event.preventDefault();
         event.stopPropagation();
@@ -4065,9 +4172,7 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         cancelledZoomAreaPointerId = null;
         cancelZoomAreaDrag();
       });
-      if (minimapDragHandle) {
-        minimapDragHandle.addEventListener("pointerdown", startMinimapDrag);
-      }
+      if (minimapPanel) minimapPanel.addEventListener("pointerdown", startMinimapDrag, true);
       if (foldingMenu) {
         foldingMenu.addEventListener("mouseleave", () => {
           foldingMenu.removeAttribute("open");
