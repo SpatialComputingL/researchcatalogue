@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="canvas-html-exporter v1.6.0">
   <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
-  <title>wall_projection-README</title>
+  <title>CALC-README</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
     :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
@@ -315,14 +315,16 @@
       <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
-    <h1>wall_projection-README</h1>
-    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="wall-projection">Wall projection</h1></summary><p>The output to the lab&#39;s wall projectors.<br>
-Opens the projection window and tells you the resolution your image must have, at home and in the lab.</p>
-<p>In: 1 to 3 TOPs · Out: projection window and resolution (CHOP)</p>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Wire the resolution CHOP (resX, resY) into your own source TOP. Don&#39;t type numbers.</li><li>Wire your images in: input 1 left, 2 center, 3 right.</li><li>Choose a mode and press Configure.</li><li>Open Window to project, Close Window while editing.</li></ol></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>License: off = home resolution, on = full lab resolution</li><li>Panoramic projection: one wide image across the wall, uses input 1 only</li><li>Single projection: output to one projector only</li><li>Both off: three screens, left, center, right</li><li>Fit Input: what happens to an image of the wrong size</li><li>Output Resolution: readout of the current resolution</li><li>Configure: rebuilds after changing mode</li><li>Open Window, Close Window: opens or closes the projection</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Resolution CHOP: resX, resY for your source</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Small resolution: License is off (home setting).</li><li>Inputs 2 and 3 do nothing: Panoramic is on.</li><li>Stretched, cropped or black bars: your source isn&#39;t following the resolution CHOP.</li><li>Content on the wrong wall: order is left, center, right.</li><li>Nothing visible after a change: Configure, then Open Window.</li></ul></details></details>
+    <h1>CALC-README</h1>
+    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="calculations">Calculations</h1></summary><p>Measures how a point or shape relates to another point or shape:<br>
+distance, inside or outside, or a fade.<br>
+Typical use: a tracked hand and a virtual object.</p>
+<p>In: 2 POPs (point or shape) · Out: 1 CHOP</p>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Connect a point or shape to input 1, e.g. a tracked joint.</li><li>Connect a point or shape to input 2, e.g. a virtual object.</li><li>Turn on one calculation.</li><li>Read the result from the output CHOP.</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>Distance between points: distance between the centers of both inputs</li><li>Distance between shapes: distance to the surface of the shape(s)</li><li>In or outside of a shape: is input 1 inside input 2</li><li>Fade to sphere: soft value between the inner sphere and the outer shell</li></ul>
+<p>Only one can be on. The others grey out until you turn it off.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>center_dist: meters between the centers</li><li>shell_dist: meters to the surface, negative = inside</li><li>inside: 1 inside, 0 outside</li><li>fade: 1 inside the inner sphere, 0 outside the outer shell, smooth in between</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Fade to sphere greyed out: input 2 is not a sphere with Outer shell on.</li><li>Wrong distances: the shape is not closed (open side).</li><li>Box or cylinder distances a bit large near edges and corners: measured from the center outward.</li><li>Yellow warning inside the component with a point on input 1: harmless.</li></ul></details></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
     <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
@@ -338,7 +340,7 @@ Opens the projection window and tells you the resolution your image must have, a
   <script>
     (() => {
       
-      const navigationPageId = "root:page:assets/files/014_wall_projection-README.html";
+      const navigationPageId = "root:page:assets/files/017_CALC-README.html";
       const packageRootHref = "../../index.html";
       const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
       const contentsOverlay = document.getElementById("contents-overlay");

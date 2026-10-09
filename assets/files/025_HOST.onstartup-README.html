@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="canvas-html-exporter v1.6.0">
   <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
-  <title>wall_projection-README</title>
+  <title>HOST.onstartup-README</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
     :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
@@ -315,14 +315,19 @@
       <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
-    <h1>wall_projection-README</h1>
-    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="wall-projection">Wall projection</h1></summary><p>The output to the lab&#39;s wall projectors.<br>
-Opens the projection window and tells you the resolution your image must have, at home and in the lab.</p>
-<p>In: 1 to 3 TOPs · Out: projection window and resolution (CHOP)</p>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Wire the resolution CHOP (resX, resY) into your own source TOP. Don&#39;t type numbers.</li><li>Wire your images in: input 1 left, 2 center, 3 right.</li><li>Choose a mode and press Configure.</li><li>Open Window to project, Close Window while editing.</li></ol></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>License: off = home resolution, on = full lab resolution</li><li>Panoramic projection: one wide image across the wall, uses input 1 only</li><li>Single projection: output to one projector only</li><li>Both off: three screens, left, center, right</li><li>Fit Input: what happens to an image of the wrong size</li><li>Output Resolution: readout of the current resolution</li><li>Configure: rebuilds after changing mode</li><li>Open Window, Close Window: opens or closes the projection</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Resolution CHOP: resX, resY for your source</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Small resolution: License is off (home setting).</li><li>Inputs 2 and 3 do nothing: Panoramic is on.</li><li>Stretched, cropped or black bars: your source isn&#39;t following the resolution CHOP.</li><li>Content on the wrong wall: order is left, center, right.</li><li>Nothing visible after a change: Configure, then Open Window.</li></ul></details></details>
+    <h1>HOST.onstartup-README</h1>
+    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="kinect-host-hostonstartuptoe">Kinect host - HOST.onstartup.toe</h1></summary><p>Reads the three Azure Kinect sensors, puts them in room coordinates, merges them into one skeleton per person and sends everything to the lab network.<br>
+Runs on the Kinect NUC. Students never open it; this README is for whoever maintains it.</p>
+<p>In: 3 × Azure Kinect · Out: all joints of all people (OSC), camera images (NDI)</p>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Start the NUC. The project opens by itself at startup.</li><li>Check that the three Kinect Azure CHOPs show no error and that each shows data when someone stands in its view.</li><li>Inside <code>Sensor_Azure_Multiple_HOST</code>, check the Script CHOP <code>fusion</code>: no flag, <code>persons</code> counts the people in the room, and <code>heartbeat</code> keeps changing.</li><li>Walk through the room. You should stay <code>p1</code> the whole time, also when you pass from one sensor&#39;s view into another&#39;s.</li><li>Calibration check: set <code>DEBUG = True</code> at the top of <code>fusion_callbacks</code> and read the <code>spread</code> lines in the Textport (see Normal, not bugs).</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><p>On each Kinect Azure CHOP:</p>
+<ul><li>Max Players: how many bodies one sensor tracks. More bodies cost more GPU.</li><li>World Space Positions: on (positions in metres, before calibration)</li><li>Bone Confidence: on. The fusion uses it to prefer the sensor with the best view of each joint.</li></ul>
+<p>In the Transform XYZ CHOPs (<code>transformxyz_Y2</code>, <code>_Y19</code>, <code>_Y13</code>):</p>
+<ul><li>Translate and Rotate: the measured pose of that sensor. Only change these after moving a sensor.</li></ul>
+<p>At the top of <code>fusion_callbacks</code> (the fusion script):</p>
+<ul><li>MATCH_DIST (0.75 m): how far a person may move between two frames and still be the same person</li><li>MERGE_DIST (1.20 m): bodies from different sensors this close together are one person. Lower it once the calibration is tighter.</li><li>CONFIRM_FRAMES (5): frames a new person must be seen before getting a number</li><li>DROP_FRAMES (15): frames a person may be unseen before their number is released</li><li>MAX_SLOTS (8): highest person number, <code>p1</code> to <code>p8</code></li><li>DEBUG: prints the decisions once per second in the Textport</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li><code>p{N}/{joint}:tx ty tz</code>: every joint of every tracked person, metres, room frame (X width, Y height, Z depth)</li><li><code>p1/present</code> … <code>p8/present</code>: 1 while that person is tracked, always sent, also as 0</li><li><code>persons</code>: how many people are seen right now</li><li><code>heartbeat</code>: changes every frame while the host runs</li><li>OSC UDP 1030 (skeletons), 1031 (frame rate); NDI per sensor (AK1-3)</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>A person gets a different number after leaving and coming back: numbers belong to tracks, not to people.</li><li>Numbers don&#39;t follow the order people entered once someone leaves: a free number is reused, the lowest one first.</li><li>A new person appears about 0.2 s after entering: they must be seen for 5 frames first, so a one-frame glitch never takes a number.</li><li><code>spread</code> above 0.5 m in the debug lines: the calibration of that sensor pair is off. Re-measure the pose of the sensor that differs.</li><li>Hands are less steady than torso and head: the Kinect itself rates hands as uncertain. The fusion then averages all sensors.</li><li>Left and right hand swap when someone turns their back or pulls up their shoulders: the Kinect assumes everyone faces it. Not solved yet.</li><li>Dark hair, long hair, dark skin or dark clothing track worse: less infrared light comes back to the depth camera.</li><li>Two people hugging become one person for a moment: they are within merge distance.</li></ul></details></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
     <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
@@ -338,7 +343,7 @@ Opens the projection window and tells you the resolution your image must have, a
   <script>
     (() => {
       
-      const navigationPageId = "root:page:assets/files/014_wall_projection-README.html";
+      const navigationPageId = "root:page:assets/files/025_HOST.onstartup-README.html";
       const packageRootHref = "../../index.html";
       const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
       const contentsOverlay = document.getElementById("contents-overlay");

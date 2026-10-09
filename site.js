@@ -17,7 +17,7 @@
     previewFrame.loading = "lazy";
     previewFrame.src = previewUrl.href;
     modelContent.replaceChildren(openLink, previewFrame);
-    modelNode.classList.add("model-preview-node");
+    modelNode.classList.add("model-preview-node", "overview-orbit-node");
   }
 
   const navigationButton = document.querySelector("#contents-toolbar-button");
@@ -60,6 +60,48 @@
   reloadButton.setAttribute("aria-label", "Reframe canvas");
   reloadButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"></path><path d="M19 12a7 7 0 1 1-2.05-4.95L20 12"></path></svg>';
   reloadButton.addEventListener("click", () => window.reframeCanvas?.());
+  const controlGuide = document.createElement("div");
+  controlGuide.className = "canvas-controls-guide";
+  controlGuide.setAttribute("role", "note");
+  controlGuide.setAttribute("aria-label", "Canvas controls");
+  const controlGuideTrack = document.createElement("div");
+  controlGuideTrack.className = "canvas-controls-guide-track";
+  const controlGuideItems = [
+    "−/+ buttons: zoom",
+    "reload: reframe",
+    "two-finger scroll: pan",
+    "pinch: zoom",
+    "Ctrl/Cmd + scroll: zoom",
+    "Shift/Ctrl/Cmd + drag: zoom",
+    "Space: reframe",
+  ];
+  for (let copy = 0; copy < 2; copy += 1) {
+    const sequence = document.createElement("div");
+    sequence.className = "canvas-controls-guide-sequence";
+    if (copy) sequence.setAttribute("aria-hidden", "true");
+    for (const text of controlGuideItems) {
+      const item = document.createElement("span");
+      item.textContent = text;
+      sequence.append(item);
+    }
+    controlGuideTrack.append(sequence);
+  }
+  controlGuide.append(controlGuideTrack);
+  const zoomLevelIndicator = document.createElement("output");
+  zoomLevelIndicator.className = "zoom-level-indicator";
+  zoomLevelIndicator.setAttribute("aria-label", "Current zoom level");
+  zoomLevelIndicator.setAttribute("aria-live", "off");
+  document.body.append(zoomLevelIndicator);
+  const syncZoomIndicatorMenuState = () => {
+    zoomLevelIndicator.classList.toggle("is-menu-hidden", toolbar?.classList.contains("is-hidden") || false);
+  };
+  syncZoomIndicatorMenuState();
+  if (toolbar) {
+    new MutationObserver(syncZoomIndicatorMenuState).observe(toolbar, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
 
   let toolbarHideTimer = 0;
   const hideToolbar = () => {
@@ -89,6 +131,77 @@
   const minimapButton = document.querySelector("#minimap-toolbar-button");
   const minimapPanel = document.querySelector("#minimap-panel");
   if (minimapButton) minimapButton.textContent = "↓ NAVIGATION";
+  const externalLinksDropdown = document.createElement("div");
+  externalLinksDropdown.className = "external-links-dropdown";
+  const externalLinksButton = document.createElement("button");
+  externalLinksButton.type = "button";
+  externalLinksButton.className = "external-links-button";
+  externalLinksButton.textContent = "↓ LINKS";
+  externalLinksButton.setAttribute("aria-label", "External links");
+  externalLinksButton.setAttribute("aria-haspopup", "true");
+  externalLinksButton.setAttribute("aria-expanded", "false");
+  const externalLinksPanel = document.createElement("div");
+  externalLinksPanel.className = "external-links-panel";
+  externalLinksPanel.hidden = true;
+  const externalLinksHeading = document.createElement("strong");
+  externalLinksHeading.className = "external-links-heading";
+  externalLinksHeading.textContent = "EXTERNAL LINKS";
+  const externalLinksList = document.createElement("ul");
+  externalLinksList.className = "external-links-list";
+  const externalLinksByUrl = new Map();
+  for (const link of document.querySelectorAll("#canvas .node-content a[href]")) {
+    let url;
+    try {
+      url = new URL(link.getAttribute("href"), document.baseURI);
+    } catch {
+      continue;
+    }
+    if (!["http:", "https:"].includes(url.protocol) || url.origin === window.location.origin) continue;
+    url.hash = "";
+    const href = url.href;
+    if (externalLinksByUrl.has(href)) continue;
+    const text = link.textContent.trim();
+    externalLinksByUrl.set(href, text || url.hostname.replace(/^www\./, ""));
+  }
+  for (const [href, text] of externalLinksByUrl) {
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = text;
+    link.title = href;
+    item.append(link);
+    externalLinksList.append(item);
+  }
+  externalLinksPanel.append(externalLinksHeading, externalLinksList);
+  externalLinksDropdown.append(externalLinksButton, externalLinksPanel);
+  minimapButton?.after(externalLinksDropdown);
+  if (minimapButton) minimapButton.style.order = "-3";
+  externalLinksDropdown.style.order = "-2";
+  document.querySelector("#search-toolbar-button")?.style.setProperty("order", "-1");
+  const syncExternalLinksState = () => {
+    const isOpen = !externalLinksPanel.hidden;
+    externalLinksButton.textContent = `${isOpen ? "↑" : "↓"} LINKS`;
+    externalLinksButton.setAttribute("aria-expanded", String(isOpen));
+  };
+  externalLinksButton.addEventListener("click", () => {
+    externalLinksPanel.hidden = !externalLinksPanel.hidden;
+    if (!externalLinksPanel.hidden) window.closeContents?.();
+    syncExternalLinksState();
+  });
+  document.addEventListener("click", (event) => {
+    if (!externalLinksPanel.hidden && !externalLinksDropdown.contains(event.target)) {
+      externalLinksPanel.hidden = true;
+      syncExternalLinksState();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || externalLinksPanel.hidden) return;
+    externalLinksPanel.hidden = true;
+    syncExternalLinksState();
+    externalLinksButton.focus();
+  });
   const minimapTitle = document.querySelector("#minimap-panel .minimap-header strong");
   if (minimapTitle) minimapTitle.textContent = "NAVIGATION";
 
@@ -157,11 +270,45 @@
   const originalZoomBy = window.zoomBy;
   const originalResetZoom = window.resetZoom;
   if (!zoomViewport || !zoomCanvas || typeof originalZoomBy !== "function") return;
-  zoomViewport.append(themeButton, reloadButton);
+  zoomViewport.append(themeButton, reloadButton, controlGuide);
   const mainMapNode = [...zoomCanvas.querySelectorAll(".node[data-node-id]")].find((node) =>
     node.querySelector(".md-card-title-link")?.textContent?.trim().toLowerCase()
       === "abstract spatial computing lab",
   );
+  const groupNodes = [...zoomCanvas.querySelectorAll(".node.group[data-node-id]")];
+  for (const node of zoomCanvas.querySelectorAll(".node:not(.group)")) {
+    const heading = node.querySelector(".node-content h1, .node-content h2, .node-content h3");
+    if (!heading?.textContent?.trim().toLowerCase().startsWith("comments on ")) continue;
+    node.classList.add("overview-comment-node");
+  }
+  for (const node of zoomCanvas.querySelectorAll(".overview-comment-node, .overview-orbit-node")) {
+    const icon = document.createElement("span");
+    icon.className = "overview-node-icon";
+    icon.setAttribute("aria-hidden", "true");
+    const nodeHeight = Number(node.dataset.canvasHeight);
+    icon.style.setProperty("--overview-icon-size", `${nodeHeight * 0.75}px`);
+    if (node.classList.contains("overview-comment-node")) {
+      icon.classList.add("overview-question-icon");
+      icon.style.setProperty("--overview-question-size", `${nodeHeight}px`);
+      icon.textContent = "?";
+    } else {
+      icon.classList.add("overview-world-icon");
+      icon.innerHTML = '<svg viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="25"></circle><ellipse cx="50" cy="50" rx="43" ry="15" transform="rotate(-28 50 50)"></ellipse><path d="M29 37c12 5 30 5 42 0M27 61c14-6 32-6 46 0M50 25c-8 8-12 17-12 25s4 17 12 25m0-50c8 8 12 17 12 25s-4 17-12 25"></path></svg>';
+    }
+    node.append(icon);
+  }
+  for (const node of groupNodes) {
+    const borderColor = getComputedStyle(node).borderTopColor;
+    if (borderColor === "rgb(170, 181, 196)") {
+      node.classList.add("neutral-gray-group", "group-shape-oval");
+      zoomCanvas
+        .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
+        ?.classList.add("neutral-gray-group-title");
+    }
+  }
+  zoomCanvas.querySelectorAll(".group-title-text").forEach((title) => {
+    title.title = "Double-click to toggle the shape of groups with this color";
+  });
   if (mainMapNode) {
     const size = Math.min(Number(mainMapNode.dataset.canvasWidth), Number(mainMapNode.dataset.canvasHeight));
     const inset = (Number(mainMapNode.dataset.canvasWidth) - size) / 2;
@@ -356,6 +503,10 @@
   };
   const setRenderedScale = (scale) => {
     targetScale = scale;
+    const zoomPercentage = `${Math.round(scale * 100)}%`;
+    zoomLevelIndicator.value = zoomPercentage;
+    zoomLevelIndicator.textContent = zoomPercentage;
+    zoomLevelIndicator.setAttribute("aria-label", `Current zoom level ${zoomPercentage}`);
     zoomCanvas.style.transform = `scale(${scale})`;
     zoomCanvas.style.setProperty("--canvas-scale", String(scale));
     const overviewProgress = Math.max(0, Math.min(1, (0.44 - scale) / 0.28));
@@ -382,6 +533,35 @@
       const titleSize = Math.max(9, Math.min(12 + 6 * Math.min(scale, 1), widthFit));
       title.style.setProperty("--group-title-size", `${titleSize}px`);
     }
+    const edgeLabelScale = Math.min(3.75, 1.25 / Math.sqrt(Math.max(scale, 0.01)));
+    for (const label of zoomCanvas.querySelectorAll(".edge-label")) {
+      const x = Number(label.getAttribute("x"));
+      const y = Number(label.getAttribute("y"));
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      const background = label.previousElementSibling;
+      let centerX = x;
+      let centerY = y;
+      if (background?.classList.contains("edge-label-background")) {
+        const backgroundX = Number(background.getAttribute("x"));
+        const backgroundY = Number(background.getAttribute("y"));
+        const backgroundWidth = Number(background.getAttribute("width"));
+        const backgroundHeight = Number(background.getAttribute("height"));
+        if (
+          Number.isFinite(backgroundX)
+          && Number.isFinite(backgroundY)
+          && Number.isFinite(backgroundWidth)
+          && Number.isFinite(backgroundHeight)
+        ) {
+          centerX = backgroundX + backgroundWidth / 2;
+          centerY = backgroundY + backgroundHeight / 2;
+        }
+      }
+      const transform = `translate(${centerX} ${centerY}) scale(${edgeLabelScale}) translate(${-centerX} ${-centerY})`;
+      label.setAttribute("transform", transform);
+      if (background?.classList.contains("edge-label-background")) {
+        background.setAttribute("transform", transform);
+      }
+    }
     document.body.classList.toggle("canvas-overview", scale <= 0.4);
     updateCanvasExtent(scale);
   };
@@ -390,6 +570,25 @@
     attributes: true,
     attributeFilter: ["class"],
   });
+
+  document.addEventListener("dblclick", (event) => {
+    if (!(event.target instanceof Element)) return;
+    const title = event.target.closest(".group-title-text");
+    if (!title || !zoomCanvas.contains(title)) return;
+    const groupTitle = title.closest(".group-title[data-group-title-node-id]");
+    const groupNode = groupTitle
+      ? zoomCanvas.querySelector(`#node-${CSS.escape(groupTitle.dataset.groupTitleNodeId)}`)
+      : null;
+    if (!groupNode?.classList.contains("group")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const color = getComputedStyle(groupNode).borderTopColor;
+    const nextIsOval = !groupNode.classList.contains("group-shape-oval");
+    for (const node of groupNodes) {
+      if (getComputedStyle(node).borderTopColor !== color) continue;
+      node.classList.toggle("group-shape-oval", nextIsOval);
+    }
+  }, true);
 
   const setScaleAtWorldPoint = (nextScale, worldPoint, anchor, immediate = false) => {
     cancelZoomAnimation();
@@ -705,21 +904,90 @@
   }, true);
 
   zoomViewport.addEventListener("wheel", (event) => {
-    if (!event.shiftKey) return;
-    const horizontalDelta = event.deltaX || event.deltaY;
-    if (!horizontalDelta) return;
+    const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? zoomViewport.clientHeight : 1;
+    const deltaX = event.deltaX * unit;
+    const deltaY = event.deltaY * unit;
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault();
+      window.zoomBy(Math.exp(-deltaY * 0.037), { x: event.clientX, y: event.clientY });
+      return;
+    }
+    if (event.target instanceof Element && event.target.closest(".node-content")) return;
+    if (!deltaX && !deltaY) return;
     event.preventDefault();
-    zoomViewport.scrollLeft += horizontalDelta;
+    if (event.shiftKey) {
+      const horizontalDelta = deltaX || deltaY;
+      zoomViewport.scrollLeft = Math.max(
+        0,
+        Math.min(zoomViewport.scrollWidth - zoomViewport.clientWidth, zoomViewport.scrollLeft + horizontalDelta),
+      );
+      return;
+    }
+    zoomViewport.scrollLeft = Math.max(
+      0,
+      Math.min(zoomViewport.scrollWidth - zoomViewport.clientWidth, zoomViewport.scrollLeft + deltaX),
+    );
+    zoomViewport.scrollTop = Math.max(
+      0,
+      Math.min(zoomViewport.scrollHeight - zoomViewport.clientHeight, zoomViewport.scrollTop + deltaY),
+    );
   }, { passive: false, capture: true });
 
-  zoomViewport.addEventListener("wheel", (event) => {
-    if (!event.ctrlKey && !event.metaKey) return;
+  let activeDragZoom = null;
+  let suppressDragZoomClick = false;
+  const modifierDragZoom = (event) => event.shiftKey || event.metaKey || event.ctrlKey;
+  window.addEventListener("pointerdown", (event) => {
+    if (
+      event.pointerType !== "mouse"
+      || event.button !== 0
+      || !modifierDragZoom(event)
+      || !(event.target instanceof Element)
+      || !zoomViewport.contains(event.target)
+      || event.target.closest("a, button, input, select, textarea, iframe, audio, video, [contenteditable='true'], .toolbar, .minimap")
+    ) return;
     event.preventDefault();
-    const delta = event.deltaY * (event.deltaMode === WheelEvent.DOM_DELTA_LINE
-      ? 16
-      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? zoomViewport.clientHeight : 1);
-    window.zoomBy(Math.exp(-delta * 0.002), { x: event.clientX, y: event.clientY });
-  }, { passive: false });
+    event.stopImmediatePropagation();
+    activeDragZoom = {
+      pointerId: event.pointerId,
+      lastY: event.clientY,
+      anchor: { x: event.clientX, y: event.clientY },
+      moved: false,
+    };
+    zoomViewport.classList.add("is-drag-zooming");
+    try {
+      zoomViewport.setPointerCapture(event.pointerId);
+    } catch (error) {
+      if (!(error instanceof DOMException)) throw error;
+    }
+  }, true);
+  window.addEventListener("pointermove", (event) => {
+    if (!activeDragZoom || event.pointerId !== activeDragZoom.pointerId) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const deltaY = activeDragZoom.lastY - event.clientY;
+    activeDragZoom.lastY = event.clientY;
+    if (Math.abs(deltaY) < 0.01) return;
+    activeDragZoom.moved ||= Math.abs(event.clientY - activeDragZoom.anchor.y) > 3;
+    window.zoomBy(Math.exp(deltaY * 0.007), activeDragZoom.anchor, true);
+  }, { passive: false, capture: true });
+  const finishDragZoom = (event) => {
+    if (!activeDragZoom || event.pointerId !== activeDragZoom.pointerId) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    suppressDragZoomClick = activeDragZoom.moved;
+    activeDragZoom = null;
+    zoomViewport.classList.remove("is-drag-zooming");
+  };
+  window.addEventListener("pointerup", finishDragZoom, true);
+  window.addEventListener("pointercancel", finishDragZoom, true);
+  document.addEventListener("click", (event) => {
+    if (!suppressDragZoomClick) return;
+    suppressDragZoomClick = false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
 
   zoomViewport.addEventListener("pointerdown", (event) => {
     if (event.target !== zoomViewport) return;
@@ -755,6 +1023,19 @@
     setScaleAtWorldPoint(scale, center, anchor);
   };
   window.reframeCanvas = frameCanvas;
+  window.addEventListener("keydown", (event) => {
+    if (
+      event.code !== "Space"
+      || event.repeat
+      || event.altKey
+      || event.ctrlKey
+      || event.metaKey
+      || (event.target instanceof Element
+        && event.target.closest("a, button, input, select, textarea, iframe, audio, video, [contenteditable='true']"))
+    ) return;
+    event.preventDefault();
+    frameCanvas();
+  }, true);
   if (typeof originalResetZoom === "function") {
     window.resetZoom = () => {
       window.resetNodePositions();

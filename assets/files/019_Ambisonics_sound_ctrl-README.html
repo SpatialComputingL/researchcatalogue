@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="canvas-html-exporter v1.6.0">
   <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
-  <title>wall_projection-README</title>
+  <title>Ambisonics_sound_ctrl-README</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
     :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
@@ -315,14 +315,15 @@
       <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
-    <h1>wall_projection-README</h1>
-    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="wall-projection">Wall projection</h1></summary><p>The output to the lab&#39;s wall projectors.<br>
-Opens the projection window and tells you the resolution your image must have, at home and in the lab.</p>
-<p>In: 1 to 3 TOPs · Out: projection window and resolution (CHOP)</p>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Wire the resolution CHOP (resX, resY) into your own source TOP. Don&#39;t type numbers.</li><li>Wire your images in: input 1 left, 2 center, 3 right.</li><li>Choose a mode and press Configure.</li><li>Open Window to project, Close Window while editing.</li></ol></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>License: off = home resolution, on = full lab resolution</li><li>Panoramic projection: one wide image across the wall, uses input 1 only</li><li>Single projection: output to one projector only</li><li>Both off: three screens, left, center, right</li><li>Fit Input: what happens to an image of the wrong size</li><li>Output Resolution: readout of the current resolution</li><li>Configure: rebuilds after changing mode</li><li>Open Window, Close Window: opens or closes the projection</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Resolution CHOP: resX, resY for your source</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Small resolution: License is off (home setting).</li><li>Inputs 2 and 3 do nothing: Panoramic is on.</li><li>Stretched, cropped or black bars: your source isn&#39;t following the resolution CHOP.</li><li>Content on the wrong wall: order is left, center, right.</li><li>Nothing visible after a change: Configure, then Open Window.</li></ul></details></details>
+    <h1>Ambisonics_sound_ctrl-README</h1>
+    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="ambisonics-sound-control">Ambisonics sound control</h1></summary><p>Places sound sources in 3D space and mixes them for the ambisonics speaker system.<br>
+Each source has its own position, size and audio input.</p>
+<p>In: one position per source (CHOP) · Out: mix for the speaker system</p>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Add a source with Add virtual object (+/-). A new inlet appears on the left.</li><li>Wire a position into that source&#39;s inlet, e.g. a virtual object. Inlets go top to bottom in the same order as the numbered sources.</li><li>Point Audio in at the CHOP that carries the sound.</li><li>Set Rangegain, or let a virtual object set it.</li></ol>
+<p>The network inside is built and wired by a script. Never rewire it by hand.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>Add virtual object: adds or removes sources</li><li>Posin: read-only readout of where the position comes from</li><li>Rangegain: size and gain of the source. Follows the Radius of a wired virtual object (shown as a bind), otherwise type it in.</li><li>Audio in: the CHOP or channel with the source&#39;s sound. Sample rates are matched to Dante (48 kHz) automatically.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Ambisonics mix of all sources for the speaker system</li><li>3D view: one sphere per source, sized by Rangegain</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Posin shows the middle of the room: nothing wired into that source&#39;s inlet.</li><li>Rangegain is a plain number instead of a bind: nothing wired in, or it isn&#39;t a virtual object.</li><li>A new or removed source takes a moment to appear: the script rebuilds about once a second.</li><li>A manual rewire inside the component reverts: the script puts the internal chain back.</li></ul></details></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
     <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
@@ -338,7 +339,7 @@ Opens the projection window and tells you the resolution your image must have, a
   <script>
     (() => {
       
-      const navigationPageId = "root:page:assets/files/014_wall_projection-README.html";
+      const navigationPageId = "root:page:assets/files/019_Ambisonics_sound_ctrl-README.html";
       const packageRootHref = "../../index.html";
       const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
       const contentsOverlay = document.getElementById("contents-overlay");

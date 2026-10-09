@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="canvas-html-exporter v1.6.0">
   <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
-  <title>wall_projection-README</title>
+  <title>Azure_Kinect_sensor-README</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
     :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
@@ -315,14 +315,14 @@
       <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
-    <h1>wall_projection-README</h1>
-    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="wall-projection">Wall projection</h1></summary><p>The output to the lab&#39;s wall projectors.<br>
-Opens the projection window and tells you the resolution your image must have, at home and in the lab.</p>
-<p>In: 1 to 3 TOPs · Out: projection window and resolution (CHOP)</p>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Wire the resolution CHOP (resX, resY) into your own source TOP. Don&#39;t type numbers.</li><li>Wire your images in: input 1 left, 2 center, 3 right.</li><li>Choose a mode and press Configure.</li><li>Open Window to project, Close Window while editing.</li></ol></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>License: off = home resolution, on = full lab resolution</li><li>Panoramic projection: one wide image across the wall, uses input 1 only</li><li>Single projection: output to one projector only</li><li>Both off: three screens, left, center, right</li><li>Fit Input: what happens to an image of the wrong size</li><li>Output Resolution: readout of the current resolution</li><li>Configure: rebuilds after changing mode</li><li>Open Window, Close Window: opens or closes the projection</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Resolution CHOP: resX, resY for your source</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>Small resolution: License is off (home setting).</li><li>Inputs 2 and 3 do nothing: Panoramic is on.</li><li>Stretched, cropped or black bars: your source isn&#39;t following the resolution CHOP.</li><li>Content on the wrong wall: order is left, center, right.</li><li>Nothing visible after a change: Configure, then Open Window.</li></ul></details></details>
+    <h1>Azure_Kinect_sensor-README</h1>
+    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="sensor-azure-skeleton">Sensor - Azure skeleton</h1></summary><p>Live 3D positions of body joints from the Azure Kinect sensors.<br>
+Choose the joints you need, each gets its own outlet.</p>
+<p>In: none · Out: one CHOP per joint (tx ty tz)</p>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Add joints (+/-) and pick a joint in each slot (head, hand_l, hand_r, pelvis, ...). The outlets update by themselves.</li><li>Set Person: 1 follows the first tracked person (<code>p1</code>), 2 the second, and so on.</li><li>Hang a null named after the joint off each outlet (null_head, null_handl, ...) and work from those.</li><li>More people? Copy the component and give each copy its own Person.</li><li>Not in the lab? Turn on Mouse and keep building.</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><ul><li>Mouse: off = sensor data, on = all joints follow the mouse</li><li>Mouse orientation: which plane the mouse drives (XZ = across the floor)</li><li>Person: which tracked person this copy follows (1-8)</li><li>Add joints: adds or removes joint slots</li><li>Configure: restarts the sensors on the Kinect host. Only use it when tracking hangs. Greyed out in copies.</li><li>Fallback origin + Position: where joints rest when there is no data. Off = 0 0 0.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>One outlet per slot: tx ty tz in metres, same order as the slots</li><li>Axes: X = width, Y = height, Z = depth</li><li>The viewer shows the chosen joints with their full names (p1/head:tx, ...)</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>All values at 0 (or at Position): not in the lab, nobody with that Person number in the room, or no data for 0.5 s. Turn on Mouse to keep working.</li><li>Mouse orientation greyed out: Mouse is off.</li><li>Configure greyed out in a copy: only the first copy talks to the host. The other copies read its stream through a blue Select called shared_stream.</li><li>No fps in a copy&#39;s view: only the first copy receives the frame rate.</li><li>Someone gets a new number after leaving and coming back: numbers follow tracks, not individuals.</li><li>A person returning snaps to their position instead of gliding: on purpose.</li><li>Hands are a bit less steady than head and pelvis: the sensors are less sure about hands. Wrists are steadier and move almost the same.</li><li>Left and right hand swap when someone turns their back: a known sensor limitation.</li><li>Don&#39;t save a copy as the .tox. Save the original only.</li></ul></details></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
     <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
@@ -338,7 +338,7 @@ Opens the projection window and tells you the resolution your image must have, a
   <script>
     (() => {
       
-      const navigationPageId = "root:page:assets/files/014_wall_projection-README.html";
+      const navigationPageId = "root:page:assets/files/016_Azure_Kinect_sensor-README.html";
       const packageRootHref = "../../index.html";
       const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
       const contentsOverlay = document.getElementById("contents-overlay");
