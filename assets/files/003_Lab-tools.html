@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="canvas-html-exporter v1.6.0">
+  <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
+  <title>Lab tools</title>
+  <!-- Exported by canvas-html-exporter v1.6.0 -->
+  <style>
+    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      color: #24303d;
+      line-height: 1.65;
+    }
+    .md-page-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-bottom: 1em;
+    }
+    .md-page-back-link,
+    .md-page-canvas-link {
+      color: #1967d2;
+      text-decoration: none;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+    .md-page-back-link:hover,
+    .md-page-canvas-link:hover {
+      text-decoration: underline;
+    }
+    .md-page {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 32px;
+      background: #ffffff;
+      border: 1px solid #d6dde7;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin-top: 1.1em; }
+    h1 { margin-top: 0; }
+    details.heading-section { margin: 0.8em 0; }
+    details.heading-section > summary.heading-summary {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    details.heading-section > summary.heading-summary::-webkit-details-marker { display: none; }
+    details.heading-section > summary.heading-summary h1,
+    details.heading-section > summary.heading-summary h2,
+    details.heading-section > summary.heading-summary h3,
+    details.heading-section > summary.heading-summary h4,
+    details.heading-section > summary.heading-summary h5,
+    details.heading-section > summary.heading-summary h6 {
+      display: inline-block;
+      margin: 0 0.35em 0 0;
+      vertical-align: middle;
+    }
+    details.heading-section > summary.heading-summary::before { content: "⌄"; position: absolute; left: -1em; top: 50%; transform: translateY(-50%); line-height: 1; color: #5f6b7a; font-weight: 600; opacity: 0; transition: opacity 0.12s ease; }
+    details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
+    details.heading-section > summary.heading-summary:hover::before,
+    details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
+        h1 { color: rgb(34, 34, 34); }
+    h2 { color: rgb(34, 34, 34); }
+    h3 { color: rgb(34, 34, 34); }
+    h4 { color: rgb(34, 34, 34); }
+    h5 { color: rgb(34, 34, 34); }
+    h6 { color: rgb(2, 8, 50); }
+        strong { font-weight: 700; }
+    em { font-style: italic; }
+    del { text-decoration: line-through; }
+    a { color: #1967d2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 0.65em 0; padding-left: 2em; }
+    code {
+      background: rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+    pre, .shiki {
+      margin: 0.9em 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    pre code, .shiki code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 0.9em 0;
+      padding-left: 12px;
+      border-left: 3px solid #1967d2;
+      color: #5f6b7a;
+    }
+    .callout { border-radius: 6px; margin: 0.9em 0; overflow: hidden; border: 1px solid #888; }
+    .callout-title { padding: 5px 10px; font-weight: 600; font-size: 0.88em; letter-spacing: 0.01em; }
+    .callout-content { padding: 4px 10px 6px; }
+    .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
+    .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
+        .callout-note { border-color: #086ddd; }
+    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-info { border-color: #086ddd; }
+    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-todo { border-color: #086ddd; }
+    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-abstract { border-color: #00bfbc; }
+    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-summary { border-color: #00bfbc; }
+    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tldr { border-color: #00bfbc; }
+    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tip { border-color: #00bfbc; }
+    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-hint { border-color: #00bfbc; }
+    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-important { border-color: #00bfbc; }
+    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-success { border-color: #08b94e; }
+    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-check { border-color: #08b94e; }
+    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-done { border-color: #08b94e; }
+    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-warning { border-color: #ec7500; }
+    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-caution { border-color: #ec7500; }
+    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-attention { border-color: #ec7500; }
+    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-question { border-color: #ec7500; }
+    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-help { border-color: #ec7500; }
+    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-faq { border-color: #ec7500; }
+    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-danger { border-color: #e93147; }
+    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-error { border-color: #e93147; }
+    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-failure { border-color: #e93147; }
+    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-fail { border-color: #e93147; }
+    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-missing { border-color: #e93147; }
+    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-bug { border-color: #e93147; }
+    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-example { border-color: #7852ee; }
+    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+    .callout-quote { border-color: #9e9e9e; }
+    .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-cite { border-color: #9e9e9e; }
+    .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-settings { border-color: #086ddd; }
+    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-award { border-color: #086ddd; }
+    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    details.callout { display: block; }
+    details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
+    details.callout > summary.callout-title::-webkit-details-marker { display: none; }
+    details.callout > summary.callout-title::after { content: " ›"; font-size: 0.85em; }
+    details.callout[open] > summary.callout-title::after { content: " ⌄"; }
+    hr { border: none; border-top: 1px solid #d6dde7; margin: 1em 0; }
+    img { display: block; max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
+    table { border-collapse: collapse; width: auto; max-width: 100%; margin: 0.8em 0; }
+    th, td { border: 1px solid #d6dde7; padding: 8px 10px; text-align: left; }
+    .md-embed-block {
+      margin: 0.8em 0;
+    }
+    .pdf-embed-block {
+      margin: 0.8em 0;
+      border: 1px solid #d6dde7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .pdf-embed-block iframe {
+      display: block;
+      width: 100%;
+      min-height: 420px;
+      border: none;
+      background: #ffffff;
+    }
+    .file-embed-block,
+    .media-embed-block {
+      margin: 0.8em 0;
+    }
+    .media-embed-block audio,
+    .media-embed-block video { display: block; width: 100%; max-width: 100%; }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.4em 0.7em;
+      border-radius: 999px;
+      border: 1px solid #d6dde7;
+      background: #ffffff;
+      color: #24303d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .file-chip:hover {
+      text-decoration: underline;
+    }
+    mark.search-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      color: inherit;
+      padding: 0 0.08em;
+      border-radius: 3px;
+    }
+    :target,
+    .target-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      border-radius: 3px;
+      box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+    }
+    details.target-highlight {
+      padding: 0.08em 0.2em;
+    }
+    .unresolved-link {
+      color: #d64545;
+      font-style: italic;
+    }
+    
+    :root { --contents-panel-width: min(420px, calc(100vw - 32px)); }
+    body { transition: padding-left 0.16s ease; }
+    body.contents-open { padding-left: var(--contents-panel-width); }
+    .page-navigation-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #1967d2;
+      font: inherit;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .page-navigation-button:hover,
+    .page-navigation-button.is-active {
+      text-decoration: underline;
+    }
+    .contents-overlay {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: var(--contents-panel-width);
+    }
+    .contents-overlay[hidden] { display: none; }
+    .contents-panel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #d6dde7;
+      background: #ffffff;
+      box-shadow: 12px 0 36px rgba(0,0,0,0.22);
+    }
+    .contents-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #d6dde7;
+    }
+    .contents-header h2 { margin: 0; font-size: 1.15rem; }
+    .contents-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px 20px 24px;
+    }
+    .contents-section h3 {
+      margin: 16px 0 8px;
+      color: #5f6b7a;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .contents-list { list-style: none; margin: 0; padding: 0; }
+    .contents-list .contents-list {
+      margin-left: 10px;
+      padding-left: 14px;
+      border-left: 1px solid #d6dde7;
+    }
+    .contents-item { margin: 2px 0; }
+    .contents-link {
+      display: block;
+      padding: 7px 9px;
+      border-radius: 7px;
+      color: #1967d2;
+      line-height: 1.35;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    .contents-link:hover { background: rgba(0,0,0,0.04); text-decoration: none; }
+    .contents-link.is-current {
+      background: rgba(0,0,0,0.04);
+      color: #24303d;
+      font-weight: 600;
+    }
+    .contents-empty { margin: 18px 0 0; color: #5f6b7a; font-size: 0.9rem; }
+
+  </style>
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <main class="md-page">
+    <div class="md-page-toolbar">
+      
+      <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
+      <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
+    </div>
+    <h1>Lab tools</h1>
+    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="info">Info</h2></summary><p>The Spatial Computing Lab (LUCAscl*) gives artists, students and researchers a shared set of custom TouchDesigner components (&quot;toxes&quot;). These components hide the lab&#39;s specific hardware behind a small number of stable interfaces. There are eight components, grouped into three layers:</p>
+<ul><li><strong>Sensing:</strong> body tracking and camera images from Azure Kinect sensors.</li><li><strong>Spatial logic:</strong> virtual objects, and calculations between bodies and objects.</li><li><strong>Output:</strong> wall projection, floor projection and third-order ambisonic sound.</li></ul>
+<p>Together they let a user go from a tracked body in the room to an image or sound that responds to it, without rebuilding the lab&#39;s signal chain. The components are meant to be used both at home and in the lab. Projects can be prepared and simulated remotely, and then run at full resolution and with live sensor data on site. On the sound side, the components are complemented by a rendering patch in Max/MSP. This note describes the system the components belong to, the conventions they share and how the other notes in this collection fit together.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="system-overview">System overview</h2></summary><p>The components are tied to one physical space and its hardware:</p>
+<table><thead><tr><th>Subsystem</th><th>Configuration</th></tr></thead><tbody><tr><td>Room</td><td>approx. 5 × 5 × 3.5 m (width × depth × height). The entrance (the &quot;gap&quot;) is on the south side.</td></tr><tr><td>Rigging</td><td>a grid of scaffold pipes suspended below the concrete ceiling. It carries the sensors (on drop rods), the elevated loudspeakers and the projectors</td></tr><tr><td>Sensing</td><td>three Azure Kinect sensors (depth + RGB) mounted on the ceiling grid, used as cameras and for skeleton tracking of several people at once, fused into one skeleton per person</td></tr><tr><td>Image</td><td>three fixed projection walls: left, centre and right as seen from the entrance (west, north and east). They can be used as three channels or one panoramic image. There is also a floor projection. A fourth (south) wall is mobile and is not installed by default.</td></tr><tr><td>Sound</td><td>16 full-range loudspeakers in a third-order ambisonic layout, plus one subwoofer</td></tr><tr><td>Computing</td><td>an HP Z8 workstation running TouchDesigner 2025.33230 with an Educational licence (content, tracking, control), and a Windows NUC running Max 9.1.5 (ambisonic rendering, see <a href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a>). The Kinects are connected to a separate Intel NUC, the <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking%3C%2Ftd%3E%3Ctd%3EKinect%20host">Azure Kinects calibration &amp;amp; decisionmaking&lt;/td&gt;&lt;td&gt;Kinect host</a>, which calibrates and fuses the sensors and streams skeletons (OSC) and images (NDI).</td></tr><tr><td>Transport</td><td>Dante audio network at 48 kHz (Dante Via on the workstation, Dante Virtual Soundcard on the NUC). OSC carries positions.</td></tr></tbody></table></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="shared-conventions">Shared conventions</h2></summary><p>All components follow the same conventions. Once you know them for one component, you know them for the rest.</p>
+<ul><li><strong>Units and axes.</strong> Positions are in metres. <strong>X</strong> = width, <strong>Y</strong> = height, <strong>Z</strong> = depth. The sound system uses the same frame: Z = 0 is the north wall, Z increases towards the entrance, and the reference listening point is at X = 0, Y = 1.5 m (ear height), Z = 2.5 m (room centre).</li><li><strong>Data types.</strong> Each component uses the native TouchDesigner family that fits the data:</li><li>images are <strong>TOPs</strong></li><li>positions, distances and control values are <strong>CHOPs</strong></li><li>geometry is <strong>POPs</strong>, the GPU-based point operators that replaced SOPs in October 2026</li><li><strong>Configure pattern.</strong> Components that build their own outlets or windows (camera, projections) rebuild only when you press <em>Configure</em>. This keeps a running performance from being rebuilt by accident. The skeleton sensor is the exception: its outlets follow the joint list by themselves, and its <em>Configure</em> re-initialises the sensors on the Kinect host.</li><li><strong>Named nulls.</strong> Users attach a named <code>null</code> to each outlet (<code>null_head</code>, <code>null_cam_left</code>, …) and work from those. If a component is reconfigured or updated, references to the nulls still work.</li><li><strong>Home/lab parity.</strong> Every component that depends on the lab can run without it:</li><li>the skeleton sensor can follow the mouse instead of a body</li><li>the projection components have a <em>License</em> switch that changes between home resolution, which stays within the 1280 × 1280 limit of TouchDesigner&#39;s free Non-Commercial licence, and full lab resolution, which the lab&#39;s Educational licence allows.</li><li>all components behave the same either way, so a patch built at home runs unchanged in the lab.</li><li><strong>&quot;Normal, not bugs&quot;.</strong> Each component documents behaviour that looks like a fault but is expected, such as empty outputs outside the lab or a source that takes a moment to appear. This saves time when troubleshooting on site.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="architecture">Architecture</h2></summary><pre class="shiki one-light" style="background-color:#FAFAFA;color:#383A42" tabindex="0"><code><span class="line"><span>          SENSING                    SPATIAL LOGIC                    OUTPUT</span></span>
+<span class="line"><span> ┌──────────────────────┐   ┌──────────────────────────┐   ┌──────────────────────────┐</span></span>
+<span class="line"><span> │ Azure Kinect sensor  │──►│ Calculations (CALC)      │──►│ Ambisonics sound control │</span></span>
+<span class="line"><span> │  (joints, CHOP)      │   │  distance / inside / fade│   │  (Max/MSP, 16 + 1 ch)    │</span></span>
+<span class="line"><span> │                      │──►│ Virtual object viewer    │   │                          │</span></span>
+<span class="line"><span> │ Azure Kinect camera  │   │  (verification only)     │   │ Wall projection          │</span></span>
+<span class="line"><span> │  (images, TOP)       │   │                          │   │  (L / C / R, panoramic)  │</span></span>
+<span class="line"><span> └──────────────────────┘   │ Virtual object           │──►│                          │</span></span>
+<span class="line"><span>                            │  (shape POP, pos CHOP)   │   │ Floor projection         │</span></span>
+<span class="line"><span>                            └──────────────────────────┘   └──────────────────────────┘</span></span></code></pre>
+<p>A typical interaction chain:</p>
+<ol><li>A tracked joint (for example the right hand) comes from the <strong>sensor</strong>.</li><li>A <strong>virtual object</strong> (for example a sphere with a soft outer shell) is placed in the room.</li><li><strong>CALC</strong> turns their spatial relation into one control value.</li><li>That value drives the content, which reaches the audience through the <strong>wall and floor projections</strong> and through <strong>ambisonics sound control</strong>. The sound component can also take the virtual object&#39;s position directly, so the object can be heard in the room.</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="reading-guide">Reading guide</h2></summary><table><thead><tr><th>Note</th><th>Layer</th><th>In</th><th>Out</th></tr></thead><tbody><tr><td><a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Azure Kinects calibration &amp;amp; decisionmaking</a></td><td>Sensing (back end)</td><td>3 × Azure Kinect</td><td>fused skeletons (OSC), images (NDI)</td></tr><tr><td><a href="008_Azure-Kinect-sensors.html">Azure Kinect sensors</a></td><td>Sensing</td><td>none</td><td>one CHOP per joint (tx ty tz)</td></tr><tr><td><a href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a></td><td>Sensing</td><td>none</td><td>one TOP per sensor</td></tr><tr><td><a href="006_Virtual-objects.html">Virtual objects</a></td><td>Spatial logic</td><td>optional position (CHOP)</td><td>shape (POP), position + size (CHOP)</td></tr><tr><td><a href="007_Calculations.html">Calculations</a></td><td>Spatial logic</td><td>2 POPs</td><td>1 CHOP</td></tr><tr><td><a href="009_Virtual-object-viewer.html">Virtual object viewer</a></td><td>Spatial logic</td><td>positions (CHOP), shapes (POP)</td><td>3D preview</td></tr><tr><td><a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></td><td>Output</td><td>one position per source (CHOP) + audio</td><td>ambisonic mix on the speaker array</td></tr><tr><td><a href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></td><td>Output (back end)</td><td>OSC positions + 16 Dante audio channels</td><td>16 + 1 loudspeaker feeds</td></tr><tr><td><a href="012_Wall-projection.html">Wall projection</a></td><td>Output</td><td>1–3 TOPs</td><td>projection window, resolution CHOP</td></tr><tr><td><a href="013_Floor-projection.html">Floor projection</a></td><td>Output</td><td>1 TOP</td><td>projection window, resolution CHOP</td></tr></tbody></table>
+<p>Each note follows the same structure: an opening summary, role in the setup, technical specification, parameters, outputs, limitations and relations to the other components. The shorter user READMEs are stored next to each <code>.tox</code> and inside the example <code>.toe</code>. Other equipment in the lab (alternative sensors, controllers, software) and learning resources are listed in <a href="002_Lab-inventory.html">Lab inventory</a>.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="project-structure-and-updates">Project structure and updates</h2></summary><p>The components are distributed as one folder: an example <code>.toe</code> project file and a <code>toxes</code> folder that holds each <code>.tox</code> and its README.</p>
+<ul><li>Keep the <code>.toe</code> and the <code>toxes</code> folder together in one project folder with a name of your choice. This makes it easy to move the project between your own computer and the lab workstation.</li><li>You can rename the <code>.toe</code> freely. Do <strong>not</strong> rename the <code>.tox</code> files or their READMEs, because updates replace them by name.</li><li>To update a component, download the new <code>.tox</code> and replace the old one in the <code>toxes</code> folder. Components are built so that the parameter values stored in your project survive the update.</li><li>TouchDesigner does not autosave. Save often with Cmd/Ctrl + S. TouchDesigner keeps the numbered backups itself.</li></ul>
+<p><strong>Revision, 2 October 2026 (SOP → POP).</strong></p>
+<ul><li><code>virtual_object</code> and <code>virtual_object_viewer</code> now output POPs, which run on the GPU, so scenes with many objects are noticeably faster.</li><li>Each virtual object has its own colour.</li><li>Four separate calculation components (<code>DIST_between_points</code>, <code>DIST_to_object</code>, <code>IN_or_OUT_object</code>, <code>FADE_to_sphere</code>) were replaced by one component, CALC. Its output channels are <code>center_dist</code>, <code>shell_dist</code>, <code>inside</code> and <code>fade</code>.</li><li>Patches made before this revision need to:</li><li>swap the old calculators for CALC</li><li>update their channel references</li><li>give a POP to anything that expected a SOP</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="design-rationale">Design rationale</h2></summary><p>The components follow one lesson from running the lab: visiting researchers have limited time on site, and that time should go to the parts of the work that need the physical room. Interfaces stay stable and the lab can be simulated, so most of the setup can be done remotely. Users can work with the lab at different depths:</p>
+<ul><li>treat each component as a black box</li><li>open it up and adapt it</li><li>skip it entirely and work with the raw data streams</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="source-and-licence">Source and licence</h2></summary><ul><li>Component repository: &lt;https://github.com/SpatialComputingL/Td-updates&gt;</li><li>The components are released under the <strong>Apache License 2.0</strong>. You may use, modify and redistribute them, including commercially, as long as you keep the licence and copyright notice and state any changes.</li><li>Context: <a href="001_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li></ul></details>
+  </main>
+  <div id="contents-overlay" class="contents-overlay" hidden>
+    <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
+      <header class="contents-header">
+        <h2 id="contents-title">Navigation</h2>
+      </header>
+      <nav class="contents-navigation" aria-label="Exported pages">
+        <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="023_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="021_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Lab tools</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Wall-projection.html">Wall projection</a></li></ul></section>
+      </nav>
+    </aside>
+  </div>
+  <script>
+    (() => {
+      
+      const navigationPageId = "root:page:assets/files/003_Lab-tools.html";
+      const packageRootHref = "../../index.html";
+      const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
+      const contentsOverlay = document.getElementById("contents-overlay");
+      const navigationButton = document.getElementById("page-navigation-button");
+      let globalNavigationOpen = false;
+      let navigationPageStates = {};
+      let packageViewportStates = {};
+
+      function normalizeNavigationPageStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(
+          Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "boolean"),
+        );
+      }
+
+      function normalizePackageViewportStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter((entry) => {
+          const state = entry[1];
+          return typeof entry[0] === "string"
+            && state && typeof state === "object" && !Array.isArray(state)
+            && Number.isFinite(state.scale)
+            && Number.isFinite(state.left)
+            && Number.isFinite(state.top);
+        }));
+      }
+
+      function getPackageNavigationScope() {
+        try {
+          const rootUrl = new URL(packageRootHref, window.location.href);
+          return new URL(".", rootUrl).href;
+        } catch {
+          return "";
+        }
+      }
+
+      function readNavigationState() {
+        const params = new URLSearchParams(window.location.search);
+        const globalValue = params.get("navigation");
+        if (globalValue === "open") globalNavigationOpen = true;
+        if (globalValue === "closed") globalNavigationOpen = false;
+        const pageValue = params.get("navigationPages");
+        if (pageValue) {
+          try {
+            navigationPageStates = normalizeNavigationPageStates(JSON.parse(pageValue));
+          } catch {
+            navigationPageStates = {};
+          }
+        }
+        const viewportValue = params.get("canvasViews");
+        if (viewportValue) {
+          try {
+            packageViewportStates = normalizePackageViewportStates(JSON.parse(viewportValue));
+          } catch {
+            packageViewportStates = {};
+          }
+        }
+        if (!window.name.startsWith(navigationWindowStatePrefix)) return;
+        try {
+          const stored = JSON.parse(window.name.slice(navigationWindowStatePrefix.length));
+          if (!stored || stored.scope !== getPackageNavigationScope()) return;
+          if (typeof stored.globalOpen === "boolean") globalNavigationOpen = stored.globalOpen;
+          navigationPageStates = normalizeNavigationPageStates(stored.pageStates);
+          if (Object.prototype.hasOwnProperty.call(stored, "viewportStates")) {
+            packageViewportStates = normalizePackageViewportStates(stored.viewportStates);
+          }
+        } catch {
+          // Ignore unrelated or malformed window state.
+        }
+      }
+
+      function applyNavigationParams(url, restoreCanvasViewId) {
+        url.searchParams.set("navigation", globalNavigationOpen ? "open" : "closed");
+        const pageEntries = Object.entries(navigationPageStates);
+        if (pageEntries.length) {
+          url.searchParams.set("navigationPages", JSON.stringify(Object.fromEntries(pageEntries)));
+        } else {
+          url.searchParams.delete("navigationPages");
+        }
+        const viewportEntries = Object.entries(packageViewportStates);
+        if (viewportEntries.length) {
+          url.searchParams.set("canvasViews", JSON.stringify(Object.fromEntries(viewportEntries)));
+        } else {
+          url.searchParams.delete("canvasViews");
+        }
+        if (restoreCanvasViewId) url.searchParams.set("canvasView", restoreCanvasViewId);
+        else url.searchParams.delete("canvasView");
+      }
+
+      function updateNavigationLinks() {
+        const returnSearchQuery = new URLSearchParams(window.location.search).get("q");
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget || !url.pathname.toLowerCase().endsWith(".html")) return;
+            applyNavigationParams(url, link.getAttribute("data-restore-canvas-view") || "");
+            if (returnSearchQuery && link.matches(".md-page-back-link, .md-page-canvas-link")) {
+              url.searchParams.set("q", returnSearchQuery);
+            }
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+
+      function writeNavigationState() {
+        window.name = navigationWindowStatePrefix + JSON.stringify({
+          scope: getPackageNavigationScope(),
+          globalOpen: globalNavigationOpen,
+          pageStates: navigationPageStates,
+          viewportStates: packageViewportStates,
+        });
+        const url = new URL(window.location.href);
+        applyNavigationParams(url, "");
+        try {
+          window.history.replaceState(null, "", url.href);
+        } catch {
+          // Link propagation below still preserves the chosen state.
+        }
+        updateNavigationLinks();
+      }
+
+      function applyNavigationVisibility(open) {
+        if (!contentsOverlay || !navigationButton) return;
+        contentsOverlay.hidden = !open;
+        document.body.classList.toggle("contents-open", open);
+        navigationButton.classList.toggle("is-active", open);
+        navigationButton.setAttribute("aria-pressed", String(open));
+      }
+
+      function restoreNavigationVisibility() {
+        const hasLocalState = Object.prototype.hasOwnProperty.call(navigationPageStates, navigationPageId);
+        applyNavigationVisibility(hasLocalState ? navigationPageStates[navigationPageId] === true : false);
+      }
+
+      navigationButton.addEventListener("click", () => {
+        const open = contentsOverlay.hidden;
+        navigationPageStates[navigationPageId] = open;
+        applyNavigationVisibility(open);
+        writeNavigationState();
+      });
+
+      readNavigationState();
+      writeNavigationState();
+      restoreNavigationVisibility();
+      window.addEventListener("pageshow", () => {
+        readNavigationState();
+        writeNavigationState();
+        restoreNavigationVisibility();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const query = (params.get("q") || "").trim();
+      const navigation = params.get("navigation");
+      const navigationPages = params.get("navigationPages");
+      if (navigation === "open" || navigation === "closed") {
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget) return;
+            if (!url.pathname.toLowerCase().endsWith(".html")) return;
+            url.searchParams.set("navigation", navigation);
+            if (navigationPages) url.searchParams.set("navigationPages", navigationPages);
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+      const root = document.querySelector(".md-page");
+      if (!root) return;
+
+      function decodeHashComponent(value) {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      }
+
+      const hashTargetId = decodeHashComponent(String(window.location.hash || "").replace(/^#/, ""));
+      if (hashTargetId) {
+        const target = document.getElementById(hashTargetId);
+        if (target) {
+          const highlightTarget = target.closest("details.heading-section") || target;
+          highlightTarget.classList.add("target-highlight");
+          let parent = target.parentElement;
+          while (parent) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+            parent = parent.parentElement;
+          }
+        }
+      }
+
+      if (!query) return;
+
+      const pattern = new RegExp(query.replace(/[.*+?^()|[\]{}$\\]/g, "\\$&"), "ig");
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (["SCRIPT", "STYLE"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (!pattern.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+          pattern.lastIndex = 0;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      const matches = [];
+      let current = walker.nextNode();
+      while (current) {
+        matches.push(current);
+        current = walker.nextNode();
+      }
+
+      for (const textNode of matches) {
+        const text = textNode.nodeValue || "";
+        pattern.lastIndex = 0;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match = pattern.exec(text);
+
+        while (match) {
+          if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          }
+          const mark = document.createElement("mark");
+          mark.className = "search-highlight";
+          mark.textContent = match[0];
+          fragment.appendChild(mark);
+          lastIndex = match.index + match[0].length;
+          match = pattern.exec(text);
+        }
+
+        if (lastIndex < text.length) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    })();
+  </script>
+</body>
+</html>

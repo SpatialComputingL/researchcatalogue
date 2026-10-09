@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="canvas-html-exporter v1.6.0">
+  <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
+  <title>Wall projection</title>
+  <!-- Exported by canvas-html-exporter v1.6.0 -->
+  <style>
+    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      color: #24303d;
+      line-height: 1.65;
+    }
+    .md-page-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-bottom: 1em;
+    }
+    .md-page-back-link,
+    .md-page-canvas-link {
+      color: #1967d2;
+      text-decoration: none;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+    .md-page-back-link:hover,
+    .md-page-canvas-link:hover {
+      text-decoration: underline;
+    }
+    .md-page {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 32px;
+      background: #ffffff;
+      border: 1px solid #d6dde7;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin-top: 1.1em; }
+    h1 { margin-top: 0; }
+    details.heading-section { margin: 0.8em 0; }
+    details.heading-section > summary.heading-summary {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    details.heading-section > summary.heading-summary::-webkit-details-marker { display: none; }
+    details.heading-section > summary.heading-summary h1,
+    details.heading-section > summary.heading-summary h2,
+    details.heading-section > summary.heading-summary h3,
+    details.heading-section > summary.heading-summary h4,
+    details.heading-section > summary.heading-summary h5,
+    details.heading-section > summary.heading-summary h6 {
+      display: inline-block;
+      margin: 0 0.35em 0 0;
+      vertical-align: middle;
+    }
+    details.heading-section > summary.heading-summary::before { content: "⌄"; position: absolute; left: -1em; top: 50%; transform: translateY(-50%); line-height: 1; color: #5f6b7a; font-weight: 600; opacity: 0; transition: opacity 0.12s ease; }
+    details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
+    details.heading-section > summary.heading-summary:hover::before,
+    details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
+        h1 { color: rgb(34, 34, 34); }
+    h2 { color: rgb(34, 34, 34); }
+    h3 { color: rgb(34, 34, 34); }
+    h4 { color: rgb(34, 34, 34); }
+    h5 { color: rgb(34, 34, 34); }
+    h6 { color: rgb(2, 8, 50); }
+        strong { font-weight: 700; }
+    em { font-style: italic; }
+    del { text-decoration: line-through; }
+    a { color: #1967d2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 0.65em 0; padding-left: 2em; }
+    code {
+      background: rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+    pre, .shiki {
+      margin: 0.9em 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    pre code, .shiki code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 0.9em 0;
+      padding-left: 12px;
+      border-left: 3px solid #1967d2;
+      color: #5f6b7a;
+    }
+    .callout { border-radius: 6px; margin: 0.9em 0; overflow: hidden; border: 1px solid #888; }
+    .callout-title { padding: 5px 10px; font-weight: 600; font-size: 0.88em; letter-spacing: 0.01em; }
+    .callout-content { padding: 4px 10px 6px; }
+    .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
+    .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
+        .callout-note { border-color: #086ddd; }
+    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-info { border-color: #086ddd; }
+    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-todo { border-color: #086ddd; }
+    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-abstract { border-color: #00bfbc; }
+    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-summary { border-color: #00bfbc; }
+    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tldr { border-color: #00bfbc; }
+    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tip { border-color: #00bfbc; }
+    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-hint { border-color: #00bfbc; }
+    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-important { border-color: #00bfbc; }
+    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-success { border-color: #08b94e; }
+    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-check { border-color: #08b94e; }
+    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-done { border-color: #08b94e; }
+    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-warning { border-color: #ec7500; }
+    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-caution { border-color: #ec7500; }
+    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-attention { border-color: #ec7500; }
+    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-question { border-color: #ec7500; }
+    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-help { border-color: #ec7500; }
+    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-faq { border-color: #ec7500; }
+    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-danger { border-color: #e93147; }
+    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-error { border-color: #e93147; }
+    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-failure { border-color: #e93147; }
+    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-fail { border-color: #e93147; }
+    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-missing { border-color: #e93147; }
+    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-bug { border-color: #e93147; }
+    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-example { border-color: #7852ee; }
+    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+    .callout-quote { border-color: #9e9e9e; }
+    .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-cite { border-color: #9e9e9e; }
+    .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-settings { border-color: #086ddd; }
+    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-award { border-color: #086ddd; }
+    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    details.callout { display: block; }
+    details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
+    details.callout > summary.callout-title::-webkit-details-marker { display: none; }
+    details.callout > summary.callout-title::after { content: " ›"; font-size: 0.85em; }
+    details.callout[open] > summary.callout-title::after { content: " ⌄"; }
+    hr { border: none; border-top: 1px solid #d6dde7; margin: 1em 0; }
+    img { display: block; max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
+    table { border-collapse: collapse; width: auto; max-width: 100%; margin: 0.8em 0; }
+    th, td { border: 1px solid #d6dde7; padding: 8px 10px; text-align: left; }
+    .md-embed-block {
+      margin: 0.8em 0;
+    }
+    .pdf-embed-block {
+      margin: 0.8em 0;
+      border: 1px solid #d6dde7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .pdf-embed-block iframe {
+      display: block;
+      width: 100%;
+      min-height: 420px;
+      border: none;
+      background: #ffffff;
+    }
+    .file-embed-block,
+    .media-embed-block {
+      margin: 0.8em 0;
+    }
+    .media-embed-block audio,
+    .media-embed-block video { display: block; width: 100%; max-width: 100%; }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.4em 0.7em;
+      border-radius: 999px;
+      border: 1px solid #d6dde7;
+      background: #ffffff;
+      color: #24303d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .file-chip:hover {
+      text-decoration: underline;
+    }
+    mark.search-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      color: inherit;
+      padding: 0 0.08em;
+      border-radius: 3px;
+    }
+    :target,
+    .target-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      border-radius: 3px;
+      box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+    }
+    details.target-highlight {
+      padding: 0.08em 0.2em;
+    }
+    .unresolved-link {
+      color: #d64545;
+      font-style: italic;
+    }
+    
+    :root { --contents-panel-width: min(420px, calc(100vw - 32px)); }
+    body { transition: padding-left 0.16s ease; }
+    body.contents-open { padding-left: var(--contents-panel-width); }
+    .page-navigation-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #1967d2;
+      font: inherit;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .page-navigation-button:hover,
+    .page-navigation-button.is-active {
+      text-decoration: underline;
+    }
+    .contents-overlay {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: var(--contents-panel-width);
+    }
+    .contents-overlay[hidden] { display: none; }
+    .contents-panel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #d6dde7;
+      background: #ffffff;
+      box-shadow: 12px 0 36px rgba(0,0,0,0.22);
+    }
+    .contents-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #d6dde7;
+    }
+    .contents-header h2 { margin: 0; font-size: 1.15rem; }
+    .contents-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px 20px 24px;
+    }
+    .contents-section h3 {
+      margin: 16px 0 8px;
+      color: #5f6b7a;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .contents-list { list-style: none; margin: 0; padding: 0; }
+    .contents-list .contents-list {
+      margin-left: 10px;
+      padding-left: 14px;
+      border-left: 1px solid #d6dde7;
+    }
+    .contents-item { margin: 2px 0; }
+    .contents-link {
+      display: block;
+      padding: 7px 9px;
+      border-radius: 7px;
+      color: #1967d2;
+      line-height: 1.35;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    .contents-link:hover { background: rgba(0,0,0,0.04); text-decoration: none; }
+    .contents-link.is-current {
+      background: rgba(0,0,0,0.04);
+      color: #24303d;
+      font-weight: 600;
+    }
+    .contents-empty { margin: 18px 0 0; color: #5f6b7a; font-size: 0.9rem; }
+
+  </style>
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <main class="md-page">
+    <div class="md-page-toolbar">
+      
+      <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
+      <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
+    </div>
+    <h1>Wall projection</h1>
+    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="wall_projectiontox">wall_projection.tox</h2></summary><p><strong>Layer:</strong> output (image)&lt;br&gt;<strong>In:</strong> 1–3 TOPs&lt;br&gt;<strong>Out:</strong> projection window + resolution CHOP (<code>resX</code>, <code>resY</code>)</p>
+<p>This component is the output stage for the lab&#39;s wall projectors. It opens the projection window, sends the images to the wall surfaces, and tells the user the exact resolution the source images must have, both at home and in the lab. The resolution comes from the component as a CHOP that the user wires into their own source. This keeps content and output in sync by design, so there is no stretching, cropping or black bars.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="role-in-the-setup">Role in the setup</h2></summary><p>Together with <a href="010_Floor-projection.html">Floor projection</a> and <a href="008_Ambisonics-sound-control.html">Ambisonics sound control</a>, this component forms the lab&#39;s output layer. Any image from a project, whether generated, filmed (<a href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a>) or controlled by interaction logic, reaches the walls through this component.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="technical-specification">Technical specification</h2></summary><ul><li><strong>Projection modes.</strong></li><li><em>Three screens</em> (default, both switches off): three separate images on the left, centre and right walls (inputs 1, 2 and 3).</li><li><em>Panoramic projection</em>: one wide image across the whole wall surface from input 1. Inputs 2 and 3 are ignored.</li><li><em>Single projection</em>: output to one projector only, for tests and small setups.</li><li><strong>Wall layout.</strong> The three channels correspond to the three fixed walls: left, centre and right as seen from the entrance (west, north and east). The fourth (south) wall is mobile and is not installed by default. When a project uses it, its output is set up for that project and is not part of this component&#39;s standard configuration.</li><li><strong>Resolution contract.</strong> The resolution CHOP (<code>resX</code>, <code>resY</code>) always gives the resolution for the current mode and licence. Users wire it into their source TOP instead of typing numbers. If the mode or licence changes, the content follows automatically.</li><li><strong>Home/lab switch.</strong> <em>License</em> off gives a reduced home resolution that stays within the 1280 × 1280 limit of TouchDesigner&#39;s free Non-Commercial licence. On gives the full lab resolution, which the lab workstation&#39;s Educational licence allows. The patch stays the same either way.</li><li><strong>Fit Input</strong> sets what happens to an image of the wrong size, as a safety net. Following the resolution CHOP is still the preferred way to work.</li><li><strong>Window management.</strong> <em>Open Window</em> and <em>Close Window</em> switch the projection on and off. Keep the window closed while editing, so that it does not take focus from the TouchDesigner editor.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="parameters">Parameters</h2></summary><table><thead><tr><th>Parameter</th><th>Function</th></tr></thead><tbody><tr><td>License</td><td>off = home resolution, on = full lab resolution</td></tr><tr><td>Panoramic projection</td><td>one wide image across the wall, uses input 1 only</td></tr><tr><td>Single projection</td><td>output to one projector only</td></tr><tr><td>(both off)</td><td>three screens: left, centre, right</td></tr><tr><td>Fit Input</td><td>what happens to an image of the wrong size</td></tr><tr><td>Output Resolution</td><td>readout of the current resolution</td></tr><tr><td>Configure</td><td>rebuilds after a mode change</td></tr><tr><td>Open Window / Close Window</td><td>opens or closes the projection</td></tr></tbody></table></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>Resolution CHOP: <code>resX</code>, <code>resY</code> for the user&#39;s source TOP.</li><li>The projection window on the wall projectors.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="limitations-and-expected-behaviour">Limitations and expected behaviour</h2></summary><ul><li><strong>Small resolution:</strong> License is off (home setting).</li><li><strong>Inputs 2 and 3 do nothing:</strong> Panoramic is on.</li><li><strong>Stretched, cropped or black bars:</strong> the source isn&#39;t following the resolution CHOP.</li><li><strong>Content on the wrong wall:</strong> the input order is left, centre, right.</li><li><strong>Nothing visible after a change:</strong> press Configure, then Open Window.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>← any content TOP, e.g. from <a href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a> or controlled by <a href="002_Calculations-CALC.html">Calculations (CALC)</a></li><li>↔ <a href="010_Floor-projection.html">Floor projection</a> (same model, different aspect ratio)</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="references">References</h2></summary><ul><li>User README: <a href="014_wall_projection-README.html">wall_projection-README</a></li><li>Repository: &lt;https://github.com/SpatialComputingL/Td-updates&gt;</li><li>Overview: <a href="006_Lab-tools.html">Lab tools</a></li></ul></details>
+  </main>
+  <div id="contents-overlay" class="contents-overlay" hidden>
+    <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
+      <header class="contents-header">
+        <h2 id="contents-title">Navigation</h2>
+      </header>
+      <nav class="contents-navigation" aria-label="Exported pages">
+        <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Abstract-FilmEU.html">Abstract FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="018_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="024_Abstract-STAGEtech.html">Abstract STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Abstract-VLAIO.html">Abstract VLAIO</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="022_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Calculations-CALC.html">Calculations (CALC)</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="010_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="016_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="017_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Lab-tools.html">Lab tools</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Wall projection</span></li></ul></section>
+      </nav>
+    </aside>
+  </div>
+  <script>
+    (() => {
+      
+      const navigationPageId = "root:page:assets/files/009_Wall-projection.html";
+      const packageRootHref = "../../index.html";
+      const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
+      const contentsOverlay = document.getElementById("contents-overlay");
+      const navigationButton = document.getElementById("page-navigation-button");
+      let globalNavigationOpen = false;
+      let navigationPageStates = {};
+      let packageViewportStates = {};
+
+      function normalizeNavigationPageStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(
+          Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "boolean"),
+        );
+      }
+
+      function normalizePackageViewportStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter((entry) => {
+          const state = entry[1];
+          return typeof entry[0] === "string"
+            && state && typeof state === "object" && !Array.isArray(state)
+            && Number.isFinite(state.scale)
+            && Number.isFinite(state.left)
+            && Number.isFinite(state.top);
+        }));
+      }
+
+      function getPackageNavigationScope() {
+        try {
+          const rootUrl = new URL(packageRootHref, window.location.href);
+          return new URL(".", rootUrl).href;
+        } catch {
+          return "";
+        }
+      }
+
+      function readNavigationState() {
+        const params = new URLSearchParams(window.location.search);
+        const globalValue = params.get("navigation");
+        if (globalValue === "open") globalNavigationOpen = true;
+        if (globalValue === "closed") globalNavigationOpen = false;
+        const pageValue = params.get("navigationPages");
+        if (pageValue) {
+          try {
+            navigationPageStates = normalizeNavigationPageStates(JSON.parse(pageValue));
+          } catch {
+            navigationPageStates = {};
+          }
+        }
+        const viewportValue = params.get("canvasViews");
+        if (viewportValue) {
+          try {
+            packageViewportStates = normalizePackageViewportStates(JSON.parse(viewportValue));
+          } catch {
+            packageViewportStates = {};
+          }
+        }
+        if (!window.name.startsWith(navigationWindowStatePrefix)) return;
+        try {
+          const stored = JSON.parse(window.name.slice(navigationWindowStatePrefix.length));
+          if (!stored || stored.scope !== getPackageNavigationScope()) return;
+          if (typeof stored.globalOpen === "boolean") globalNavigationOpen = stored.globalOpen;
+          navigationPageStates = normalizeNavigationPageStates(stored.pageStates);
+          if (Object.prototype.hasOwnProperty.call(stored, "viewportStates")) {
+            packageViewportStates = normalizePackageViewportStates(stored.viewportStates);
+          }
+        } catch {
+          // Ignore unrelated or malformed window state.
+        }
+      }
+
+      function applyNavigationParams(url, restoreCanvasViewId) {
+        url.searchParams.set("navigation", globalNavigationOpen ? "open" : "closed");
+        const pageEntries = Object.entries(navigationPageStates);
+        if (pageEntries.length) {
+          url.searchParams.set("navigationPages", JSON.stringify(Object.fromEntries(pageEntries)));
+        } else {
+          url.searchParams.delete("navigationPages");
+        }
+        const viewportEntries = Object.entries(packageViewportStates);
+        if (viewportEntries.length) {
+          url.searchParams.set("canvasViews", JSON.stringify(Object.fromEntries(viewportEntries)));
+        } else {
+          url.searchParams.delete("canvasViews");
+        }
+        if (restoreCanvasViewId) url.searchParams.set("canvasView", restoreCanvasViewId);
+        else url.searchParams.delete("canvasView");
+      }
+
+      function updateNavigationLinks() {
+        const returnSearchQuery = new URLSearchParams(window.location.search).get("q");
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget || !url.pathname.toLowerCase().endsWith(".html")) return;
+            applyNavigationParams(url, link.getAttribute("data-restore-canvas-view") || "");
+            if (returnSearchQuery && link.matches(".md-page-back-link, .md-page-canvas-link")) {
+              url.searchParams.set("q", returnSearchQuery);
+            }
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+
+      function writeNavigationState() {
+        window.name = navigationWindowStatePrefix + JSON.stringify({
+          scope: getPackageNavigationScope(),
+          globalOpen: globalNavigationOpen,
+          pageStates: navigationPageStates,
+          viewportStates: packageViewportStates,
+        });
+        const url = new URL(window.location.href);
+        applyNavigationParams(url, "");
+        try {
+          window.history.replaceState(null, "", url.href);
+        } catch {
+          // Link propagation below still preserves the chosen state.
+        }
+        updateNavigationLinks();
+      }
+
+      function applyNavigationVisibility(open) {
+        if (!contentsOverlay || !navigationButton) return;
+        contentsOverlay.hidden = !open;
+        document.body.classList.toggle("contents-open", open);
+        navigationButton.classList.toggle("is-active", open);
+        navigationButton.setAttribute("aria-pressed", String(open));
+      }
+
+      function restoreNavigationVisibility() {
+        const hasLocalState = Object.prototype.hasOwnProperty.call(navigationPageStates, navigationPageId);
+        applyNavigationVisibility(hasLocalState ? navigationPageStates[navigationPageId] === true : false);
+      }
+
+      navigationButton.addEventListener("click", () => {
+        const open = contentsOverlay.hidden;
+        navigationPageStates[navigationPageId] = open;
+        applyNavigationVisibility(open);
+        writeNavigationState();
+      });
+
+      readNavigationState();
+      writeNavigationState();
+      restoreNavigationVisibility();
+      window.addEventListener("pageshow", () => {
+        readNavigationState();
+        writeNavigationState();
+        restoreNavigationVisibility();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const query = (params.get("q") || "").trim();
+      const navigation = params.get("navigation");
+      const navigationPages = params.get("navigationPages");
+      if (navigation === "open" || navigation === "closed") {
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget) return;
+            if (!url.pathname.toLowerCase().endsWith(".html")) return;
+            url.searchParams.set("navigation", navigation);
+            if (navigationPages) url.searchParams.set("navigationPages", navigationPages);
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+      const root = document.querySelector(".md-page");
+      if (!root) return;
+
+      function decodeHashComponent(value) {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      }
+
+      const hashTargetId = decodeHashComponent(String(window.location.hash || "").replace(/^#/, ""));
+      if (hashTargetId) {
+        const target = document.getElementById(hashTargetId);
+        if (target) {
+          const highlightTarget = target.closest("details.heading-section") || target;
+          highlightTarget.classList.add("target-highlight");
+          let parent = target.parentElement;
+          while (parent) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+            parent = parent.parentElement;
+          }
+        }
+      }
+
+      if (!query) return;
+
+      const pattern = new RegExp(query.replace(/[.*+?^()|[\]{}$\\]/g, "\\$&"), "ig");
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (["SCRIPT", "STYLE"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (!pattern.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+          pattern.lastIndex = 0;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      const matches = [];
+      let current = walker.nextNode();
+      while (current) {
+        matches.push(current);
+        current = walker.nextNode();
+      }
+
+      for (const textNode of matches) {
+        const text = textNode.nodeValue || "";
+        pattern.lastIndex = 0;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match = pattern.exec(text);
+
+        while (match) {
+          if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          }
+          const mark = document.createElement("mark");
+          mark.className = "search-highlight";
+          mark.textContent = match[0];
+          fragment.appendChild(mark);
+          lastIndex = match.index + match[0].length;
+          match = pattern.exec(text);
+        }
+
+        if (lastIndex < text.length) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    })();
+  </script>
+</body>
+</html>

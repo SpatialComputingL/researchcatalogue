@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="canvas-html-exporter v1.6.0">
+  <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
+  <title>Max-MSP ambisonic renderer</title>
+  <!-- Exported by canvas-html-exporter v1.6.0 -->
+  <style>
+    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      color: #24303d;
+      line-height: 1.65;
+    }
+    .md-page-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-bottom: 1em;
+    }
+    .md-page-back-link,
+    .md-page-canvas-link {
+      color: #1967d2;
+      text-decoration: none;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+    .md-page-back-link:hover,
+    .md-page-canvas-link:hover {
+      text-decoration: underline;
+    }
+    .md-page {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 32px;
+      background: #ffffff;
+      border: 1px solid #d6dde7;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin-top: 1.1em; }
+    h1 { margin-top: 0; }
+    details.heading-section { margin: 0.8em 0; }
+    details.heading-section > summary.heading-summary {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    details.heading-section > summary.heading-summary::-webkit-details-marker { display: none; }
+    details.heading-section > summary.heading-summary h1,
+    details.heading-section > summary.heading-summary h2,
+    details.heading-section > summary.heading-summary h3,
+    details.heading-section > summary.heading-summary h4,
+    details.heading-section > summary.heading-summary h5,
+    details.heading-section > summary.heading-summary h6 {
+      display: inline-block;
+      margin: 0 0.35em 0 0;
+      vertical-align: middle;
+    }
+    details.heading-section > summary.heading-summary::before { content: "⌄"; position: absolute; left: -1em; top: 50%; transform: translateY(-50%); line-height: 1; color: #5f6b7a; font-weight: 600; opacity: 0; transition: opacity 0.12s ease; }
+    details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
+    details.heading-section > summary.heading-summary:hover::before,
+    details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
+        h1 { color: rgb(34, 34, 34); }
+    h2 { color: rgb(34, 34, 34); }
+    h3 { color: rgb(34, 34, 34); }
+    h4 { color: rgb(34, 34, 34); }
+    h5 { color: rgb(34, 34, 34); }
+    h6 { color: rgb(2, 8, 50); }
+        strong { font-weight: 700; }
+    em { font-style: italic; }
+    del { text-decoration: line-through; }
+    a { color: #1967d2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 0.65em 0; padding-left: 2em; }
+    code {
+      background: rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+    pre, .shiki {
+      margin: 0.9em 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    pre code, .shiki code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 0.9em 0;
+      padding-left: 12px;
+      border-left: 3px solid #1967d2;
+      color: #5f6b7a;
+    }
+    .callout { border-radius: 6px; margin: 0.9em 0; overflow: hidden; border: 1px solid #888; }
+    .callout-title { padding: 5px 10px; font-weight: 600; font-size: 0.88em; letter-spacing: 0.01em; }
+    .callout-content { padding: 4px 10px 6px; }
+    .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
+    .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
+        .callout-note { border-color: #086ddd; }
+    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-info { border-color: #086ddd; }
+    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-todo { border-color: #086ddd; }
+    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-abstract { border-color: #00bfbc; }
+    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-summary { border-color: #00bfbc; }
+    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tldr { border-color: #00bfbc; }
+    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tip { border-color: #00bfbc; }
+    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-hint { border-color: #00bfbc; }
+    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-important { border-color: #00bfbc; }
+    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-success { border-color: #08b94e; }
+    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-check { border-color: #08b94e; }
+    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-done { border-color: #08b94e; }
+    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-warning { border-color: #ec7500; }
+    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-caution { border-color: #ec7500; }
+    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-attention { border-color: #ec7500; }
+    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-question { border-color: #ec7500; }
+    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-help { border-color: #ec7500; }
+    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-faq { border-color: #ec7500; }
+    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-danger { border-color: #e93147; }
+    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-error { border-color: #e93147; }
+    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-failure { border-color: #e93147; }
+    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-fail { border-color: #e93147; }
+    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-missing { border-color: #e93147; }
+    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-bug { border-color: #e93147; }
+    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-example { border-color: #7852ee; }
+    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+    .callout-quote { border-color: #9e9e9e; }
+    .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-cite { border-color: #9e9e9e; }
+    .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-settings { border-color: #086ddd; }
+    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-award { border-color: #086ddd; }
+    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    details.callout { display: block; }
+    details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
+    details.callout > summary.callout-title::-webkit-details-marker { display: none; }
+    details.callout > summary.callout-title::after { content: " ›"; font-size: 0.85em; }
+    details.callout[open] > summary.callout-title::after { content: " ⌄"; }
+    hr { border: none; border-top: 1px solid #d6dde7; margin: 1em 0; }
+    img { display: block; max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
+    table { border-collapse: collapse; width: auto; max-width: 100%; margin: 0.8em 0; }
+    th, td { border: 1px solid #d6dde7; padding: 8px 10px; text-align: left; }
+    .md-embed-block {
+      margin: 0.8em 0;
+    }
+    .pdf-embed-block {
+      margin: 0.8em 0;
+      border: 1px solid #d6dde7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .pdf-embed-block iframe {
+      display: block;
+      width: 100%;
+      min-height: 420px;
+      border: none;
+      background: #ffffff;
+    }
+    .file-embed-block,
+    .media-embed-block {
+      margin: 0.8em 0;
+    }
+    .media-embed-block audio,
+    .media-embed-block video { display: block; width: 100%; max-width: 100%; }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.4em 0.7em;
+      border-radius: 999px;
+      border: 1px solid #d6dde7;
+      background: #ffffff;
+      color: #24303d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .file-chip:hover {
+      text-decoration: underline;
+    }
+    mark.search-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      color: inherit;
+      padding: 0 0.08em;
+      border-radius: 3px;
+    }
+    :target,
+    .target-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      border-radius: 3px;
+      box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+    }
+    details.target-highlight {
+      padding: 0.08em 0.2em;
+    }
+    .unresolved-link {
+      color: #d64545;
+      font-style: italic;
+    }
+    
+    :root { --contents-panel-width: min(420px, calc(100vw - 32px)); }
+    body { transition: padding-left 0.16s ease; }
+    body.contents-open { padding-left: var(--contents-panel-width); }
+    .page-navigation-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #1967d2;
+      font: inherit;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .page-navigation-button:hover,
+    .page-navigation-button.is-active {
+      text-decoration: underline;
+    }
+    .contents-overlay {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: var(--contents-panel-width);
+    }
+    .contents-overlay[hidden] { display: none; }
+    .contents-panel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #d6dde7;
+      background: #ffffff;
+      box-shadow: 12px 0 36px rgba(0,0,0,0.22);
+    }
+    .contents-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #d6dde7;
+    }
+    .contents-header h2 { margin: 0; font-size: 1.15rem; }
+    .contents-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px 20px 24px;
+    }
+    .contents-section h3 {
+      margin: 16px 0 8px;
+      color: #5f6b7a;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .contents-list { list-style: none; margin: 0; padding: 0; }
+    .contents-list .contents-list {
+      margin-left: 10px;
+      padding-left: 14px;
+      border-left: 1px solid #d6dde7;
+    }
+    .contents-item { margin: 2px 0; }
+    .contents-link {
+      display: block;
+      padding: 7px 9px;
+      border-radius: 7px;
+      color: #1967d2;
+      line-height: 1.35;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    .contents-link:hover { background: rgba(0,0,0,0.04); text-decoration: none; }
+    .contents-link.is-current {
+      background: rgba(0,0,0,0.04);
+      color: #24303d;
+      font-weight: 600;
+    }
+    .contents-empty { margin: 18px 0 0; color: #5f6b7a; font-size: 0.9rem; }
+
+  </style>
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <main class="md-page">
+    <div class="md-page-toolbar">
+      
+      <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
+      <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
+    </div>
+    <h1>Max-MSP ambisonic renderer</h1>
+    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="ambix_3th_order-sound_ctrlmaxpat">Ambix_3th_order-sound_ctrl.maxpat</h2></summary><p><strong>Host:</strong> Windows NUC, Max 9.1.5&lt;br&gt;<strong>Layer:</strong> output (sound, back end)&lt;br&gt;<strong>In:</strong> OSC positions (UDP 10000) + 16 audio channels over Dante&lt;br&gt;<strong>Out:</strong> 16 loudspeaker feeds + 1 subwoofer feed over Dante</p>
+<p>This patch is the rendering engine behind <a href="008_Ambisonics-sound-control.html">Ambisonics sound control</a>. It receives the positions of up to sixteen sound sources and their audio, encodes them into a third-order ambisonic sound field, and decodes that field to the lab&#39;s measured, irregular layout of sixteen loudspeakers plus a subwoofer, all in real time. Most users never touch it: the TouchDesigner component is the interface, and the renderer runs on a dedicated machine. Splitting the work this way keeps audio rendering apart from the graphics and tracking load on the main workstation. It also keeps the decoder calibration in one place, independent of any project.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="role-in-the-setup">Role in the setup</h2></summary><p>The renderer is the second half of the lab&#39;s spatial sound chain. <a href="008_Ambisonics-sound-control.html">Ambisonics sound control</a> decides <em>where</em> each sound is and <em>what</em> it plays. The renderer turns that into speaker signals for this particular room. Because the calibration lives here, any TouchDesigner project that sends positions and audio in the expected format sounds correct in the lab without project-specific tuning.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="system-context">System context</h2></summary><table><thead><tr><th>Machine</th><th>Role</th></tr></thead><tbody><tr><td>HP Z8 workstation</td><td>TouchDesigner: tracking, content and source audio. Audio goes onto the Dante network through Dante Via. Positions are sent over OSC.</td></tr><tr><td>Windows NUC</td><td>Max 9.1.5 running this patch. Audio input and output go through Dante Virtual Soundcard in ASIO mode.</td></tr><tr><td>Dante network</td><td>carries all audio between the machines and to the amplifiers and loudspeakers at <strong>48 kHz</strong>. Routing is managed in Dante Controller.</td></tr><tr><td>Authoring machine (Mac)</td><td>where the patch is edited. It is not part of the live chain. Patch iterations reach the NUC through a shared OneDrive folder.</td></tr></tbody></table></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="signal-processing-pipeline">Signal processing pipeline</h2></summary><ol><li><strong>Position intake (OSC).</strong> <code>udpreceive 10000</code> receives the positions. The patch routes the addresses <code>/tx1 /ty1 /tz1</code> … <code>/tx16 /ty16 /tz16</code> (one triplet per source), a tracked listener <code>/lx1 /ly1 /lz1</code>, a global <code>/gain_range</code>, per-source ranges <code>/range_gain1</code> … <code>/range_gain16</code>, and <code>/_samplerate</code> (information only).</li><li><strong>Cartesian → spherical.</strong> Each source position (X = width, Y = height, Z = depth, metres) is converted to azimuth, elevation and distance relative to the reference listening point (X = 0, Y = 1.5, Z = 2.5). A sign-preserving minimum-magnitude floor on the depth term removes the singularity when a source is at exactly the reference depth.</li><li><strong>Gain.</strong> Each source&#39;s level falls with its distance to the listening reference. The <em>gain range</em> is the distance in metres at which the level reaches zero. It is set globally (<code>/gain_range</code>) or per source (<code>/range_gain1</code> … <code>/range_gain16</code>); per source, it is fed by <em>Rangegain</em> in TouchDesigner. The reference is either fixed or tracked. An inversion toggle mirrors the tracked listener through the room centre to correct for the orientation of the tracking. Direction never comes from the listener, because listener orientation cannot be tracked reliably. A minimum floor on the range parameter prevents a division by zero while the patch loads. A global &quot;gain active&quot; switch sets all sources to full gain for direction-only tests.</li><li><strong>Encoding.</strong> <code>ambiencode~ 3 16</code> (ICST) encodes the 16 audio inputs (<code>adc~ 1–16</code>, from Dante) into a <strong>third-order AmbiX</strong> field: 16 channels, ACN order, SN3D normalisation.</li><li><strong>File input.</strong> Two looped players (<code>buffer~</code> + <code>groove~</code>, 16 channels each) add pre-encoded third-order B-format WAV files to the field before decoding. Each player has its own toggle and is off by default. <em>(In development.)</em></li><li><strong>Decoding.</strong> <code>ambidecode~ 3 16</code> (ICST) decodes the field to the 16 measured loudspeaker positions. Each speaker is defined by azimuth, elevation and distance in a decoder grid that can be edited live.</li><li><strong>Subwoofer.</strong> The omnidirectional W component (ACN 0) is taken from the encoder, low-pass filtered (<code>lores~</code>, 100 Hz) and sent to channel 17.</li><li><strong>Output.</strong> <code>dac~ 1–17</code> sends the speaker feeds to Dante.</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="loudspeaker-calibration">Loudspeaker calibration</h2></summary><p>Speaker positions were measured in the room and converted to decoder coordinates with a purpose-built interactive calibration tool, which has a top-down view and an elevation view. The tool exports azimuth, elevation and distance per speaker. These values are typed into the decoder grid, take effect immediately, and need no new patch version. The encoder&#39;s speaker-matched default positions (used in calibration mode) are derived from the same data, so the two stay consistent.</p>
+<table><thead><tr><th>#</th><th>Ring</th><th>X</th><th>Y</th><th>Z</th><th>Azimuth</th><th>Elevation</th><th>Distance</th></tr></thead><tbody><tr><td>1</td><td>ground</td><td>−2.6</td><td>0.5</td><td>4.5</td><td>−127.57°</td><td>−16.95°</td><td>3.43 m</td></tr><tr><td>2</td><td>ground</td><td>−2.6</td><td>0.5</td><td>2.5</td><td>−90.00°</td><td>−21.04°</td><td>2.79 m</td></tr><tr><td>3</td><td>ground</td><td>−2.6</td><td>0.5</td><td>0.1</td><td>−47.29°</td><td>−15.78°</td><td>3.68 m</td></tr><tr><td>4</td><td>ground</td><td>0</td><td>0.5</td><td>−0.3</td><td>0.00°</td><td>−19.65°</td><td>2.97 m</td></tr><tr><td>5</td><td>ground</td><td>2.6</td><td>0.5</td><td>0.1</td><td>47.29°</td><td>−15.78°</td><td>3.68 m</td></tr><tr><td>6</td><td>ground</td><td>2.6</td><td>0.5</td><td>2.5</td><td>90.00°</td><td>−21.04°</td><td>2.79 m</td></tr><tr><td>7</td><td>ground</td><td>2.6</td><td>0.5</td><td>4.5</td><td>127.57°</td><td>−16.95°</td><td>3.43 m</td></tr><tr><td>8</td><td>rear</td><td>0</td><td>3.0</td><td>7.15</td><td>180.00°</td><td>17.88°</td><td>4.89 m</td></tr><tr><td>9</td><td>high</td><td>−2.5</td><td>3.7</td><td>3.25</td><td>−106.70°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>10</td><td>high</td><td>−2.5</td><td>3.7</td><td>1.75</td><td>−73.30°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>11</td><td>high</td><td>−1.25</td><td>3.7</td><td>0</td><td>−26.57°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>12</td><td>high</td><td>1.25</td><td>3.7</td><td>0</td><td>26.57°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>13</td><td>high</td><td>2.5</td><td>3.7</td><td>1.75</td><td>73.30°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>14</td><td>high</td><td>2.5</td><td>3.7</td><td>3.25</td><td>106.70°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>15</td><td>high</td><td>1.25</td><td>3.7</td><td>5</td><td>153.43°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>16</td><td>high</td><td>−1.25</td><td>3.7</td><td>5</td><td>−153.43°</td><td>38.21°</td><td>3.56 m</td></tr></tbody></table>
+<p>Convention: azimuth 0° points from the listening point towards the north wall. Positive azimuth turns towards +X. Z increases towards the entrance. The table also appears in the <a href="016_Lab-3D-model.html">Lab 3D model</a>.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="operating-modes">Operating modes</h2></summary><table><thead><tr><th>Mode</th><th>Options</th><th>Default</th></tr></thead><tbody><tr><td>Direction (global and per source)</td><td>live tracked position, or a fixed position that matches the source&#39;s own speaker (calibration)</td><td>tracked</td></tr><tr><td>Test audio (global and per source)</td><td>live Dante input, or a looped voice recording</td><td>live</td></tr><tr><td>Listener reference</td><td>fixed point, or tracked listener (with optional mirroring)</td><td>—</td></tr><tr><td>Gain active</td><td>distance-based gain, or full gain on all sources</td><td>on</td></tr><tr><td>Ambisonic file players (2)</td><td>off / play</td><td>off</td></tr></tbody></table>
+<p>A debug panel shows each source&#39;s tracked position, its distance to the listener and the gain value sent to the encoder. This makes reactivity problems visible without console output.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="implementation-notes">Implementation notes</h2></summary><ul><li><strong>Re-evaluation in <code>expr</code>.</strong> In practice, Max&#39;s <code>expr</code> only reliably fires on its leftmost inlet. The distance and listener-blend expressions therefore route all their inputs through <code>pak</code>/<code>unpack</code>, which forces re-evaluation whenever any input changes.</li><li><strong>Sample rate.</strong> All content has to arrive at 48 kHz. Dropouts with 44.1 kHz material turned out to be a resampling problem on the sending side, not in the renderer.</li><li><strong>State.</strong> An encoder instance that has been corrupted by invalid coefficients does not recover when the patch file is reopened. Max has to be fully restarted. The same applies to stale test-audio buffers.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="limitations-and-open-questions">Limitations and open questions</h2></summary><ul><li><strong>Directional rendering.</strong> Checking the panning across this irregular layout is ongoing work. A controlled comparison with a regular reference layout is planned.</li><li><strong>Listener model.</strong> There is one listening reference. Multiple listeners and listener orientation are outside the current scope.</li><li><strong>Built-in distance model.</strong> ICST&#39;s own distance attenuation is disabled in favour of the custom gain model above. It remains an option.</li><li><strong>Speaker aiming.</strong> The decoder stores position only. It does not store per-speaker aim (yaw/pitch).</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outlook">Outlook</h2></summary><ul><li>A Dante input for B-format audio rendered in TouchDesigner, mixed in at the same point as the file players.</li><li>A control interface in TouchDesigner, so live operation no longer requires editing the Max patch.</li><li>A head-tracked headphone mode (&quot;Augmented Audio Reality&quot;) alongside the loudspeaker array.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="availability">Availability</h2></summary><p>The renderer is not part of the public <a href="https://github.com/SpatialComputingL/Td-updates" target="_blank" rel="noopener noreferrer">Td-updates</a> repository. It runs on the lab&#39;s NUC and is maintained by the lab.</p></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>← <a href="008_Ambisonics-sound-control.html">Ambisonics sound control</a> (OSC positions, Dante audio)</li><li>↔ <a href="016_Lab-3D-model.html">Lab 3D model</a> (speaker positions)</li><li>Overview: <a href="006_Lab-tools.html">Lab tools</a></li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="references">References</h2></summary><ul><li>ICST Ambisonics externals for Max: Institute for Computer Music and Sound Technology, Zurich University of the Arts.</li><li>AmbiX format: ACN channel ordering, SN3D normalisation.</li></ul></details>
+  </main>
+  <div id="contents-overlay" class="contents-overlay" hidden>
+    <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
+      <header class="contents-header">
+        <h2 id="contents-title">Navigation</h2>
+      </header>
+      <nav class="contents-navigation" aria-label="Exported pages">
+        <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Abstract-FilmEU.html">Abstract FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="018_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="024_Abstract-STAGEtech.html">Abstract STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Abstract-VLAIO.html">Abstract VLAIO</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="022_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Calculations-CALC.html">Calculations (CALC)</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="010_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="016_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="017_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Lab-tools.html">Lab tools</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Max-MSP ambisonic renderer</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Wall-projection.html">Wall projection</a></li></ul></section>
+      </nav>
+    </aside>
+  </div>
+  <script>
+    (() => {
+      
+      const navigationPageId = "root:page:assets/files/007_Max-MSP-ambisonic-renderer.html";
+      const packageRootHref = "../../index.html";
+      const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
+      const contentsOverlay = document.getElementById("contents-overlay");
+      const navigationButton = document.getElementById("page-navigation-button");
+      let globalNavigationOpen = false;
+      let navigationPageStates = {};
+      let packageViewportStates = {};
+
+      function normalizeNavigationPageStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(
+          Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "boolean"),
+        );
+      }
+
+      function normalizePackageViewportStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter((entry) => {
+          const state = entry[1];
+          return typeof entry[0] === "string"
+            && state && typeof state === "object" && !Array.isArray(state)
+            && Number.isFinite(state.scale)
+            && Number.isFinite(state.left)
+            && Number.isFinite(state.top);
+        }));
+      }
+
+      function getPackageNavigationScope() {
+        try {
+          const rootUrl = new URL(packageRootHref, window.location.href);
+          return new URL(".", rootUrl).href;
+        } catch {
+          return "";
+        }
+      }
+
+      function readNavigationState() {
+        const params = new URLSearchParams(window.location.search);
+        const globalValue = params.get("navigation");
+        if (globalValue === "open") globalNavigationOpen = true;
+        if (globalValue === "closed") globalNavigationOpen = false;
+        const pageValue = params.get("navigationPages");
+        if (pageValue) {
+          try {
+            navigationPageStates = normalizeNavigationPageStates(JSON.parse(pageValue));
+          } catch {
+            navigationPageStates = {};
+          }
+        }
+        const viewportValue = params.get("canvasViews");
+        if (viewportValue) {
+          try {
+            packageViewportStates = normalizePackageViewportStates(JSON.parse(viewportValue));
+          } catch {
+            packageViewportStates = {};
+          }
+        }
+        if (!window.name.startsWith(navigationWindowStatePrefix)) return;
+        try {
+          const stored = JSON.parse(window.name.slice(navigationWindowStatePrefix.length));
+          if (!stored || stored.scope !== getPackageNavigationScope()) return;
+          if (typeof stored.globalOpen === "boolean") globalNavigationOpen = stored.globalOpen;
+          navigationPageStates = normalizeNavigationPageStates(stored.pageStates);
+          if (Object.prototype.hasOwnProperty.call(stored, "viewportStates")) {
+            packageViewportStates = normalizePackageViewportStates(stored.viewportStates);
+          }
+        } catch {
+          // Ignore unrelated or malformed window state.
+        }
+      }
+
+      function applyNavigationParams(url, restoreCanvasViewId) {
+        url.searchParams.set("navigation", globalNavigationOpen ? "open" : "closed");
+        const pageEntries = Object.entries(navigationPageStates);
+        if (pageEntries.length) {
+          url.searchParams.set("navigationPages", JSON.stringify(Object.fromEntries(pageEntries)));
+        } else {
+          url.searchParams.delete("navigationPages");
+        }
+        const viewportEntries = Object.entries(packageViewportStates);
+        if (viewportEntries.length) {
+          url.searchParams.set("canvasViews", JSON.stringify(Object.fromEntries(viewportEntries)));
+        } else {
+          url.searchParams.delete("canvasViews");
+        }
+        if (restoreCanvasViewId) url.searchParams.set("canvasView", restoreCanvasViewId);
+        else url.searchParams.delete("canvasView");
+      }
+
+      function updateNavigationLinks() {
+        const returnSearchQuery = new URLSearchParams(window.location.search).get("q");
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget || !url.pathname.toLowerCase().endsWith(".html")) return;
+            applyNavigationParams(url, link.getAttribute("data-restore-canvas-view") || "");
+            if (returnSearchQuery && link.matches(".md-page-back-link, .md-page-canvas-link")) {
+              url.searchParams.set("q", returnSearchQuery);
+            }
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+
+      function writeNavigationState() {
+        window.name = navigationWindowStatePrefix + JSON.stringify({
+          scope: getPackageNavigationScope(),
+          globalOpen: globalNavigationOpen,
+          pageStates: navigationPageStates,
+          viewportStates: packageViewportStates,
+        });
+        const url = new URL(window.location.href);
+        applyNavigationParams(url, "");
+        try {
+          window.history.replaceState(null, "", url.href);
+        } catch {
+          // Link propagation below still preserves the chosen state.
+        }
+        updateNavigationLinks();
+      }
+
+      function applyNavigationVisibility(open) {
+        if (!contentsOverlay || !navigationButton) return;
+        contentsOverlay.hidden = !open;
+        document.body.classList.toggle("contents-open", open);
+        navigationButton.classList.toggle("is-active", open);
+        navigationButton.setAttribute("aria-pressed", String(open));
+      }
+
+      function restoreNavigationVisibility() {
+        const hasLocalState = Object.prototype.hasOwnProperty.call(navigationPageStates, navigationPageId);
+        applyNavigationVisibility(hasLocalState ? navigationPageStates[navigationPageId] === true : false);
+      }
+
+      navigationButton.addEventListener("click", () => {
+        const open = contentsOverlay.hidden;
+        navigationPageStates[navigationPageId] = open;
+        applyNavigationVisibility(open);
+        writeNavigationState();
+      });
+
+      readNavigationState();
+      writeNavigationState();
+      restoreNavigationVisibility();
+      window.addEventListener("pageshow", () => {
+        readNavigationState();
+        writeNavigationState();
+        restoreNavigationVisibility();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const query = (params.get("q") || "").trim();
+      const navigation = params.get("navigation");
+      const navigationPages = params.get("navigationPages");
+      if (navigation === "open" || navigation === "closed") {
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget) return;
+            if (!url.pathname.toLowerCase().endsWith(".html")) return;
+            url.searchParams.set("navigation", navigation);
+            if (navigationPages) url.searchParams.set("navigationPages", navigationPages);
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+      const root = document.querySelector(".md-page");
+      if (!root) return;
+
+      function decodeHashComponent(value) {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      }
+
+      const hashTargetId = decodeHashComponent(String(window.location.hash || "").replace(/^#/, ""));
+      if (hashTargetId) {
+        const target = document.getElementById(hashTargetId);
+        if (target) {
+          const highlightTarget = target.closest("details.heading-section") || target;
+          highlightTarget.classList.add("target-highlight");
+          let parent = target.parentElement;
+          while (parent) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+            parent = parent.parentElement;
+          }
+        }
+      }
+
+      if (!query) return;
+
+      const pattern = new RegExp(query.replace(/[.*+?^()|[\]{}$\\]/g, "\\$&"), "ig");
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (["SCRIPT", "STYLE"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (!pattern.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+          pattern.lastIndex = 0;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      const matches = [];
+      let current = walker.nextNode();
+      while (current) {
+        matches.push(current);
+        current = walker.nextNode();
+      }
+
+      for (const textNode of matches) {
+        const text = textNode.nodeValue || "";
+        pattern.lastIndex = 0;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match = pattern.exec(text);
+
+        while (match) {
+          if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          }
+          const mark = document.createElement("mark");
+          mark.className = "search-highlight";
+          mark.textContent = match[0];
+          fragment.appendChild(mark);
+          lastIndex = match.index + match[0].length;
+          match = pattern.exec(text);
+        }
+
+        if (lastIndex < text.length) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    })();
+  </script>
+</body>
+</html>

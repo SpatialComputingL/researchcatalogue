@@ -1,3 +1,24 @@
+:root {
+  --canvas-color-0: #808080;
+  --canvas-color-0-bg: #808080;
+  --canvas-color-1: #ff1744;
+  --canvas-color-1-bg: #ff1744;
+  --canvas-color-2: #ff9100;
+  --canvas-color-2-bg: #ff9100;
+  --canvas-color-3: #ffea00;
+  --canvas-color-3-bg: #ffea00;
+  --canvas-color-4: #00c853;
+  --canvas-color-4-bg: #00c853;
+  --canvas-color-5: #2979ff;
+  --canvas-color-5-bg: #2979ff;
+  --canvas-color-6: #d500f9;
+  --canvas-color-6-bg: #d500f9;
+}
+
+.group-title {
+  font-size: calc(var(--group-title-size, 12px) / var(--canvas-scale, 1));
+}
+
 html,
 body {
   background: #fff !important;
@@ -72,13 +93,32 @@ body {
 .node {
   border: 1px solid #000 !important;
   border-radius: 3px !important;
-  background: #fff !important;
+  background: #fff;
   box-shadow: none !important;
   color: #000;
   cursor: move;
   overflow-x: hidden;
   overscroll-behavior-x: auto;
   cursor: move;
+}
+
+.node.group {
+  background: transparent !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+#edge-layer {
+  z-index: 2 !important;
+}
+
+.node:not(.group) {
+  z-index: 3;
+}
+
+.minimap-node.group {
+  fill: transparent !important;
+  opacity: 1 !important;
 }
 
 .model-preview-node {
@@ -439,7 +479,7 @@ body {
 
 .contents-overlay {
   position: absolute !important;
-  inset: calc(100% + 4px) auto auto 0 !important;
+  inset: calc(100% + 12px) auto auto 0 !important;
   z-index: 40 !important;
   width: min(320px, calc(100vw - 32px)) !important;
   background: #fff !important;
@@ -457,10 +497,10 @@ body.contents-open {
   display: block !important;
   width: 100% !important;
   height: auto !important;
-  max-height: min(70vh, 560px) !important;
-  overflow: auto !important;
-  border: 1px solid #000 !important;
-  background: #fff !important;
+  max-height: inherit !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: transparent !important;
 }
 
 .contents-header,
@@ -470,7 +510,8 @@ body.contents-open {
 }
 
 .contents-navigation {
-  max-height: inherit !important;
+  max-height: min(calc(70vh - 16px), 544px) !important;
+  overflow: auto !important;
   padding: 10px 14px !important;
 }
 
@@ -484,8 +525,16 @@ body.contents-open {
   border: 0;
 }
 
+.contents-list .contents-group-children {
+  padding-left: 8px;
+}
+
 .contents-item {
   margin: 0;
+}
+
+.contents-group-item {
+  margin-top: 8px;
 }
 
 .contents-link,
@@ -498,6 +547,29 @@ body.contents-open {
   font-weight: 400;
   line-height: 1.35;
   text-decoration: none !important;
+}
+
+.contents-group-link {
+  width: 100%;
+  padding: 4px 0 2px 6px !important;
+  border: 0;
+  color: #666 !important;
+  cursor: pointer;
+  font: inherit;
+  font-style: italic;
+  text-align: left;
+}
+
+.contents-group-page .contents-page-link {
+  padding-left: 16px !important;
+}
+
+.contents-main-item .contents-page-link {
+  font-weight: 600;
+}
+
+.contents-independent-item .contents-page-link {
+  padding-left: 16px !important;
 }
 
 .contents-link:hover,
@@ -519,7 +591,7 @@ body.contents-open {
 @media (max-width: 760px) {
   .toolbar {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto auto minmax(0, 1fr);
     grid-template-rows: 32px 36px;
     grid-template-areas:
       "title title title"
@@ -571,6 +643,7 @@ body.contents-open {
   #search-toolbar-button {
     grid-area: search;
     align-self: center;
+    justify-self: end;
   }
 
   #minimap-toolbar-button {
@@ -634,6 +707,11 @@ body.contents-open {
     display: grid;
     left: 16px;
     bottom: 16px;
+  }
+
+  .minimap-header {
+    min-height: 28px;
+    height: 28px;
     border: 0 !important;
   }
 
@@ -670,6 +748,10 @@ body.contents-open {
   .minimap-drag-zone-right {
     right: -18px;
   }
+
+  .contents-overlay {
+    inset: calc(100% + 14px) auto auto 0 !important;
+  }
 }
 
 .minimap {
@@ -700,20 +782,40 @@ body.contents-open {
   display: none !important;
 }
 
-.minimap-header strong {
-  display: none !important;
-}
-
-.minimap-header-copy {
-  display: none !important;
-}
-
 #minimap-svg {
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff !important;
   width: 100%;
   cursor: grab;
+}
+
+#minimap-panel {
+  cursor: move;
+}
+
+#minimap-panel::before,
+#minimap-panel::after {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  content: "";
+  cursor: move;
+  touch-action: none;
+}
+
+#minimap-panel::before {
+  left: 0;
+}
+
+#minimap-panel::after {
+  right: 0;
+}
+
+#minimap-panel.is-drag-handle-hover #minimap-svg {
+  cursor: move;
 }
 
 .minimap-drag-zone {
@@ -868,7 +970,7 @@ body.contents-open {
   background: #000 !important;
 }
 
-.theme-night .node:not([data-node-border="invisible"]),
+.theme-night .node:not([data-node-border="invisible"]):not(.group),
 .theme-night .node-content,
 .theme-night .md-card,
 .theme-night .md-card-preview {
@@ -876,8 +978,98 @@ body.contents-open {
   color: #fff !important;
 }
 
-.theme-night .node:not([data-node-border="invisible"]) {
+.theme-night .node:not([data-node-border="invisible"]):not(.group) {
   border-color: #fff !important;
+}
+
+.theme-night .node.group {
+  background: color-mix(in srgb, var(--node-border-color, #fff) var(--group-fill-strength, 44%), transparent) !important;
+}
+
+.contents-overlay,
+.contents-panel,
+#minimap-panel {
+  border: 1px solid #d0d0d0 !important;
+  border-radius: 4px !important;
+  background-color: #fff !important;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78) !important;
+}
+
+.contents-overlay {
+  max-height: min(70vh, 560px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.contents-panel {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#minimap-panel {
+  padding: 4px !important;
+  overflow: hidden;
+}
+
+#minimap-svg {
+  background: transparent !important;
+  border-radius: 2px !important;
+}
+
+.minimap-background {
+  fill: transparent !important;
+}
+
+.theme-night .contents-overlay,
+.theme-night .contents-panel,
+.theme-night #minimap-panel {
+  border-color: #444 !important;
+  background-color: #18181a !important;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.theme-night .contents-panel {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.theme-night .minimap-background {
+  fill: rgba(20, 20, 22, 0.32);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .contents-overlay,
+  .contents-panel,
+  #minimap-panel {
+    border-color: rgba(255, 255, 255, 0.56) !important;
+    background-color: rgba(255, 255, 255, 0.68) !important;
+    -webkit-backdrop-filter: saturate(190%) blur(26px) !important;
+    backdrop-filter: saturate(190%) blur(26px) !important;
+  }
+
+  .contents-panel {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .theme-night .contents-overlay,
+  .theme-night .contents-panel,
+  .theme-night #minimap-panel {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(24, 24, 26, 0.68) !important;
+  }
+
+  .theme-night .contents-panel {
+    border-color: transparent !important;
+    background: transparent !important;
+  }
 }
 
 .theme-night .node-content *,
@@ -895,6 +1087,10 @@ body.contents-open {
 .theme-night .contents-link:hover {
   color: #fff !important;
   text-decoration-color: #fff !important;
+}
+
+.theme-night .contents-group-link {
+  color: #aaa !important;
 }
 
 .theme-night #edge-layer > path {
@@ -1029,8 +1225,8 @@ body.contents-open {
 
 .theme-night #minimap-svg,
 .theme-night .minimap-background {
-  background: #000 !important;
-  fill: #000 !important;
+  background: transparent !important;
+  fill: transparent !important;
 }
 
 .theme-night .minimap-node {
@@ -1056,14 +1252,7 @@ body.contents-open {
 }
 
 .canvas-overview .node:not([data-node-border="invisible"]) {
-  background: repeating-linear-gradient(
-    135deg,
-    #f4f4f4 0,
-    #f4f4f4 7px,
-    #e4e4e4 7px,
-    #e4e4e4 8px
-  ) !important;
-  border-color: #888 !important;
+  background: #f4f4f4 !important;
 }
 
 .canvas-overview .node-content {
@@ -1082,7 +1271,7 @@ body.contents-open {
   place-items: center;
   color: #000;
   content: attr(data-overview-title);
-  font-size: calc(15px / var(--canvas-scale, 1));
+  font-size: calc(var(--overview-label-size, 12px) / var(--canvas-scale, 1));
   font-weight: 600;
   line-height: 1;
   text-align: center;
@@ -1092,16 +1281,73 @@ body.contents-open {
 }
 
 .theme-night.canvas-overview .node:not([data-node-border="invisible"]) {
-  background: repeating-linear-gradient(
-    135deg,
-    #202020 0,
-    #202020 7px,
-    #303030 7px,
-    #303030 8px
-  ) !important;
-  border-color: #aaa !important;
+  background: #202020 !important;
+}
+
+.theme-night .node.group {
+  border-color: var(--node-border-color, #fff) !important;
 }
 
 .theme-night.canvas-overview .node:not([data-node-border="invisible"])::after {
   color: #fff;
+}
+
+.theme-night .contents-overlay,
+.theme-night #minimap-panel {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(24, 24, 26, 0.68) !important;
+}
+
+.theme-night .contents-panel {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.theme-night #minimap-svg {
+  background: transparent !important;
+}
+
+.theme-night .minimap-background {
+  fill: transparent !important;
+}
+
+.group-title {
+  font-size: calc(var(--group-title-size, 12px) / var(--canvas-scale, 1)) !important;
+  color: #000 !important;
+  font-weight: 700 !important;
+}
+
+.node.group {
+  background: #fff !important;
+  background: color-mix(in srgb, var(--node-border-color, #808080) var(--group-fill-strength, 0%), #fff) !important;
+  border: 2px solid var(--node-border-color, #808080) !important;
+}
+
+.node.group[style*="--node-border-color:#aab5c4"] {
+  border-radius: 50% !important;
+}
+
+.canvas-overview .main-map-node {
+  left: var(--main-node-circle-left) !important;
+  width: var(--main-node-circle-size) !important;
+  height: var(--main-node-circle-size) !important;
+  border-radius: 50% !important;
+}
+
+.canvas-overview .node.group {
+  background: #fff !important;
+  background: color-mix(in srgb, var(--node-border-color, #808080) var(--group-fill-strength, 0%), #fff) !important;
+}
+
+.theme-night .node.group {
+  background: color-mix(in srgb, var(--node-border-color, #fff) var(--group-fill-strength, 44%), transparent) !important;
+  border-color: var(--node-border-color, #fff) !important;
+}
+
+.theme-night.canvas-overview .node.group {
+  background: color-mix(in srgb, var(--node-border-color, #fff) var(--group-fill-strength, 44%), transparent) !important;
+}
+
+.theme-night .group-title {
+  color: #fff !important;
 }

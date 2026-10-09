@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="canvas-html-exporter v1.6.0">
+  <meta name="canvas-html-exporter-build" content="1.6.0-shiki">
+  <title>HOST.onstartup-README</title>
+  <!-- Exported by canvas-html-exporter v1.6.0 -->
+  <style>
+    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      color: #24303d;
+      line-height: 1.65;
+    }
+    .md-page-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-bottom: 1em;
+    }
+    .md-page-back-link,
+    .md-page-canvas-link {
+      color: #1967d2;
+      text-decoration: none;
+      font-size: 0.95em;
+      font-weight: 600;
+    }
+    .md-page-back-link:hover,
+    .md-page-canvas-link:hover {
+      text-decoration: underline;
+    }
+    .md-page {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 32px;
+      background: #ffffff;
+      border: 1px solid #d6dde7;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    h1, h2, h3, h4, h5, h6 { line-height: 1.25; margin-top: 1.1em; }
+    h1 { margin-top: 0; }
+    details.heading-section { margin: 0.8em 0; }
+    details.heading-section > summary.heading-summary {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+    details.heading-section > summary.heading-summary::-webkit-details-marker { display: none; }
+    details.heading-section > summary.heading-summary h1,
+    details.heading-section > summary.heading-summary h2,
+    details.heading-section > summary.heading-summary h3,
+    details.heading-section > summary.heading-summary h4,
+    details.heading-section > summary.heading-summary h5,
+    details.heading-section > summary.heading-summary h6 {
+      display: inline-block;
+      margin: 0 0.35em 0 0;
+      vertical-align: middle;
+    }
+    details.heading-section > summary.heading-summary::before { content: "⌄"; position: absolute; left: -1em; top: 50%; transform: translateY(-50%); line-height: 1; color: #5f6b7a; font-weight: 600; opacity: 0; transition: opacity 0.12s ease; }
+    details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
+    details.heading-section > summary.heading-summary:hover::before,
+    details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
+        h1 { color: rgb(34, 34, 34); }
+    h2 { color: rgb(34, 34, 34); }
+    h3 { color: rgb(34, 34, 34); }
+    h4 { color: rgb(34, 34, 34); }
+    h5 { color: rgb(34, 34, 34); }
+    h6 { color: rgb(2, 8, 50); }
+        strong { font-weight: 700; }
+    em { font-style: italic; }
+    del { text-decoration: line-through; }
+    a { color: #1967d2; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 0.65em 0; padding-left: 2em; }
+    code {
+      background: rgba(0,0,0,0.06);
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+    pre, .shiki {
+      margin: 0.9em 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    pre code, .shiki code { padding: 0; background: transparent; }
+    blockquote {
+      margin: 0.9em 0;
+      padding-left: 12px;
+      border-left: 3px solid #1967d2;
+      color: #5f6b7a;
+    }
+    .callout { border-radius: 6px; margin: 0.9em 0; overflow: hidden; border: 1px solid #888; }
+    .callout-title { padding: 5px 10px; font-weight: 600; font-size: 0.88em; letter-spacing: 0.01em; }
+    .callout-content { padding: 4px 10px 6px; }
+    .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
+    .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
+        .callout-note { border-color: #086ddd; }
+    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-info { border-color: #086ddd; }
+    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-todo { border-color: #086ddd; }
+    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-abstract { border-color: #00bfbc; }
+    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-summary { border-color: #00bfbc; }
+    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tldr { border-color: #00bfbc; }
+    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-tip { border-color: #00bfbc; }
+    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-hint { border-color: #00bfbc; }
+    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-important { border-color: #00bfbc; }
+    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
+    .callout-success { border-color: #08b94e; }
+    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-check { border-color: #08b94e; }
+    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-done { border-color: #08b94e; }
+    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
+    .callout-warning { border-color: #ec7500; }
+    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-caution { border-color: #ec7500; }
+    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-attention { border-color: #ec7500; }
+    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-question { border-color: #ec7500; }
+    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-help { border-color: #ec7500; }
+    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-faq { border-color: #ec7500; }
+    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
+    .callout-danger { border-color: #e93147; }
+    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-error { border-color: #e93147; }
+    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-failure { border-color: #e93147; }
+    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-fail { border-color: #e93147; }
+    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-missing { border-color: #e93147; }
+    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-bug { border-color: #e93147; }
+    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
+    .callout-example { border-color: #7852ee; }
+    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+    .callout-quote { border-color: #9e9e9e; }
+    .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-cite { border-color: #9e9e9e; }
+    .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
+    .callout-settings { border-color: #086ddd; }
+    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-award { border-color: #086ddd; }
+    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    details.callout { display: block; }
+    details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
+    details.callout > summary.callout-title::-webkit-details-marker { display: none; }
+    details.callout > summary.callout-title::after { content: " ›"; font-size: 0.85em; }
+    details.callout[open] > summary.callout-title::after { content: " ⌄"; }
+    hr { border: none; border-top: 1px solid #d6dde7; margin: 1em 0; }
+    img { display: block; max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
+    table { border-collapse: collapse; width: auto; max-width: 100%; margin: 0.8em 0; }
+    th, td { border: 1px solid #d6dde7; padding: 8px 10px; text-align: left; }
+    .md-embed-block {
+      margin: 0.8em 0;
+    }
+    .pdf-embed-block {
+      margin: 0.8em 0;
+      border: 1px solid #d6dde7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .pdf-embed-block iframe {
+      display: block;
+      width: 100%;
+      min-height: 420px;
+      border: none;
+      background: #ffffff;
+    }
+    .file-embed-block,
+    .media-embed-block {
+      margin: 0.8em 0;
+    }
+    .media-embed-block audio,
+    .media-embed-block video { display: block; width: 100%; max-width: 100%; }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.4em 0.7em;
+      border-radius: 999px;
+      border: 1px solid #d6dde7;
+      background: #ffffff;
+      color: #24303d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .file-chip:hover {
+      text-decoration: underline;
+    }
+    mark.search-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      color: inherit;
+      padding: 0 0.08em;
+      border-radius: 3px;
+    }
+    :target,
+    .target-highlight {
+      background: rgba(255, 214, 10, 0.45);
+      border-radius: 3px;
+      box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.2);
+    }
+    details.target-highlight {
+      padding: 0.08em 0.2em;
+    }
+    .unresolved-link {
+      color: #d64545;
+      font-style: italic;
+    }
+    
+    :root { --contents-panel-width: min(420px, calc(100vw - 32px)); }
+    body { transition: padding-left 0.16s ease; }
+    body.contents-open { padding-left: var(--contents-panel-width); }
+    .page-navigation-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #1967d2;
+      font: inherit;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .page-navigation-button:hover,
+    .page-navigation-button.is-active {
+      text-decoration: underline;
+    }
+    .contents-overlay {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: var(--contents-panel-width);
+    }
+    .contents-overlay[hidden] { display: none; }
+    .contents-panel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #d6dde7;
+      background: #ffffff;
+      box-shadow: 12px 0 36px rgba(0,0,0,0.22);
+    }
+    .contents-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid #d6dde7;
+    }
+    .contents-header h2 { margin: 0; font-size: 1.15rem; }
+    .contents-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px 20px 24px;
+    }
+    .contents-section h3 {
+      margin: 16px 0 8px;
+      color: #5f6b7a;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .contents-list { list-style: none; margin: 0; padding: 0; }
+    .contents-list .contents-list {
+      margin-left: 10px;
+      padding-left: 14px;
+      border-left: 1px solid #d6dde7;
+    }
+    .contents-item { margin: 2px 0; }
+    .contents-link {
+      display: block;
+      padding: 7px 9px;
+      border-radius: 7px;
+      color: #1967d2;
+      line-height: 1.35;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    .contents-link:hover { background: rgba(0,0,0,0.04); text-decoration: none; }
+    .contents-link.is-current {
+      background: rgba(0,0,0,0.04);
+      color: #24303d;
+      font-weight: 600;
+    }
+    .contents-empty { margin: 18px 0 0; color: #5f6b7a; font-size: 0.9rem; }
+
+  </style>
+  <link rel="stylesheet" href="../../site.css">
+</head>
+<body>
+  <main class="md-page">
+    <div class="md-page-toolbar">
+      
+      <a class="md-page-canvas-link" href="../../index.html" data-restore-canvas-view="root">Canvas</a>
+      <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
+    </div>
+    <h1>HOST.onstartup-README</h1>
+    <details class="heading-section heading-section-h1" open><summary class="heading-summary"><h1 id="kinect-host-hostonstartuptoe">Kinect host - HOST.onstartup.toe</h1></summary><p>Reads the three Azure Kinect sensors, puts them in room coordinates, merges them into one skeleton per person and sends everything to the lab network.<br>
+Runs on the Kinect NUC. Students never open it; this README is for whoever maintains it.</p>
+<p>In: 3 × Azure Kinect · Out: all joints of all people (OSC), camera images (NDI)</p>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="how-to-use">How to use</h2></summary><ol><li>Start the NUC. The project opens by itself at startup.</li><li>Check that the three Kinect Azure CHOPs show no error and that each shows data when someone stands in its view.</li><li>Inside <code>Sensor_Azure_Multiple_HOST</code>, check the Script CHOP <code>fusion</code>: no flag, <code>persons</code> counts the people in the room, and <code>heartbeat</code> keeps changing.</li><li>Walk through the room. You should stay <code>p1</code> the whole time, also when you pass from one sensor&#39;s view into another&#39;s.</li><li>Calibration check: set <code>DEBUG = True</code> at the top of <code>fusion_callbacks</code> and read the <code>spread</code> lines in the Textport (see Normal, not bugs).</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="settings">Settings</h2></summary><p>On each Kinect Azure CHOP:</p>
+<ul><li>Max Players: how many bodies one sensor tracks. More bodies cost more GPU.</li><li>World Space Positions: on (positions in metres, before calibration)</li><li>Bone Confidence: on. The fusion uses it to prefer the sensor with the best view of each joint.</li></ul>
+<p>In the Transform XYZ CHOPs (<code>transformxyz_Y2</code>, <code>_Y19</code>, <code>_Y13</code>):</p>
+<ul><li>Translate and Rotate: the measured pose of that sensor. Only change these after moving a sensor.</li></ul>
+<p>At the top of <code>fusion_callbacks</code> (the fusion script):</p>
+<ul><li>MATCH_DIST (0.75 m): how far a person may move between two frames and still be the same person</li><li>MERGE_DIST (1.20 m): bodies from different sensors this close together are one person. Lower it once the calibration is tighter.</li><li>CONFIRM_FRAMES (5): frames a new person must be seen before getting a number</li><li>DROP_FRAMES (15): frames a person may be unseen before their number is released</li><li>MAX_SLOTS (8): highest person number, <code>p1</code> to <code>p8</code></li><li>DEBUG: prints the decisions once per second in the Textport</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li><code>p{N}/{joint}:tx ty tz</code>: every joint of every tracked person, metres, room frame (X width, Y height, Z depth)</li><li><code>p1/present</code> … <code>p8/present</code>: 1 while that person is tracked, always sent, also as 0</li><li><code>persons</code>: how many people are seen right now</li><li><code>heartbeat</code>: changes every frame while the host runs</li><li>OSC UDP 1030 (skeletons), 1031 (frame rate); NDI per sensor (AK1-3)</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="normal-not-bugs">Normal, not bugs</h2></summary><ul><li>A person gets a different number after leaving and coming back: numbers belong to tracks, not to people.</li><li>Numbers don&#39;t follow the order people entered once someone leaves: a free number is reused, the lowest one first.</li><li>A new person appears about 0.2 s after entering: they must be seen for 5 frames first, so a one-frame glitch never takes a number.</li><li><code>spread</code> above 0.5 m in the debug lines: the calibration of that sensor pair is off. Re-measure the pose of the sensor that differs.</li><li>Hands are less steady than torso and head: the Kinect itself rates hands as uncertain. The fusion then averages all sensors.</li><li>Left and right hand swap when someone turns their back or pulls up their shoulders: the Kinect assumes everyone faces it. Not solved yet.</li><li>Dark hair, long hair, dark skin or dark clothing track worse: less infrared light comes back to the depth camera.</li><li>Two people hugging become one person for a moment: they are within merge distance.</li></ul></details></details>
+  </main>
+  <div id="contents-overlay" class="contents-overlay" hidden>
+    <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
+      <header class="contents-header">
+        <h2 id="contents-title">Navigation</h2>
+      </header>
+      <nav class="contents-navigation" aria-label="Exported pages">
+        <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="023_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="021_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Lab-tools.html">Lab tools</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Wall-projection.html">Wall projection</a></li></ul></section>
+      </nav>
+    </aside>
+  </div>
+  <script>
+    (() => {
+      
+      const navigationPageId = "root:page:assets/files/024_HOST.onstartup-README.html";
+      const packageRootHref = "../../index.html";
+      const navigationWindowStatePrefix = "canvas-html-exporter-navigation:";
+      const contentsOverlay = document.getElementById("contents-overlay");
+      const navigationButton = document.getElementById("page-navigation-button");
+      let globalNavigationOpen = false;
+      let navigationPageStates = {};
+      let packageViewportStates = {};
+
+      function normalizeNavigationPageStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(
+          Object.entries(value).filter((entry) => typeof entry[0] === "string" && typeof entry[1] === "boolean"),
+        );
+      }
+
+      function normalizePackageViewportStates(value) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+        return Object.fromEntries(Object.entries(value).filter((entry) => {
+          const state = entry[1];
+          return typeof entry[0] === "string"
+            && state && typeof state === "object" && !Array.isArray(state)
+            && Number.isFinite(state.scale)
+            && Number.isFinite(state.left)
+            && Number.isFinite(state.top);
+        }));
+      }
+
+      function getPackageNavigationScope() {
+        try {
+          const rootUrl = new URL(packageRootHref, window.location.href);
+          return new URL(".", rootUrl).href;
+        } catch {
+          return "";
+        }
+      }
+
+      function readNavigationState() {
+        const params = new URLSearchParams(window.location.search);
+        const globalValue = params.get("navigation");
+        if (globalValue === "open") globalNavigationOpen = true;
+        if (globalValue === "closed") globalNavigationOpen = false;
+        const pageValue = params.get("navigationPages");
+        if (pageValue) {
+          try {
+            navigationPageStates = normalizeNavigationPageStates(JSON.parse(pageValue));
+          } catch {
+            navigationPageStates = {};
+          }
+        }
+        const viewportValue = params.get("canvasViews");
+        if (viewportValue) {
+          try {
+            packageViewportStates = normalizePackageViewportStates(JSON.parse(viewportValue));
+          } catch {
+            packageViewportStates = {};
+          }
+        }
+        if (!window.name.startsWith(navigationWindowStatePrefix)) return;
+        try {
+          const stored = JSON.parse(window.name.slice(navigationWindowStatePrefix.length));
+          if (!stored || stored.scope !== getPackageNavigationScope()) return;
+          if (typeof stored.globalOpen === "boolean") globalNavigationOpen = stored.globalOpen;
+          navigationPageStates = normalizeNavigationPageStates(stored.pageStates);
+          if (Object.prototype.hasOwnProperty.call(stored, "viewportStates")) {
+            packageViewportStates = normalizePackageViewportStates(stored.viewportStates);
+          }
+        } catch {
+          // Ignore unrelated or malformed window state.
+        }
+      }
+
+      function applyNavigationParams(url, restoreCanvasViewId) {
+        url.searchParams.set("navigation", globalNavigationOpen ? "open" : "closed");
+        const pageEntries = Object.entries(navigationPageStates);
+        if (pageEntries.length) {
+          url.searchParams.set("navigationPages", JSON.stringify(Object.fromEntries(pageEntries)));
+        } else {
+          url.searchParams.delete("navigationPages");
+        }
+        const viewportEntries = Object.entries(packageViewportStates);
+        if (viewportEntries.length) {
+          url.searchParams.set("canvasViews", JSON.stringify(Object.fromEntries(viewportEntries)));
+        } else {
+          url.searchParams.delete("canvasViews");
+        }
+        if (restoreCanvasViewId) url.searchParams.set("canvasView", restoreCanvasViewId);
+        else url.searchParams.delete("canvasView");
+      }
+
+      function updateNavigationLinks() {
+        const returnSearchQuery = new URLSearchParams(window.location.search).get("q");
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget || !url.pathname.toLowerCase().endsWith(".html")) return;
+            applyNavigationParams(url, link.getAttribute("data-restore-canvas-view") || "");
+            if (returnSearchQuery && link.matches(".md-page-back-link, .md-page-canvas-link")) {
+              url.searchParams.set("q", returnSearchQuery);
+            }
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+
+      function writeNavigationState() {
+        window.name = navigationWindowStatePrefix + JSON.stringify({
+          scope: getPackageNavigationScope(),
+          globalOpen: globalNavigationOpen,
+          pageStates: navigationPageStates,
+          viewportStates: packageViewportStates,
+        });
+        const url = new URL(window.location.href);
+        applyNavigationParams(url, "");
+        try {
+          window.history.replaceState(null, "", url.href);
+        } catch {
+          // Link propagation below still preserves the chosen state.
+        }
+        updateNavigationLinks();
+      }
+
+      function applyNavigationVisibility(open) {
+        if (!contentsOverlay || !navigationButton) return;
+        contentsOverlay.hidden = !open;
+        document.body.classList.toggle("contents-open", open);
+        navigationButton.classList.toggle("is-active", open);
+        navigationButton.setAttribute("aria-pressed", String(open));
+      }
+
+      function restoreNavigationVisibility() {
+        const hasLocalState = Object.prototype.hasOwnProperty.call(navigationPageStates, navigationPageId);
+        applyNavigationVisibility(hasLocalState ? navigationPageStates[navigationPageId] === true : false);
+      }
+
+      navigationButton.addEventListener("click", () => {
+        const open = contentsOverlay.hidden;
+        navigationPageStates[navigationPageId] = open;
+        applyNavigationVisibility(open);
+        writeNavigationState();
+      });
+
+      readNavigationState();
+      writeNavigationState();
+      restoreNavigationVisibility();
+      window.addEventListener("pageshow", () => {
+        readNavigationState();
+        writeNavigationState();
+        restoreNavigationVisibility();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const query = (params.get("q") || "").trim();
+      const navigation = params.get("navigation");
+      const navigationPages = params.get("navigationPages");
+      if (navigation === "open" || navigation === "closed") {
+        document.querySelectorAll('a[href]').forEach((link) => {
+          const href = link.getAttribute("href") || "";
+          if (!href || href.startsWith("#")) return;
+          try {
+            const url = new URL(href, window.location.href);
+            const isLocalTarget = url.protocol === window.location.protocol
+              && (url.protocol === "file:" || url.origin === window.location.origin);
+            if (!isLocalTarget) return;
+            if (!url.pathname.toLowerCase().endsWith(".html")) return;
+            url.searchParams.set("navigation", navigation);
+            if (navigationPages) url.searchParams.set("navigationPages", navigationPages);
+            link.setAttribute("href", url.href);
+          } catch {
+            // Leave malformed or unsupported links unchanged.
+          }
+        });
+      }
+      const root = document.querySelector(".md-page");
+      if (!root) return;
+
+      function decodeHashComponent(value) {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      }
+
+      const hashTargetId = decodeHashComponent(String(window.location.hash || "").replace(/^#/, ""));
+      if (hashTargetId) {
+        const target = document.getElementById(hashTargetId);
+        if (target) {
+          const highlightTarget = target.closest("details.heading-section") || target;
+          highlightTarget.classList.add("target-highlight");
+          let parent = target.parentElement;
+          while (parent) {
+            if (parent.tagName === "DETAILS") parent.open = true;
+            parent = parent.parentElement;
+          }
+        }
+      }
+
+      if (!query) return;
+
+      const pattern = new RegExp(query.replace(/[.*+?^()|[\]{}$\\]/g, "\\$&"), "ig");
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (["SCRIPT", "STYLE"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (!pattern.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+          pattern.lastIndex = 0;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+
+      const matches = [];
+      let current = walker.nextNode();
+      while (current) {
+        matches.push(current);
+        current = walker.nextNode();
+      }
+
+      for (const textNode of matches) {
+        const text = textNode.nodeValue || "";
+        pattern.lastIndex = 0;
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match = pattern.exec(text);
+
+        while (match) {
+          if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          }
+          const mark = document.createElement("mark");
+          mark.className = "search-highlight";
+          mark.textContent = match[0];
+          fragment.appendChild(mark);
+          lastIndex = match.index + match[0].length;
+          match = pattern.exec(text);
+        }
+
+        if (lastIndex < text.length) {
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+        }
+
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    })();
+  </script>
+</body>
+</html>

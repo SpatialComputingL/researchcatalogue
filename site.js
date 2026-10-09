@@ -1,13 +1,16 @@
 (() => {
   const modelNode = document.querySelector("#node-ca93d4f84581e0a4");
   const modelContent = modelNode?.querySelector(".node-content");
-  const modelLink = modelContent?.querySelector('a[href*="024_lab-3d-viewer.html"]');
+  const modelLink = modelContent?.querySelector('a[href*="lab-3d-viewer.html"]');
   if (modelNode && modelContent && modelLink) {
-    const previewUrl = new URL(modelLink.getAttribute("href"), document.baseURI);
+    const exportedModelUrl = new URL(modelLink.getAttribute("href"), document.baseURI);
+    const customModelUrl = new URL("024_lab-3d-viewer.html", exportedModelUrl);
+    const previewUrl = new URL(customModelUrl);
     previewUrl.searchParams.set("preview", "1");
     const openLink = modelLink.cloneNode(true);
     openLink.className = "model-preview-link";
     openLink.textContent = "Open interactive model ↗";
+    openLink.href = customModelUrl.href;
     const previewFrame = document.createElement("iframe");
     previewFrame.className = "model-preview-frame";
     previewFrame.title = "Orbitable Spatial Computing Lab 3D model";
@@ -21,6 +24,8 @@
   const contentsOverlay = document.querySelector("#contents-overlay");
   const contentsPanel = document.querySelector("#contents-panel");
   if (!navigationButton || !contentsOverlay || !contentsPanel) return;
+  const contentsNavigation = contentsPanel.querySelector(".contents-navigation");
+  const contentsPageLinks = [...contentsPanel.querySelectorAll(".contents-link[href]")];
 
   const toolbar = document.querySelector(".toolbar");
   const toolbarButtons = [...(toolbar?.querySelectorAll(":scope > button") || [])];
@@ -52,13 +57,9 @@
   reloadButton.type = "button";
   reloadButton.id = "mobile-reload-button";
   reloadButton.className = "mobile-reload-button";
-  reloadButton.setAttribute("aria-label", "Reload canvas");
+  reloadButton.setAttribute("aria-label", "Reframe canvas");
   reloadButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"></path><path d="M19 12a7 7 0 1 1-2.05-4.95L20 12"></path></svg>';
-  reloadButton.addEventListener("click", () => {
-    window.storeNodePositions?.();
-    window.storeCanvasState?.();
-    window.location.reload();
-  });
+  reloadButton.addEventListener("click", () => window.reframeCanvas?.());
 
   let toolbarHideTimer = 0;
   const hideToolbar = () => {
@@ -89,7 +90,7 @@
   const minimapPanel = document.querySelector("#minimap-panel");
   if (minimapButton) minimapButton.textContent = "↓ NAVIGATION";
   const minimapTitle = document.querySelector("#minimap-panel .minimap-header strong");
-  if (minimapTitle) minimapTitle.textContent = "";
+  if (minimapTitle) minimapTitle.textContent = "NAVIGATION";
 
   const publicationTitle = document.createElement("span");
   publicationTitle.className = "publication-title";
@@ -110,19 +111,11 @@
   navigationDropdown.after(publicationTitle);
   if (minimapButton) minimapButton.textContent = "↓ NAVIGATION";
   contentsPanel.querySelector(".contents-header")?.remove();
-  contentsPanel.querySelectorAll(".contents-section").forEach((section) => {
-    section.querySelectorAll("h3").forEach((heading) => heading.remove());
-  });
-  contentsPanel.querySelectorAll('.contents-item[data-contents-kind="canvas"]').forEach((item) => {
-    item.closest(".contents-section")?.remove();
-  });
   contentsPanel.querySelectorAll(".contents-link").forEach((link) => {
     link.classList.remove("is-current");
     link.removeAttribute("aria-current");
   });
-  contentsPanel.querySelectorAll(".contents-section").forEach((section) => {
-    section.replaceWith(...section.childNodes);
-  });
+  contentsNavigation?.replaceChildren();
 
   navigationButton.setAttribute("aria-haspopup", "true");
   const syncExpandedState = () => {
@@ -155,6 +148,9 @@
       navigationButton.focus();
     }
   });
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    window.openContents?.();
+  }
 
   const zoomViewport = document.querySelector(".viewport");
   const zoomCanvas = document.querySelector("#canvas");
@@ -162,6 +158,92 @@
   const originalResetZoom = window.resetZoom;
   if (!zoomViewport || !zoomCanvas || typeof originalZoomBy !== "function") return;
   zoomViewport.append(themeButton, reloadButton);
+  const mainMapNode = [...zoomCanvas.querySelectorAll(".node[data-node-id]")].find((node) =>
+    node.querySelector(".md-card-title-link")?.textContent?.trim().toLowerCase()
+      === "abstract spatial computing lab",
+  );
+  if (mainMapNode) {
+    const size = Math.min(Number(mainMapNode.dataset.canvasWidth), Number(mainMapNode.dataset.canvasHeight));
+    const inset = (Number(mainMapNode.dataset.canvasWidth) - size) / 2;
+    mainMapNode.classList.add("main-map-node");
+    mainMapNode.style.setProperty("--main-node-circle-size", `${size}px`);
+    mainMapNode.style.setProperty(
+      "--main-node-circle-left",
+      `${Number(mainMapNode.dataset.canvasLeft) + inset}px`,
+    );
+  }
+  const originalNodePositions = new Map(
+    [...zoomCanvas.querySelectorAll(".node[data-node-id]")].map((node) => [
+      node.getAttribute("data-node-id"),
+      {
+        left: Number(node.getAttribute("data-canvas-left") || 0),
+        top: Number(node.getAttribute("data-canvas-top") || 0),
+      },
+    ]),
+  );
+  const nodePositionStorageKey = `spatial-lab-node-positions:${location.pathname}`;
+  const applyNodePositions = (positions) => {
+    for (const node of zoomCanvas.querySelectorAll(".node[data-node-id]")) {
+      const position = positions.get(node.getAttribute("data-node-id"));
+      if (!position) continue;
+      node.setAttribute("data-canvas-left", String(position.left));
+      node.setAttribute("data-canvas-top", String(position.top));
+      node.style.left = `${position.left}px`;
+      node.style.top = `${position.top}px`;
+      const minimapNode = document.querySelector(
+        `.minimap-node[data-node-id="${node.getAttribute("data-node-id")}"]`,
+      );
+      if (minimapNode) {
+        minimapNode.setAttribute("x", String(position.left));
+        minimapNode.setAttribute("y", String(position.top));
+      }
+    }
+    window.drawCanvasEdges?.();
+    zoomViewport.dispatchEvent(new Event("scroll"));
+  };
+  let storedNodePositions = {};
+  const storedNodePositionsJson = localStorage.getItem(nodePositionStorageKey);
+  if (storedNodePositionsJson) {
+    try {
+      storedNodePositions = JSON.parse(storedNodePositionsJson);
+    } catch (error) {
+      console.warn("Ignoring invalid saved Canvas node positions.", error);
+      localStorage.removeItem(nodePositionStorageKey);
+    }
+  }
+  if (storedNodePositions && typeof storedNodePositions === "object" && !Array.isArray(storedNodePositions)) {
+    const validStoredPositions = new Map(
+      Object.entries(storedNodePositions).filter(([, position]) =>
+        position && Number.isFinite(position.left) && Number.isFinite(position.top)),
+    );
+    if (validStoredPositions.size) applyNodePositions(validStoredPositions);
+  }
+  window.storeNodePositions = () => {
+    const changedPositions = Object.fromEntries(
+      [...zoomCanvas.querySelectorAll(".node[data-node-id]")].flatMap((node) => {
+        const id = node.getAttribute("data-node-id");
+        const original = originalNodePositions.get(id);
+        if (!id || !original) return [];
+        const position = {
+          left: Number(node.getAttribute("data-canvas-left")),
+          top: Number(node.getAttribute("data-canvas-top")),
+        };
+        if (!Number.isFinite(position.left) || !Number.isFinite(position.top)) return [];
+        return position.left === original.left && position.top === original.top
+          ? []
+          : [[id, position]];
+      }),
+    );
+    if (Object.keys(changedPositions).length) {
+      localStorage.setItem(nodePositionStorageKey, JSON.stringify(changedPositions));
+    } else {
+      localStorage.removeItem(nodePositionStorageKey);
+    }
+  };
+  window.resetNodePositions = () => {
+    applyNodePositions(originalNodePositions);
+    localStorage.removeItem(nodePositionStorageKey);
+  };
   const canvasExtent = document.createElement("div");
   canvasExtent.className = "canvas-extent";
   zoomCanvas.before(canvasExtent);
@@ -202,7 +284,7 @@
     const availableHeight = Math.max(100, zoomViewport.clientHeight - 64);
     const fitScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
     const maxScale = Math.max(focusedNodeScale, Math.min(1.1, Math.max(0.95, fitScale * 1.8)));
-    const minScale = zoomViewport.clientWidth <= 760 ? 0.24 : Math.min(0.35, fitScale);
+    const minScale = Math.min(0.35, fitScale * 0.85);
     return { minScale: Math.min(minScale, maxScale), maxScale };
   };
   const readCanvasMatrix = () => new DOMMatrixReadOnly(getComputedStyle(zoomCanvas).transform);
@@ -218,23 +300,49 @@
   let focusedNodeScale = 0;
   let focusedNode = null;
   const initialFitBounds = boundsForVisibleNodes();
-  const initialFitScale = Math.max(
-    zoomViewport.clientWidth <= 760 ? 0.24 : 0.08,
-    Math.min(
+  const initialFitScale = Math.min(
       1,
-      (zoomViewport.clientWidth - 64) / initialFitBounds.width,
-      (zoomViewport.clientHeight - 96) / initialFitBounds.height,
-    ),
-  );
+      Math.max(100, zoomViewport.clientWidth - 64) / initialFitBounds.width,
+      Math.max(100, zoomViewport.clientHeight - 96) / initialFitBounds.height,
+    ) * 0.96;
   let fitToViewport = Math.abs(targetScale - initialFitScale) < 0.015;
   zoomCanvas.style.transform = `scale(${targetScale})`;
   zoomCanvas.querySelectorAll(".node[data-node-id]").forEach((node) => {
     const title = node.querySelector(".md-card-title")?.textContent?.trim();
     if (title) node.setAttribute("data-overview-title", title);
   });
+  const viewportContentSize = () => {
+    const style = getComputedStyle(zoomViewport);
+    return {
+      width: Math.max(0, zoomViewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)),
+      height: Math.max(0, zoomViewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)),
+      left: parseFloat(style.paddingLeft),
+      top: parseFloat(style.paddingTop),
+    };
+  };
+  const viewportContentCenter = () => {
+    const rect = zoomViewport.getBoundingClientRect();
+    const size = viewportContentSize();
+    return {
+      x: rect.left + zoomViewport.clientLeft + size.left + size.width / 2,
+      y: rect.top + zoomViewport.clientTop + size.top + size.height / 2,
+    };
+  };
   const updateCanvasExtent = (scale = targetScale) => {
-    canvasExtent.style.width = `${zoomCanvas.offsetWidth * scale}px`;
-    canvasExtent.style.height = `${zoomCanvas.offsetHeight * scale}px`;
+    const content = viewportContentSize();
+    const scaledWidth = zoomCanvas.offsetWidth * scale;
+    const scaledHeight = zoomCanvas.offsetHeight * scale;
+    const gutterX = content.width;
+    const gutterY = content.height;
+    const bounds = boundsForVisibleNodes();
+    canvasExtent.style.width = `${Math.max(scaledWidth, content.width) + gutterX * 2}px`;
+    canvasExtent.style.height = `${Math.max(scaledHeight, content.height) + gutterY * 2}px`;
+    zoomCanvas.style.left = `${gutterX + (scaledWidth < content.width
+      ? content.width / 2 - (bounds.left + bounds.width / 2) * scale
+      : 0)}px`;
+    zoomCanvas.style.top = `${gutterY + (scaledHeight < content.height
+      ? content.height / 2 - (bounds.top + bounds.height / 2) * scale
+      : 0)}px`;
   };
   updateCanvasExtent();
   const refreshMinimap = () => {
@@ -250,23 +358,42 @@
     targetScale = scale;
     zoomCanvas.style.transform = `scale(${scale})`;
     zoomCanvas.style.setProperty("--canvas-scale", String(scale));
-    document.body.classList.toggle("canvas-overview", scale <= 0.26);
+    const overviewProgress = Math.max(0, Math.min(1, (0.44 - scale) / 0.28));
+    const dayOverviewProgress = Math.max(0, Math.min(1, (0.68 - scale) / 0.12));
+    const isNight = document.body.classList.contains("theme-night");
+    zoomCanvas.style.setProperty(
+      "--group-fill-strength",
+      `${isNight ? 44 + overviewProgress * 48 : dayOverviewProgress * 84}%`,
+    );
+    zoomCanvas.style.setProperty("--canvas-title-size", `${12 + 6 * Math.min(scale, 1)}px`);
+    for (const node of zoomCanvas.querySelectorAll(".node[data-overview-title]")) {
+      const title = node.getAttribute("data-overview-title") || "";
+      const screenWidth = node.offsetWidth * scale;
+      const screenHeight = node.offsetHeight * scale;
+      const widthFit = (screenWidth - 8) / Math.max(1, title.length * 0.56);
+      const labelSize = Math.max(5, Math.min(13, screenHeight * 0.62, widthFit));
+      node.style.setProperty("--overview-label-size", `${labelSize}px`);
+    }
+    for (const title of zoomCanvas.querySelectorAll(".group-title[data-group-title-node-id]")) {
+      const node = zoomCanvas.querySelector(`#node-${CSS.escape(title.dataset.groupTitleNodeId)}`);
+      const text = title.querySelector(".group-title-text")?.textContent?.trim() || "";
+      const availableWidth = Number(node?.dataset.canvasWidth || 0) * scale;
+      const widthFit = availableWidth / Math.max(1, text.length * 0.58);
+      const titleSize = Math.max(9, Math.min(12 + 6 * Math.min(scale, 1), widthFit));
+      title.style.setProperty("--group-title-size", `${titleSize}px`);
+    }
+    document.body.classList.toggle("canvas-overview", scale <= 0.4);
     updateCanvasExtent(scale);
   };
   setRenderedScale(targetScale);
+  new MutationObserver(() => setRenderedScale(targetScale)).observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
 
   const setScaleAtWorldPoint = (nextScale, worldPoint, anchor, immediate = false) => {
     cancelZoomAnimation();
     const previousTargetScale = targetScale;
-    const viewportRect = zoomViewport.getBoundingClientRect();
-    const canvasRect = zoomCanvas.getBoundingClientRect();
-    const matrix = readCanvasMatrix();
-    const originX = canvasRect.left - viewportRect.left - zoomViewport.clientLeft
-      + zoomViewport.scrollLeft - matrix.e;
-    const originY = canvasRect.top - viewportRect.top - zoomViewport.clientTop
-      + zoomViewport.scrollTop - matrix.f;
-    const anchorX = anchor.x - viewportRect.left - zoomViewport.clientLeft;
-    const anchorY = anchor.y - viewportRect.top - zoomViewport.clientTop;
     const startTime = performance.now();
     const duration = immediate || matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 120;
     let appliedScale = previousTargetScale;
@@ -277,13 +404,14 @@
       originalZoomBy(scale / appliedScale);
       appliedScale = scale;
       setRenderedScale(scale);
+      const canvasRect = zoomCanvas.getBoundingClientRect();
       zoomViewport.scrollLeft = Math.max(0, Math.min(
         zoomViewport.scrollWidth - zoomViewport.clientWidth,
-        originX + worldPoint.x * scale - anchorX,
+        zoomViewport.scrollLeft + canvasRect.left + worldPoint.x * scale - anchor.x,
       ));
       zoomViewport.scrollTop = Math.max(0, Math.min(
         zoomViewport.scrollHeight - zoomViewport.clientHeight,
-        originY + worldPoint.y * scale - anchorY,
+        zoomViewport.scrollTop + canvasRect.top + worldPoint.y * scale - anchor.y,
       ));
       refreshMinimap();
       if (progress < 1) {
@@ -306,12 +434,42 @@
     const nextScale = Math.max(limits.minScale, Math.min(limits.maxScale, targetScale * factor));
     if (Math.abs(nextScale - targetScale) < 0.0001) return;
 
-    const pointX = anchor?.x ?? viewportRect.left + viewportRect.width / 2;
-    const pointY = anchor?.y ?? viewportRect.top + viewportRect.height / 2;
-    const anchorWorld = { x: (pointX - rect.left) / visualScale, y: (pointY - rect.top) / visualScale };
+    const viewportCenter = viewportContentCenter();
+    const centerAtOverviewLimit = factor < 1 && nextScale <= limits.minScale + 0.0001;
+    const pointX = centerAtOverviewLimit ? viewportCenter.x : anchor?.x ?? viewportCenter.x;
+    const pointY = centerAtOverviewLimit ? viewportCenter.y : anchor?.y ?? viewportCenter.y;
+    const bounds = centerAtOverviewLimit ? boundsForVisibleNodes() : null;
+    const anchorWorld = bounds
+      ? { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 }
+      : { x: (pointX - rect.left) / visualScale, y: (pointY - rect.top) / visualScale };
     setScaleAtWorldPoint(nextScale, anchorWorld, { x: pointX, y: pointY }, immediate);
+    if (centerAtOverviewLimit) {
+      if (immediate) {
+        window.requestAnimationFrame(() => {
+          if (targetScale <= limits.minScale + 0.0001) centerMapInViewport();
+        });
+      } else {
+        window.setTimeout(() => {
+          if (targetScale <= limits.minScale + 0.0001) centerMapInViewport();
+        }, 160);
+      }
+    }
   };
-
+  const centerMapInViewport = () => {
+    const bounds = boundsForVisibleNodes();
+    const scale = readCanvasScale();
+    updateCanvasExtent(scale);
+    const canvasRect = zoomCanvas.getBoundingClientRect();
+    const center = viewportContentCenter();
+    zoomViewport.scrollLeft = Math.max(0, Math.min(
+      zoomViewport.scrollWidth - zoomViewport.clientWidth,
+      zoomViewport.scrollLeft + canvasRect.left + (bounds.left + bounds.width / 2) * scale - center.x,
+    ));
+    zoomViewport.scrollTop = Math.max(0, Math.min(
+      zoomViewport.scrollHeight - zoomViewport.clientHeight,
+      zoomViewport.scrollTop + canvasRect.top + (bounds.top + bounds.height / 2) * scale - center.y,
+    ));
+  };
   let activeCanvasPinch = null;
   const touchDistance = (touches) => Math.hypot(
     touches[0].clientX - touches[1].clientX,
@@ -396,6 +554,134 @@
     setScaleAtWorldPoint(scale, center, centerClient);
     window.closeContents?.();
   };
+  const nodeForPageLink = (link) => {
+    let path;
+    try {
+      path = new URL(link.href, window.location.href).pathname;
+    } catch {
+      return null;
+    }
+    return [...zoomCanvas.querySelectorAll(".node")].find((node) => {
+      const titleLink = node.querySelector(".md-card-title-link[href]");
+      if (!titleLink) return false;
+      try {
+        return new URL(titleLink.href, window.location.href).pathname === path;
+      } catch {
+        return false;
+      }
+    }) || null;
+  };
+  if (contentsNavigation) {
+    const groups = [...zoomCanvas.querySelectorAll(".node.group[data-node-id]")]
+      .map((node) => {
+        const title = zoomCanvas.querySelector(
+          `.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"] .group-title-text`,
+        )?.textContent?.trim() || node.querySelector(".md-card-title")?.textContent?.trim();
+        return title ? { node, title, pages: [], children: [], parent: null } : null;
+      })
+      .filter(Boolean);
+    const independentPages = [];
+    let mainPage = null;
+    for (const link of contentsPageLinks) {
+      const item = link.closest(".contents-item") || link;
+      const pageNode = nodeForPageLink(link);
+      if (pageNode === mainMapNode || link.textContent.trim().toLowerCase() === "abstract spatial computing lab") {
+        mainPage = item;
+        continue;
+      }
+      if (pageNode) {
+        const left = Number(pageNode.dataset.canvasLeft);
+        const top = Number(pageNode.dataset.canvasTop);
+        const centerX = left + Number(pageNode.dataset.canvasWidth) / 2;
+        const centerY = top + Number(pageNode.dataset.canvasHeight) / 2;
+        const containingGroup = groups
+          .filter(({ node }) => {
+            const groupLeft = Number(node.dataset.canvasLeft);
+            const groupTop = Number(node.dataset.canvasTop);
+            return centerX >= groupLeft
+              && centerX <= groupLeft + Number(node.dataset.canvasWidth)
+              && centerY >= groupTop
+              && centerY <= groupTop + Number(node.dataset.canvasHeight);
+          })
+          .sort((a, b) =>
+            Number(a.node.dataset.canvasWidth) * Number(a.node.dataset.canvasHeight)
+            - Number(b.node.dataset.canvasWidth) * Number(b.node.dataset.canvasHeight),
+          )[0];
+        if (containingGroup) {
+          containingGroup.pages.push(item);
+          continue;
+        }
+      }
+      independentPages.push(item);
+    }
+    const list = document.createElement("ul");
+    list.className = "contents-list";
+    const addPage = (item, className) => {
+      item.className = `contents-item ${className}`;
+      const link = item.querySelector(".contents-link");
+      if (link) link.classList.add("contents-page-link");
+      list.append(item);
+    };
+    if (mainPage) addPage(mainPage, "contents-main-item");
+    for (const group of groups) {
+      const groupBounds = {
+        left: Number(group.node.dataset.canvasLeft),
+        top: Number(group.node.dataset.canvasTop),
+        right: Number(group.node.dataset.canvasLeft) + Number(group.node.dataset.canvasWidth),
+        bottom: Number(group.node.dataset.canvasTop) + Number(group.node.dataset.canvasHeight),
+      };
+      const groupArea = Number(group.node.dataset.canvasWidth) * Number(group.node.dataset.canvasHeight);
+      group.parent = groups
+        .filter((candidate) => candidate !== group)
+        .filter((candidate) => {
+          const left = Number(candidate.node.dataset.canvasLeft);
+          const top = Number(candidate.node.dataset.canvasTop);
+          const right = left + Number(candidate.node.dataset.canvasWidth);
+          const bottom = top + Number(candidate.node.dataset.canvasHeight);
+          const candidateArea = Number(candidate.node.dataset.canvasWidth)
+            * Number(candidate.node.dataset.canvasHeight);
+          return candidateArea > groupArea
+            && left <= groupBounds.left && top <= groupBounds.top
+            && right >= groupBounds.right && bottom >= groupBounds.bottom;
+        })
+        .sort((a, b) =>
+          Number(a.node.dataset.canvasWidth) * Number(a.node.dataset.canvasHeight)
+          - Number(b.node.dataset.canvasWidth) * Number(b.node.dataset.canvasHeight),
+        )[0] || null;
+      group.parent?.children.push(group);
+    }
+    const appendGroup = (group, parentList) => {
+      const heading = document.createElement("li");
+      heading.className = "contents-item contents-group-item";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "contents-link contents-group-link";
+      button.textContent = group.title;
+      button.addEventListener("click", () => zoomToNode(group.node));
+      heading.append(button);
+      const children = document.createElement("ul");
+      children.className = "contents-list contents-group-children";
+      for (const item of group.pages) {
+        item.className = "contents-item contents-group-page";
+        const link = item.querySelector(".contents-link");
+        if (link) link.classList.add("contents-page-link");
+        children.append(item);
+      }
+      group.children
+        .sort((a, b) => Number(a.node.dataset.canvasTop) - Number(b.node.dataset.canvasTop)
+          || Number(a.node.dataset.canvasLeft) - Number(b.node.dataset.canvasLeft))
+        .forEach((child) => appendGroup(child, children));
+      if (children.childElementCount) heading.append(children);
+      parentList.append(heading);
+    };
+    groups
+      .filter(({ parent }) => !parent)
+      .sort((a, b) => Number(a.node.dataset.canvasTop) - Number(b.node.dataset.canvasTop)
+        || Number(a.node.dataset.canvasLeft) - Number(b.node.dataset.canvasLeft))
+      .forEach((group) => appendGroup(group, list));
+    for (const item of independentPages) addPage(item, "contents-independent-item");
+    contentsNavigation.append(list);
+  }
   document.addEventListener("click", (event) => {
     if (!(event.target instanceof Element)) return;
     if (Date.now() <= (window.__canvasSuppressClickUntil || 0)) return;
@@ -451,26 +737,28 @@
       y: zoomViewport.getBoundingClientRect().top + zoomViewport.clientHeight / 2,
     });
   }
+  requestAnimationFrame(() => requestAnimationFrame(centerMapInViewport));
+
+  const frameCanvas = () => {
+    fitToViewport = true;
+    focusedNodeScale = 0;
+    focusedNode = null;
+    const bounds = boundsForVisibleNodes();
+    const scale = Math.min(
+      1,
+      Math.max(100, zoomViewport.clientWidth - 64) / bounds.width,
+      Math.max(100, zoomViewport.clientHeight - 96) / bounds.height,
+    ) * 0.96;
+    const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+    const viewportRect = zoomViewport.getBoundingClientRect();
+    const anchor = viewportContentCenter();
+    setScaleAtWorldPoint(scale, center, anchor);
+  };
+  window.reframeCanvas = frameCanvas;
   if (typeof originalResetZoom === "function") {
     window.resetZoom = () => {
-      fitToViewport = true;
-      focusedNodeScale = 0;
-      focusedNode = null;
-      window.resetNodePositions?.();
-      const bounds = boundsForVisibleNodes();
-      const minimumScale = zoomViewport.clientWidth <= 760 ? 0.24 : 0.08;
-      const scale = Math.max(minimumScale, Math.min(
-        1,
-        (zoomViewport.clientWidth - 64) / bounds.width,
-        (zoomViewport.clientHeight - 96) / bounds.height,
-      ));
-      const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
-      const viewportRect = zoomViewport.getBoundingClientRect();
-      const anchor = {
-        x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
-        y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
-      };
-      setScaleAtWorldPoint(scale, center, anchor);
+      window.resetNodePositions();
+      frameCanvas();
     };
   }
   let previousViewportWidth = zoomViewport.getBoundingClientRect().width;
@@ -501,10 +789,7 @@
       setScaleAtWorldPoint(
         scale,
         { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
-        {
-          x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
-          y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
-        },
+        viewportContentCenter(),
         true,
       );
       return;
@@ -512,22 +797,16 @@
     const limits = zoomLimits();
     if (fitToViewport) {
       const bounds = boundsForVisibleNodes();
-      const fitScale = Math.max(
-        limits.minScale,
-        Math.min(
+      const fitScale = Math.min(
           limits.maxScale,
           1,
-          (zoomViewport.clientWidth - 64) / bounds.width,
-          (zoomViewport.clientHeight - 96) / bounds.height,
-        ),
-      );
+          Math.max(100, zoomViewport.clientWidth - 64) / bounds.width,
+          Math.max(100, zoomViewport.clientHeight - 96) / bounds.height,
+        ) * 0.96;
       setScaleAtWorldPoint(
         fitScale,
         { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
-        {
-          x: viewportRect.left + zoomViewport.clientLeft + zoomViewport.clientWidth / 2,
-          y: viewportRect.top + zoomViewport.clientTop + zoomViewport.clientHeight / 2,
-        },
+        viewportContentCenter(),
         true,
       );
       return;

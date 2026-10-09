@@ -28,6 +28,8 @@
   body.preview-mode { background:transparent; }
   .preview-mode #ui, .preview-mode #legend, .preview-mode #info { display:none !important; }
   .preview-mode .lbl { display:none !important; }
+  .preview-mode .lbl.dimension-label { display:block !important; }
+  .dimension-label { padding:1px 4px; color:#17191b; background:rgba(255,255,255,.92); border:1px solid rgba(50,56,61,.35); font-size:12px; font-weight:600; }
   .preview-mode #app canvas { cursor:grab; touch-action:none; }
   .preview-mode #app canvas:active { cursor:grabbing; }
 </style>
@@ -57,16 +59,18 @@
   <label><input type="checkbox" data-layer="sensors" checked> Azure Kinect sensors</label>
   <label><input type="checkbox" data-layer="grid" checked> Ceiling grid</label>
   <label><input type="checkbox" data-layer="helpers" checked> Axes + listener point</label>
+  <label><input type="checkbox" data-layer="dimensions" checked> Room dimensions</label>
   <label><input type="checkbox" data-layer="labels" checked> Labels</label>
   <h2>Model</h2>
   <div class="row"><button id="dl">Download .glb</button></div>
 </div>
 
 <div id="legend" class="panel">
-  <div><span class="sw" style="background:#e3742f"></span>Speakers, ground ring (0.5 m)</div>
-  <div><span class="sw" style="background:#8250df"></span>Speakers, elevated ring (3.7 m)</div>
-  <div><span class="sw" style="background:#cf222e"></span>Speaker 8, rear</div>
-  <div><span class="sw" style="background:#1a7f37"></span>Azure Kinect (position approx.)</div>
+  <div><span class="sw" style="background:#ff1744"></span>Speakers, ground ring (0.5 m)</div>
+  <div><span class="sw" style="background:#315cff"></span>Speakers, elevated ring (3.7 m)</div>
+  <div><span class="sw" style="background:#ffd400"></span>Speaker 8, rear</div>
+  <div><span class="sw" style="background:#00a550"></span>Azure Kinect (position approx.)</div>
+  <div><span class="sw" style="background:#303236"></span>Subwoofer (position approx.)</div>
   <div style="color:#656d76;margin-top:4px">Drag to orbit · scroll to zoom · click an object for details</div>
 </div>
 
@@ -106,7 +110,7 @@ const SENSORS = [ // name, x, y, z, approx: estimated from a photo taken at the 
 ];
 /* =================================================================== */
 
-const COLORS = { ground:0xe3742f, high:0x8250df, rear:0xcf222e, sensor:0x1a7f37, wall:0x0969da, floor:0x54aeff, grid:0x57606a };
+const COLORS = { ground:0xff1744, high:0x315cff, rear:0xffd400, sensor:0x00a550, wall:0xffffff, floor:0xc8cacc, grid:0x71777d };
 const app = document.getElementById("app");
 const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:previewMode });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -133,24 +137,28 @@ function label(text, pos, cls = "") {
 const cx = 0, cz = ROOM.d / 2;
 
 // --- floor (context) and projection surfaces
-const base = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshBasicMaterial({ color:0xeceff2 }));
+const base = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshBasicMaterial({ color:0xc8cacc }));
 base.rotation.x = -Math.PI/2; base.position.set(0, -0.002, cz); scene.add(base);
-const floorGrid = new THREE.GridHelper(12, 24, 0xd0d7de, 0xe1e4e8); floorGrid.position.set(0, -0.001, cz); scene.add(floorGrid);
+const floorGrid = new THREE.GridHelper(12, 24, 0xa4a7aa, 0xb9bbbd); floorGrid.position.set(0, -0.001, cz); scene.add(floorGrid);
 
 function surface(w, h, pos, rotY, color, opacity, userData, layer) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
-    new THREE.MeshStandardMaterial({ color, transparent:true, opacity, side:THREE.DoubleSide, depthWrite:false }));
+  const isProjectionWall = userData.title.toLowerCase().includes("wall");
+  const material = isProjectionWall
+    ? new THREE.MeshBasicMaterial({ color:0xffffff, side:THREE.DoubleSide })
+    : new THREE.MeshBasicMaterial({ color, side:THREE.DoubleSide });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), material);
   m.position.set(...pos); m.rotation.y = rotY; m.userData = userData;
-  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color }));
+  const edgeColor = layer === "walls" ? 0x7d8185 : color;
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color:edgeColor }));
   m.add(edges); L(layer).add(m); return m;
 }
 const H = ROOM.h;
-surface(ROOM.w, H, [0, H/2, 0], 0, COLORS.wall, .18, { title:"Centre wall (north)", text:"Projection surface, centre channel / panoramic." }, "walls");
-surface(ROOM.d, H, [-ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, .18, { title:"Left wall (west)", text:"Projection surface, left channel / panoramic." }, "walls");
-surface(ROOM.d, H, [ ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, .18, { title:"Right wall (east)", text:"Projection surface, right channel / panoramic." }, "walls");
-const fl = surface(ROOM.w, ROOM.d, [0, 0.003, cz], 0, COLORS.floor, .22, { title:"Floor projection", text:"Projection surface, roughly square. Orient content towards the entrance." }, "walls");
+surface(ROOM.w, H, [0, H/2, 0], 0, COLORS.wall, 1, { title:"Centre wall (north)", text:"White projection surface, centre channel / panoramic." }, "walls");
+surface(ROOM.d, H, [-ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, 1, { title:"Left wall (west)", text:"White projection surface, left channel / panoramic." }, "walls");
+surface(ROOM.d, H, [ ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, 1, { title:"Right wall (east)", text:"White projection surface, right channel / panoramic." }, "walls");
+const fl = surface(ROOM.w, ROOM.d, [0, 0.003, cz], 0, COLORS.floor, 1, { title:"Floor projection", text:"Grey projection surface, roughly square. Orient content towards the entrance." }, "walls");
 fl.rotation.x = -Math.PI/2;
-surface(ROOM.w, H, [0, H/2, ROOM.d], 0, COLORS.wall, .08, { title:"Mobile 4th wall (south)", text:"Not installed by default; placed per project. Closes the entrance side." }, "mobile");
+surface(ROOM.w, H, [0, H/2, ROOM.d], 0, COLORS.wall, 1, { title:"Mobile 4th wall (south)", text:"Not installed by default; placed per project. Closes the entrance side." }, "mobile");
 layers.mobile.visible = false;
 L("labels").add(label("CENTRE (N)", [0, H + .15, 0], "big"));
 L("labels").add(label("LEFT (W)", [-ROOM.w/2, H + .15, cz], "big"));
@@ -173,14 +181,59 @@ L("labels").add(label("ENTRANCE (S)", [0, 0.05, ROOM.d + 1.1], "big"));
 const lis = new THREE.Vector3(...LISTENER);
 const spkGeo = new THREE.BoxGeometry(.22, .32, .2);
 for (const [n, ring, x, y, z, az, el, dist] of SPEAKERS) {
+  const displayedPosition = ring === "ground"
+    ? [x === 0 ? 0 : Math.sign(x) * 2.25, y, z <= .1 ? .25 : z]
+    : [x, y, z];
   const m = new THREE.Mesh(spkGeo, new THREE.MeshStandardMaterial({ color:COLORS[ring], roughness:.6 }));
-  m.position.set(x, y, z); m.lookAt(lis);
-  m.userData = { title:`Speaker ${n} (${ring})`, text:`X ${x}  Y ${y}  Z ${z} m\nAzimuth ${az}°  Elevation ${el}°\nDistance to listener ${dist} m` };
+  m.position.set(...displayedPosition); m.lookAt(lis);
+  m.userData = { title:`Speaker ${n} (${ring})`, text:`Reference position: X ${x}  Y ${y}  Z ${z} m\nAzimuth ${az}°  Elevation ${el}°\nDistance to listener ${dist} m${ring === "ground" ? "\nModel is inset from projection surfaces for visibility." : ""}` };
   L("speakers").add(m);
   // thin line towards listener
   const g = new THREE.BufferGeometry().setFromPoints([m.position, lis]);
   L("speakers").add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:COLORS[ring], transparent:true, opacity:.12 })));
-  L("labels").add(label(String(n), [x, y + .28, z]));
+  L("labels").add(label(String(n), [displayedPosition[0], y + .28, displayedPosition[2]]));
+}
+
+// The subwoofer location is schematic; it sits beside speaker 4, 30 cm from the rear wall.
+{
+  const cabinet = new THREE.Mesh(
+    new THREE.BoxGeometry(.46, .44, .42),
+    new THREE.MeshStandardMaterial({ color:0x303236, roughness:.72 }),
+  );
+  cabinet.position.set(.48, .22, .51);
+  cabinet.userData = {
+    title:"Subwoofer (position approximate)",
+    text:"Omnidirectional low-frequency output. Shown on the floor beside speaker 4, 30 cm in front of the rear wall; its position has no effect on decoding.",
+  };
+  L("speakers").add(cabinet);
+  const driver = new THREE.Mesh(
+    new THREE.CylinderGeometry(.14, .14, .025, 24),
+    new THREE.MeshStandardMaterial({ color:0x111315, roughness:.55 }),
+  );
+  driver.rotation.x = Math.PI / 2;
+  driver.position.set(0, 0, .223);
+  cabinet.add(driver);
+  L("labels").add(label("subwoofer (approx.)", [.48, .52, .51], "approx"));
+}
+
+// Dimension lines are schematic annotations of the 5 x 5 x 3.5 m projection volume.
+{
+  const dimensions = L("dimensions");
+  const color = 0x32383d;
+  const addDimension = (start, end, text, labelPosition) => {
+    const from = new THREE.Vector3(...start);
+    const to = new THREE.Vector3(...end);
+    const direction = new THREE.Vector3().subVectors(to, from).normalize();
+    const length = from.distanceTo(to);
+    const headLength = .12;
+    const headWidth = .07;
+    dimensions.add(new THREE.ArrowHelper(direction, from, length, color, headLength, headWidth));
+    dimensions.add(new THREE.ArrowHelper(direction.clone().negate(), to, length, color, headLength, headWidth));
+    L("labels").add(label(text, labelPosition, "dimension-label"));
+  };
+  addDimension([-ROOM.w/2, .12, ROOM.d + .34], [ROOM.w/2, .12, ROOM.d + .34], "X · 5 m", [0, .2, ROOM.d + .48]);
+  addDimension([ROOM.w/2 + .38, .12, 0], [ROOM.w/2 + .38, .12, ROOM.d], "Z · 5 m", [ROOM.w/2 + .55, .2, cz]);
+  addDimension([ROOM.w/2 + .38, 0, -.38], [ROOM.w/2 + .38, ROOM.h, -.38], "Y · 3.5 m", [ROOM.w/2 + .55, ROOM.h/2, -.48]);
 }
 
 // --- sensors
@@ -246,7 +299,7 @@ renderer.domElement.addEventListener("pointerup", e => {
 // --- GLB export (geometry only, labels excluded)
 document.getElementById("dl").onclick = () => {
   const root = new THREE.Group();
-  for (const k of ["walls", "mobile", "speakers", "sensors", "grid", "helpers"]) root.add(layers[k].clone(true));
+  for (const k of ["walls", "mobile", "speakers", "sensors", "grid", "helpers", "dimensions"]) root.add(layers[k].clone(true));
   new GLTFExporter().parse(root, glb => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([glb], { type:"model/gltf-binary" }));
