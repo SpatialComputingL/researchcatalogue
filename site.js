@@ -161,10 +161,23 @@
     const href = url.href;
     if (externalLinksByUrl.has(href)) continue;
     const text = link.textContent.trim();
-    externalLinksByUrl.set(href, text || url.hostname.replace(/^www\./, ""));
+    externalLinksByUrl.set(href, text && !/^https?:\/\//i.test(text) ? text : url.hostname.replace(/^www\./, ""));
   }
-  for (const [href, text] of externalLinksByUrl) {
+  const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+  const institutionHosts = [
+    "luca-arts.be", "filmeu.eu", "wire.filmeu.eu", "ulusofona.pt", "tlu.ee",
+    "cordacampus.com", "corda-arena.com", "wintercircus.be", "imec-int.com",
+    "imec.be", "vlaio.be", "zhdk.ch", "researchcatalogue.net"
+  ];
+  const hostOf = (href) => new URL(href).hostname.replace(/^www\./, "");
+  const matchesHost = (href, hosts) => hosts.some((h) => hostOf(href) === h || hostOf(href).endsWith(`.${h}`));
+  const sorted = [...externalLinksByUrl].sort((x, y) => collator.compare(x[1], y[1]));
+  const github = sorted.filter(([href]) => matchesHost(href, ["github.com"]));
+  const institutions = sorted.filter(([href]) => matchesHost(href, institutionHosts));
+  const rest = sorted.filter(([href]) => !matchesHost(href, ["github.com", ...institutionHosts]));
+  const addLink = (href, text, spaced) => {
     const item = document.createElement("li");
+    if (spaced) item.className = "external-links-block-end";
     const link = document.createElement("a");
     link.href = href;
     link.target = "_blank";
@@ -173,6 +186,23 @@
     link.title = href;
     item.append(link);
     externalLinksList.append(item);
+  };
+  const addBlock = (entries) => {
+    entries.forEach(([href, text], index) => addLink(href, text, index === entries.length - 1));
+  };
+  addBlock(github);
+  addBlock(institutions);
+  let currentLetter = "";
+  for (const [href, text] of rest) {
+    const letter = text.trim().charAt(0).toUpperCase() || "#";
+    if (letter !== currentLetter) {
+      currentLetter = letter;
+      const heading = document.createElement("li");
+      heading.className = "external-links-subtitle";
+      heading.textContent = letter;
+      externalLinksList.append(heading);
+    }
+    addLink(href, text, false);
   }
   externalLinksPanel.append(externalLinksHeading, externalLinksList);
   externalLinksDropdown.append(externalLinksButton, externalLinksPanel);
@@ -306,6 +336,15 @@
         ?.classList.add("neutral-gray-group-title");
     }
   }
+  for (const node of groupNodes) {
+    const channels = getComputedStyle(node).borderTopColor.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+    if (!channels || channels.length < 3) continue;
+    const luminance = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
+    if (luminance < 0.6) continue;
+    zoomCanvas
+      .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
+      ?.classList.add("light-group-title");
+  }
   zoomCanvas.querySelectorAll(".group-title-text").forEach((title) => {
     title.title = "Double-click to toggle the shape of groups with this color";
   });
@@ -431,7 +470,7 @@
     const availableHeight = Math.max(100, zoomViewport.clientHeight - 64);
     const fitScale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
     const maxScale = Math.max(focusedNodeScale, Math.min(1.1, Math.max(0.95, fitScale * 1.8)));
-    const minScale = Math.min(0.35, fitScale * 0.85);
+    const minScale = Math.min(0.19, fitScale * 0.95);
     return { minScale: Math.min(minScale, maxScale), maxScale };
   };
   const readCanvasMatrix = () => new DOMMatrixReadOnly(getComputedStyle(zoomCanvas).transform);
@@ -509,8 +548,8 @@
     zoomLevelIndicator.setAttribute("aria-label", `Current zoom level ${zoomPercentage}`);
     zoomCanvas.style.transform = `scale(${scale})`;
     zoomCanvas.style.setProperty("--canvas-scale", String(scale));
-    const overviewProgress = Math.max(0, Math.min(1, (0.44 - scale) / 0.28));
-    const dayOverviewProgress = Math.max(0, Math.min(1, (0.68 - scale) / 0.12));
+    const overviewProgress = Math.max(0, Math.min(1, (0.25 - scale) / 0.05));
+    const dayOverviewProgress = Math.max(0, Math.min(1, (0.25 - scale) / 0.05));
     const isNight = document.body.classList.contains("theme-night");
     zoomCanvas.style.setProperty(
       "--group-fill-strength",
@@ -562,7 +601,7 @@
         background.setAttribute("transform", transform);
       }
     }
-    document.body.classList.toggle("canvas-overview", scale <= 0.4);
+    document.body.classList.toggle("canvas-overview", scale <= 0.2);
     updateCanvasExtent(scale);
   };
   setRenderedScale(targetScale);
@@ -911,10 +950,22 @@
     const deltaY = event.deltaY * unit;
     if (event.ctrlKey || event.metaKey) {
       event.preventDefault();
-      window.zoomBy(Math.exp(-deltaY * 0.037), { x: event.clientX, y: event.clientY });
+      window.zoomBy(Math.exp(-deltaY * 0.037), { x: event.clientX, y: event.clientY }, true);
       return;
     }
-    if (event.target instanceof Element && event.target.closest(".node-content")) return;
+    if (event.target instanceof Element && event.target.closest(".node-content")) {
+      const horizontal = Math.abs(deltaX) > Math.abs(deltaY) || event.shiftKey;
+      if (!horizontal) {
+        let scroller = event.target.closest(".node-content");
+        while (scroller && scroller !== zoomViewport) {
+          const canScroll = scroller.scrollHeight > scroller.clientHeight + 1
+            && /(auto|scroll)/.test(getComputedStyle(scroller).overflowY);
+          const atEdge = deltaY < 0 ? scroller.scrollTop <= 0 : scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+          if (canScroll && !atEdge) return;
+          scroller = scroller.parentElement;
+        }
+      }
+    }
     if (!deltaX && !deltaY) return;
     event.preventDefault();
     if (event.shiftKey) {
