@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spatial Computing Lab: 3D model</title>
+<style>
+  :root { --fg:#1f2328; --muted:#656d76; --bg:#f6f7f9; --panel:rgba(255,255,255,.92); --line:#d0d7de; --accent:#0969da; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden; }
+  #app { position:fixed; inset:0; }
+  .panel { position:absolute; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; backdrop-filter:blur(4px); }
+  #ui { top:10px; left:10px; max-width:230px; }
+  #ui h1 { font-size:14px; margin:0 0 6px; }
+  #ui h2 { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:10px 0 4px; }
+  #ui label { display:flex; gap:6px; align-items:center; margin:2px 0; cursor:pointer; }
+  #ui .row { display:flex; flex-wrap:wrap; gap:4px; }
+  button { font:inherit; border:1px solid var(--line); background:#fff; border-radius:6px; padding:3px 8px; cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  #info { right:10px; bottom:10px; max-width:280px; min-height:1em; }
+  #info:empty { display:none; }
+  #legend { left:10px; bottom:10px; font-size:12px; }
+  .sw { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+  .lbl { font-size:11px; color:var(--fg); background:rgba(255,255,255,.8); padding:0 3px; border-radius:3px; pointer-events:none; white-space:nowrap; }
+  .lbl.big { font-weight:600; font-size:12px; }
+  .lbl.approx { color:var(--muted); font-style:italic; }
+  #ui.collapsed > :not(h1) { display:none; }
+  #ui h1 { cursor:pointer; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="ui" class="panel">
+  <h1 title="Click to collapse">Spatial Computing Lab ▾</h1>
+  <h2>View</h2>
+  <div class="row">
+    <button data-view="persp">3D</button>
+    <button data-view="top">Floor plan</button>
+    <button data-view="entrance">From entrance</button>
+    <button data-view="listener">Listener</button>
+  </div>
+  <h2>Show</h2>
+  <label><input type="checkbox" data-layer="walls" checked> Projection walls + floor</label>
+  <label><input type="checkbox" data-layer="mobile"> Mobile 4th wall</label>
+  <label><input type="checkbox" data-layer="speakers" checked> Loudspeakers (16)</label>
+  <label><input type="checkbox" data-layer="sensors" checked> Azure Kinect sensors</label>
+  <label><input type="checkbox" data-layer="grid" checked> Ceiling grid</label>
+  <label><input type="checkbox" data-layer="helpers" checked> Axes + listener point</label>
+  <label><input type="checkbox" data-layer="labels" checked> Labels</label>
+  <h2>Model</h2>
+  <div class="row"><button id="dl">Download .glb</button></div>
+</div>
+
+<div id="legend" class="panel">
+  <div><span class="sw" style="background:#e3742f"></span>Speakers, ground ring (0.5 m)</div>
+  <div><span class="sw" style="background:#8250df"></span>Speakers, elevated ring (3.7 m)</div>
+  <div><span class="sw" style="background:#cf222e"></span>Speaker 8, rear</div>
+  <div><span class="sw" style="background:#1a7f37"></span>Azure Kinect (position approx.)</div>
+  <div style="color:#656d76;margin-top:4px">Drag to orbit · scroll to zoom · click an object for details</div>
+</div>
+
+<div id="info" class="panel"></div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
+
+/* ===================================================================
+   DATA: edit here. Metres. X = width, Y = height, Z = depth.
+   Z = 0 is the north wall; Z increases towards the entrance (south).
+   approx: true = not yet measured (drawn faded, labelled "approx.").
+   =================================================================== */
+const ROOM = { w: 5, d: 5, h: 3.5 };            // projection volume
+const LISTENER = [0, 1.5, 2.5];                 // ambisonic reference point
+const GRID = { y: 4.3, step: 1.67, approx: true };   // scaffold-pipe grid below the concrete ceiling (schematic)
+const SPEAKERS = [ // # , ring, x, y, z, az, el, dist  (source: speaker_reference, iteration 22)
+  [1,"ground",-2.6,0.5,4.5,-127.57,-16.95,3.43],[2,"ground",-2.6,0.5,2.5,-90,-21.04,2.79],
+  [3,"ground",-2.6,0.5,0.1,-47.29,-15.78,3.68],[4,"ground",0,0.5,-0.3,0,-19.65,2.97],
+  [5,"ground",2.6,0.5,0.1,47.29,-15.78,3.68],[6,"ground",2.6,0.5,2.5,90,-21.04,2.79],
+  [7,"ground",2.6,0.5,4.5,127.57,-16.95,3.43],[8,"rear",0,3,7.15,180,17.88,4.89],
+  [9,"high",-2.5,3.7,3.25,-106.7,40.13,3.41],[10,"high",-2.5,3.7,1.75,-73.3,40.13,3.41],
+  [11,"high",-1.25,3.7,0,-26.57,38.21,3.56],[12,"high",1.25,3.7,0,26.57,38.21,3.56],
+  [13,"high",2.5,3.7,1.75,73.3,40.13,3.41],[14,"high",2.5,3.7,3.25,106.7,40.13,3.41],
+  [15,"high",1.25,3.7,5,153.43,38.21,3.56],[16,"high",-1.25,3.7,5,-153.43,38.21,3.56],
+];
+const SENSORS = [ // name, x, y, z, approx: estimated from a photo taken at the entrance (± ~0.5 m)
+  ["Kinect (west)",       -1.0, 3.8, 3.0, true],
+  ["Kinect (east)",        2.3, 3.8, 2.6, true],
+  ["Kinect (entrance)",    1.0, 3.9, 5.0, true],
+];
+/* =================================================================== */
+
+const COLORS = { ground:0xe3742f, high:0x8250df, rear:0xcf222e, sensor:0x1a7f37, wall:0x0969da, floor:0x54aeff, grid:0x57606a };
+const app = document.getElementById("app");
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+app.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.domElement.style.cssText = "position:absolute;inset:0;pointer-events:none";
+app.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf6f7f9);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b8c0, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(4, 8, 6); scene.add(sun);
+
+const layers = {};
+const L = (name) => (layers[name] ??= Object.assign(new THREE.Group(), { name }), scene.add(layers[name]), layers[name]);
+const labels = [];
+function label(text, pos, cls = "") {
+  const el = document.createElement("div"); el.className = "lbl " + cls; el.textContent = text;
+  const o = new CSS2DObject(el); o.position.set(...pos); labels.push(o); return o;
+}
+const cx = 0, cz = ROOM.d / 2;
+
+// --- floor (context) and projection surfaces
+const base = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshBasicMaterial({ color:0xeceff2 }));
+base.rotation.x = -Math.PI/2; base.position.set(0, -0.002, cz); scene.add(base);
+const floorGrid = new THREE.GridHelper(12, 24, 0xd0d7de, 0xe1e4e8); floorGrid.position.set(0, -0.001, cz); scene.add(floorGrid);
+
+function surface(w, h, pos, rotY, color, opacity, userData, layer) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+    new THREE.MeshStandardMaterial({ color, transparent:true, opacity, side:THREE.DoubleSide, depthWrite:false }));
+  m.position.set(...pos); m.rotation.y = rotY; m.userData = userData;
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color }));
+  m.add(edges); L(layer).add(m); return m;
+}
+const H = ROOM.h;
+surface(ROOM.w, H, [0, H/2, 0], 0, COLORS.wall, .18, { title:"Centre wall (north)", text:"Projection surface, centre channel / panoramic." }, "walls");
+surface(ROOM.d, H, [-ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, .18, { title:"Left wall (west)", text:"Projection surface, left channel / panoramic." }, "walls");
+surface(ROOM.d, H, [ ROOM.w/2, H/2, cz], Math.PI/2, COLORS.wall, .18, { title:"Right wall (east)", text:"Projection surface, right channel / panoramic." }, "walls");
+const fl = surface(ROOM.w, ROOM.d, [0, 0.003, cz], 0, COLORS.floor, .22, { title:"Floor projection", text:"Projection surface, roughly square. Orient content towards the entrance." }, "walls");
+fl.rotation.x = -Math.PI/2;
+surface(ROOM.w, H, [0, H/2, ROOM.d], 0, COLORS.wall, .08, { title:"Mobile 4th wall (south)", text:"Not installed by default; placed per project. Closes the entrance side." }, "mobile");
+layers.mobile.visible = false;
+L("labels").add(label("CENTRE (N)", [0, H + .15, 0], "big"));
+L("labels").add(label("LEFT (W)", [-ROOM.w/2, H + .15, cz], "big"));
+L("labels").add(label("RIGHT (E)", [ROOM.w/2, H + .15, cz], "big"));
+L("labels").add(label("ENTRANCE (S)", [0, 0.05, ROOM.d + 1.1], "big"));
+
+// --- ceiling grid (approximate)
+{
+  const pts = [], y = GRID.y, x0 = -ROOM.w/2, x1 = ROOM.w/2, z0 = 0, z1 = ROOM.d;
+  for (let x = x0; x <= x1 + 1e-6; x += GRID.step) pts.push(x, y, z0, x, y, z1);
+  for (let z = z0; z <= z1 + 1e-6; z += GRID.step) pts.push(x0, y, z, x1, y, z);
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+  const grid = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color:COLORS.grid, transparent:true, opacity:.6 }));
+  grid.userData = { title:"Technical ceiling grid", text:`Scaffold pipes suspended below the concrete ceiling. They carry the Kinects (on drop rods), the elevated loudspeakers and the projectors. Height and spacing are schematic (approx. ${GRID.y} m).` };
+  L("grid").add(grid);
+  L("labels").add(label("ceiling grid (approx.)", [x0, y + .1, z0], "approx"));
+}
+
+// --- loudspeakers
+const lis = new THREE.Vector3(...LISTENER);
+const spkGeo = new THREE.BoxGeometry(.22, .32, .2);
+for (const [n, ring, x, y, z, az, el, dist] of SPEAKERS) {
+  const m = new THREE.Mesh(spkGeo, new THREE.MeshStandardMaterial({ color:COLORS[ring], roughness:.6 }));
+  m.position.set(x, y, z); m.lookAt(lis);
+  m.userData = { title:`Speaker ${n} (${ring})`, text:`X ${x}  Y ${y}  Z ${z} m\nAzimuth ${az}°  Elevation ${el}°\nDistance to listener ${dist} m` };
+  L("speakers").add(m);
+  // thin line towards listener
+  const g = new THREE.BufferGeometry().setFromPoints([m.position, lis]);
+  L("speakers").add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:COLORS[ring], transparent:true, opacity:.12 })));
+  L("labels").add(label(String(n), [x, y + .28, z]));
+}
+
+// --- sensors
+for (const [name, x, y, z, approx] of SENSORS) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(.26, .04, .1),
+    new THREE.MeshStandardMaterial({ color:COLORS.sensor, transparent:approx, opacity:approx ? .55 : 1 }));
+  m.position.set(x, y, z); m.lookAt(new THREE.Vector3(0, 0, cz));
+  const fov = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.2, 4, 1, true),
+    new THREE.MeshBasicMaterial({ color:COLORS.sensor, wireframe:true, transparent:true, opacity:.15 }));
+  fov.rotation.x = -Math.PI/2; fov.position.z = 1.1; m.add(fov);   // rough view direction indicator only
+  m.userData = { title:name + (approx ? " (position approx.)" : ""), text:`Azure Kinect on a drop rod below the ceiling grid, aimed down into the room.\nX ${x}  Y ${y}  Z ${z} m (estimated from a photo)` };
+  L("sensors").add(m);
+  L("labels").add(label(name + (approx ? " (approx.)" : ""), [x, y - .2, z], approx ? "approx" : ""));
+}
+
+// --- helpers: listener point + axes at origin
+{
+  const s = new THREE.Mesh(new THREE.SphereGeometry(.09, 24, 16), new THREE.MeshStandardMaterial({ color:0x24292f }));
+  s.position.copy(lis); s.userData = { title:"Listening reference", text:"X 0  Y 1.5  Z 2.5 m: ear height, room centre. Ambisonic decoding is optimised for this point." };
+  L("helpers").add(s);
+  L("labels").add(label("listener", [lis.x, lis.y + .2, lis.z]));
+  const ax = new THREE.AxesHelper(.8); ax.position.set(0, .01, 0); L("helpers").add(ax);
+  L("labels").add(label("X", [.9, .02, 0])); L("labels").add(label("Y", [0, .9, 0])); L("labels").add(label("Z", [0, .02, .9]));
+}
+
+// --- views
+const views = {
+  persp:    { pos:[6.5, 5.5, 10], tgt:[0, 1.4, cz + .6], fov:45 },
+  top:      { pos:[0, 34, cz + .9 + .001], tgt:[0, 0, cz + .9], fov:17 },
+  entrance: { pos:[0, 1.7, ROOM.d + 4.5], tgt:[0, 1.5, 0], fov:50 },
+  listener: { pos:[lis.x, lis.y, lis.z + .01], tgt:[lis.x, lis.y, lis.z], fov:75 },
+};
+function setView(v) { const s = views[v] || views.persp; camera.fov = s.fov; camera.updateProjectionMatrix(); camera.position.set(...s.pos); controls.target.set(...s.tgt); controls.update(); }
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => setView(b.dataset.view));
+setView(new URLSearchParams(location.search).get("view") || "persp");
+
+// --- toggles
+document.querySelectorAll("[data-layer]").forEach(cb => {
+  const apply = () => {
+    const name = cb.dataset.layer;
+    if (name === "labels") labels.forEach(o => o.visible = cb.checked), layers.labels.visible = cb.checked;
+    else layers[name].visible = cb.checked;
+  };
+  cb.onchange = apply; apply();
+});
+document.querySelector("#ui h1").onclick = () => document.getElementById("ui").classList.toggle("collapsed");
+if (innerWidth < 600) document.getElementById("ui").classList.add("collapsed");
+
+// --- picking
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), info = document.getElementById("info");
+let downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => downAt = [e.clientX, e.clientY]);
+renderer.domElement.addEventListener("pointerup", e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  mouse.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(mouse, camera);
+  const pickables = []; scene.traverseVisible(o => o.isMesh && o.userData.title && pickables.push(o));
+  const hit = ray.intersectObjects(pickables, false)[0];
+  info.innerHTML = hit ? `<b>${hit.object.userData.title}</b><br>${hit.object.userData.text.replace(/\n/g, "<br>")}` : "";
+});
+
+// --- GLB export (geometry only, labels excluded)
+document.getElementById("dl").onclick = () => {
+  const root = new THREE.Group();
+  for (const k of ["walls", "mobile", "speakers", "sensors", "grid", "helpers"]) root.add(layers[k].clone(true));
+  new GLTFExporter().parse(root, glb => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([glb], { type:"model/gltf-binary" }));
+    a.download = "spatial-computing-lab.glb"; a.click();
+  }, err => alert("Export failed: " + err), { binary:true });
+};
+
+// --- loop
+function resize() {
+  const w = app.clientWidth, h = app.clientHeight;
+  renderer.setSize(w, h); labelRenderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize); resize();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); labelRenderer.render(scene, camera); });
+</script>
+</body>
+</html>
