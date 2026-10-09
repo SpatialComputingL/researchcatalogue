@@ -38,6 +38,11 @@ body {
   user-select: none;
 }
 
+.viewport.is-panning,
+.viewport.is-panning * {
+  cursor: grabbing !important;
+}
+
 .viewport.is-zoom-area-selecting *,
 .viewport.is-zoom-area-selecting .node,
 .viewport.is-zoom-area-selecting a {
@@ -74,6 +79,36 @@ body {
   overflow-x: hidden;
   overscroll-behavior-x: auto;
   cursor: move;
+}
+
+.model-preview-node {
+  padding: 0 !important;
+}
+
+.model-preview-node > .node-content {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.model-preview-link {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-bottom: 1px solid #000;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.model-preview-frame {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: #fff;
 }
 
 .viewport.is-zoom-area-selecting .node {

@@ -1,4 +1,22 @@
 (() => {
+  const modelNode = document.querySelector("#node-ca93d4f84581e0a4");
+  const modelContent = modelNode?.querySelector(".node-content");
+  const modelLink = modelContent?.querySelector('a[href*="024_lab-3d-viewer.html"]');
+  if (modelNode && modelContent && modelLink) {
+    const previewUrl = new URL(modelLink.getAttribute("href"), document.baseURI);
+    previewUrl.searchParams.set("preview", "1");
+    const openLink = modelLink.cloneNode(true);
+    openLink.className = "model-preview-link";
+    openLink.textContent = "Open interactive model ↗";
+    const previewFrame = document.createElement("iframe");
+    previewFrame.className = "model-preview-frame";
+    previewFrame.title = "Orbitable Spatial Computing Lab 3D model";
+    previewFrame.loading = "lazy";
+    previewFrame.src = previewUrl.href;
+    modelContent.replaceChildren(openLink, previewFrame);
+    modelNode.classList.add("model-preview-node");
+  }
+
   const navigationButton = document.querySelector("#contents-toolbar-button");
   const contentsOverlay = document.querySelector("#contents-overlay");
   const contentsPanel = document.querySelector("#contents-panel");

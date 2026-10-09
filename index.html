@@ -2197,6 +2197,9 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
       let focusedBranchNodeId = null;
       let visibleLevelLimit = null;
       let currentScale = 1;
+      let nodeDrag = null;
+      let nodeDragFrame = 0;
+      let canvasPan = null;
       let zoomAreaDrag = null;
       let cancelledZoomAreaPointerId = null;
       let suppressNextZoomAreaClick = false;
@@ -4154,7 +4157,112 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         return { left, top, width, height };
       }
 
+      function startNodeDrag(event) {
+        if (event.altKey || event.pointerType === "touch" || window.matchMedia("(max-width: 760px)").matches) return;
+        if (event.button !== 0 || nodeDrag) return;
+        const target = event.target instanceof Element ? event.target : null;
+        const node = target?.closest(".node[data-node-id]");
+        if (!node || target?.closest("button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
+        if (target.closest(
+          ".node-content p, .node-content li, .node-content h1, .node-content h2, .node-content h3, " +
+          ".node-content h4, .node-content h5, .node-content h6, .node-content a, .node-content pre, " +
+          ".node-content code, .node-content blockquote",
+        )) return;
+        nodeDrag = {
+          node,
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: Number(node.getAttribute("data-canvas-left") || 0),
+          startTop: Number(node.getAttribute("data-canvas-top") || 0),
+          latestX: event.clientX,
+          latestY: event.clientY,
+          active: false,
+        };
+      }
+
+      function updateDraggedNode() {
+        if (!nodeDrag?.active) return;
+        const scale = Math.max(0.001, currentScale);
+        const left = nodeDrag.startLeft + (nodeDrag.latestX - nodeDrag.startX) / scale;
+        const top = nodeDrag.startTop + (nodeDrag.latestY - nodeDrag.startY) / scale;
+        nodeDrag.node.setAttribute("data-canvas-left", String(left));
+        nodeDrag.node.setAttribute("data-canvas-top", String(top));
+        nodeDrag.node.style.left = left + "px";
+        nodeDrag.node.style.top = top + "px";
+        const minimapNode = document.querySelector(
+          `.minimap-node[data-node-id="${nodeDrag.node.getAttribute("data-node-id")}"]`,
+        );
+        if (minimapNode) {
+          minimapNode.setAttribute("x", String(left));
+          minimapNode.setAttribute("y", String(top));
+        }
+        drawEdges();
+        updateMinimapViewport();
+      }
+
+      function moveCanvasPointer(event) {
+        if (nodeDrag && event.pointerId === nodeDrag.pointerId) {
+          if ((event.buttons & 1) === 0) return;
+          nodeDrag.latestX = event.clientX;
+          nodeDrag.latestY = event.clientY;
+          if (!nodeDrag.active && Math.hypot(event.clientX - nodeDrag.startX, event.clientY - nodeDrag.startY) < 4) return;
+          if (!nodeDrag.active) {
+            nodeDrag.active = true;
+            nodeDrag.node.classList.add("is-node-dragging");
+            document.body.classList.add("is-dragging-node");
+          }
+          event.preventDefault();
+          if (nodeDragFrame) return;
+          nodeDragFrame = requestAnimationFrame(() => {
+            nodeDragFrame = 0;
+            updateDraggedNode();
+          });
+          return;
+        }
+        if (!canvasPan || event.pointerId !== canvasPan.pointerId || (event.buttons & 1) === 0) return;
+        event.preventDefault();
+        viewport.scrollLeft = canvasPan.startScrollLeft - (event.clientX - canvasPan.startX);
+        viewport.scrollTop = canvasPan.startScrollTop - (event.clientY - canvasPan.startY);
+      }
+
+      function stopCanvasPointer(event) {
+        if (nodeDrag && event.pointerId === nodeDrag.pointerId) {
+          if (nodeDrag.active) {
+            nodeDrag.latestX = event.clientX;
+            nodeDrag.latestY = event.clientY;
+            if (nodeDragFrame) cancelAnimationFrame(nodeDragFrame);
+            nodeDragFrame = 0;
+            updateDraggedNode();
+            window.__canvasSuppressClickUntil = Date.now() + 150;
+            nodeDrag.node.classList.remove("is-node-dragging");
+            document.body.classList.remove("is-dragging-node");
+          }
+          nodeDrag = null;
+        }
+        if (canvasPan && event.pointerId === canvasPan.pointerId) {
+          viewport.classList.remove("is-panning");
+          canvasPan = null;
+        }
+      }
+
+      function startCanvasPan(event) {
+        if (event.pointerType === "touch" || event.button !== 0 || event.altKey || event.metaKey || event.ctrlKey) return;
+        const target = event.target instanceof Element ? event.target : null;
+        if (target?.closest(".node, a, button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
+        canvasPan = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          startScrollLeft: viewport.scrollLeft,
+          startScrollTop: viewport.scrollTop,
+        };
+        viewport.classList.add("is-panning");
+        event.preventDefault();
+      }
+
       function startZoomAreaSelection(event) {
+        if (!event.altKey || event.pointerType !== "mouse" || event.button !== 0) return;
         if (event.pointerType !== "mouse" || event.button !== 0) return;
         const target = event.target instanceof Element ? event.target : null;
         if (target?.closest("a, button, input, select, textarea, iframe, audio, video, [contenteditable='true']")) return;
@@ -4321,6 +4429,11 @@ Website: <a href="https://www.researchcatalogue.net/" target="_blank" rel="noope
         }
       });
       viewport.addEventListener("scroll", updateMinimapViewport, { passive: true });
+      document.addEventListener("pointerdown", startNodeDrag, true);
+      window.addEventListener("pointermove", moveCanvasPointer, { passive: false });
+      window.addEventListener("pointerup", stopCanvasPointer);
+      window.addEventListener("pointercancel", stopCanvasPointer);
+      viewport.addEventListener("pointerdown", startCanvasPan, true);
       viewport.addEventListener("pointerdown", startZoomAreaSelection, true);
       viewport.addEventListener("dragstart", (event) => {
         if (zoomAreaDrag) event.preventDefault();

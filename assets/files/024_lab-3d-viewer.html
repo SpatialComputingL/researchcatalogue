@@ -25,6 +25,11 @@
   .lbl.approx { color:var(--muted); font-style:italic; }
   #ui.collapsed > :not(h1) { display:none; }
   #ui h1 { cursor:pointer; }
+  body.preview-mode { background:transparent; }
+  .preview-mode #ui, .preview-mode #legend, .preview-mode #info { display:none !important; }
+  .preview-mode .lbl { display:none !important; }
+  .preview-mode #app canvas { cursor:grab; touch-action:none; }
+  .preview-mode #app canvas:active { cursor:grabbing; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -73,6 +78,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 
+const previewMode = new URLSearchParams(location.search).get("preview") === "1";
+if (previewMode) document.body.classList.add("preview-mode");
+
 /* ===================================================================
    DATA: edit here. Metres. X = width, Y = height, Z = depth.
    Z = 0 is the north wall; Z increases towards the entrance (south).
@@ -100,7 +108,7 @@ const SENSORS = [ // name, x, y, z, approx: estimated from a photo taken at the 
 
 const COLORS = { ground:0xe3742f, high:0x8250df, rear:0xcf222e, sensor:0x1a7f37, wall:0x0969da, floor:0x54aeff, grid:0x57606a };
 const app = document.getElementById("app");
-const renderer = new THREE.WebGLRenderer({ antialias:true });
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:previewMode });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 app.appendChild(renderer.domElement);
 const labelRenderer = new CSS2DRenderer();
@@ -108,7 +116,7 @@ labelRenderer.domElement.style.cssText = "position:absolute;inset:0;pointer-even
 app.appendChild(labelRenderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf6f7f9);
+scene.background = previewMode ? null : new THREE.Color(0xf6f7f9);
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
