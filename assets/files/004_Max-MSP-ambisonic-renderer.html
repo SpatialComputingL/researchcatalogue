@@ -8,7 +8,7 @@
   <title>Max-MSP ambisonic renderer</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
-    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    :root { --canvas-color-0: rgb(126, 126, 126); --canvas-color-0-bg: rgba(126, 126, 126, 0.18); --canvas-color-1: rgb(251, 70, 76); --canvas-color-1-bg: rgba(251, 70, 76, 0.18); --canvas-color-2: rgb(233, 151, 63); --canvas-color-2-bg: rgba(233, 151, 63, 0.18); --canvas-color-3: rgb(224, 222, 113); --canvas-color-3-bg: rgba(224, 222, 113, 0.18); --canvas-color-4: rgb(68, 207, 110); --canvas-color-4-bg: rgba(68, 207, 110, 0.18); --canvas-color-5: rgb(83, 223, 221); --canvas-color-5-bg: rgba(83, 223, 221, 0.18); --canvas-color-6: rgb(168, 130, 255); --canvas-color-6-bg: rgba(168, 130, 255, 0.18); }
     html, body { margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -67,12 +67,12 @@
     details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
     details.heading-section > summary.heading-summary:hover::before,
     details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
-        h1 { color: rgb(34, 34, 34); }
-    h2 { color: rgb(34, 34, 34); }
-    h3 { color: rgb(34, 34, 34); }
-    h4 { color: rgb(34, 34, 34); }
-    h5 { color: rgb(34, 34, 34); }
-    h6 { color: rgb(2, 8, 50); }
+        h1 { color: rgb(253, 247, 205); }
+    h2 { color: rgb(253, 247, 205); }
+    h3 { color: rgb(253, 247, 205); }
+    h4 { color: rgb(253, 247, 205); }
+    h5 { color: rgb(253, 247, 205); }
+    h6 { color: rgb(233, 39, 65); }
         strong { font-weight: 700; }
     em { font-style: italic; }
     del { text-decoration: line-through; }
@@ -105,64 +105,64 @@
     .callout-content { padding: 4px 10px 6px; }
     .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
     .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
-        .callout-note { border-color: #086ddd; }
-    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-info { border-color: #086ddd; }
-    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-todo { border-color: #086ddd; }
-    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-abstract { border-color: #00bfbc; }
-    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-summary { border-color: #00bfbc; }
-    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-tldr { border-color: #00bfbc; }
-    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-tip { border-color: #00bfbc; }
-    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-hint { border-color: #00bfbc; }
-    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-important { border-color: #00bfbc; }
-    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-success { border-color: #08b94e; }
-    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-check { border-color: #08b94e; }
-    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-done { border-color: #08b94e; }
-    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-warning { border-color: #ec7500; }
-    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-caution { border-color: #ec7500; }
-    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-attention { border-color: #ec7500; }
-    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-question { border-color: #ec7500; }
-    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-help { border-color: #ec7500; }
-    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-faq { border-color: #ec7500; }
-    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-danger { border-color: #e93147; }
-    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-error { border-color: #e93147; }
-    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-failure { border-color: #e93147; }
-    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-fail { border-color: #e93147; }
-    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-missing { border-color: #e93147; }
-    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-bug { border-color: #e93147; }
-    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-example { border-color: #7852ee; }
-    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+        .callout-note { border-color: #027aff; }
+    .callout-note .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-info { border-color: #027aff; }
+    .callout-info .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-todo { border-color: #027aff; }
+    .callout-todo .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-abstract { border-color: #53dfdd; }
+    .callout-abstract .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-summary { border-color: #53dfdd; }
+    .callout-summary .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-tldr { border-color: #53dfdd; }
+    .callout-tldr .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-tip { border-color: #53dfdd; }
+    .callout-tip .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-hint { border-color: #53dfdd; }
+    .callout-hint .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-important { border-color: #53dfdd; }
+    .callout-important .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-success { border-color: #44cf6e; }
+    .callout-success .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-check { border-color: #44cf6e; }
+    .callout-check .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-done { border-color: #44cf6e; }
+    .callout-done .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-warning { border-color: #e9973f; }
+    .callout-warning .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-caution { border-color: #e9973f; }
+    .callout-caution .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-attention { border-color: #e9973f; }
+    .callout-attention .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-question { border-color: #e9973f; }
+    .callout-question .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-help { border-color: #e9973f; }
+    .callout-help .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-faq { border-color: #e9973f; }
+    .callout-faq .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-danger { border-color: #fb464c; }
+    .callout-danger .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-error { border-color: #fb464c; }
+    .callout-error .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-failure { border-color: #fb464c; }
+    .callout-failure .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-fail { border-color: #fb464c; }
+    .callout-fail .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-missing { border-color: #fb464c; }
+    .callout-missing .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-bug { border-color: #fb464c; }
+    .callout-bug .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-example { border-color: #a882ff; }
+    .callout-example .callout-title { background: rgba(168, 130, 255, 0.18); color: #a882ff; }
     .callout-quote { border-color: #9e9e9e; }
     .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
     .callout-cite { border-color: #9e9e9e; }
     .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
-    .callout-settings { border-color: #086ddd; }
-    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-award { border-color: #086ddd; }
-    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-settings { border-color: #027aff; }
+    .callout-settings .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-award { border-color: #027aff; }
+    .callout-award .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
     details.callout { display: block; }
     details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
     details.callout > summary.callout-title::-webkit-details-marker { display: none; }
@@ -316,21 +316,24 @@
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
     <h1>Max-MSP ambisonic renderer</h1>
-    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="ambix_3th_order-sound_ctrlmaxpat">Ambix_3th_order-sound_ctrl.maxpat</h2></summary><p><strong>Host:</strong> Windows NUC, Max 9.1.5&lt;br&gt;<strong>Layer:</strong> output (sound, back end)&lt;br&gt;<strong>In:</strong> OSC positions (UDP 10000) + 16 audio channels over Dante&lt;br&gt;<strong>Out:</strong> 16 loudspeaker feeds + 1 subwoofer feed over Dante</p>
-<p>This patch is the rendering engine behind <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a>. It receives the positions of up to sixteen sound sources and their audio, encodes them into a third-order ambisonic sound field, and decodes that field to the lab&#39;s measured, irregular layout of sixteen loudspeakers plus a subwoofer, all in real time. Most users never touch it: the TouchDesigner component is the interface, and the renderer runs on a dedicated machine. Splitting the work this way keeps audio rendering apart from the graphics and tracking load on the main workstation. It also keeps the decoder calibration in one place, independent of any project.</p></details>
+    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="ambix_3th_order-sound_ctrlmaxpat">Ambix_3th_order-sound_ctrl.maxpat</h2></summary><p><strong>Host:</strong> Windows NUC, <a href="https://cycling74.com/products/max" target="_blank" rel="noopener noreferrer">Max 9.1.5</a><br>
+<strong>Layer:</strong> output (sound, back end)<br>
+<strong>In:</strong> <a href="https://opensoundcontrol.stanford.edu/" target="_blank" rel="noopener noreferrer">OSC</a> positions (UDP 10000) + 16 audio channels over <a href="https://www.getdante.com/" target="_blank" rel="noopener noreferrer">Dante</a><br>
+<strong>Out:</strong> 16 loudspeaker feeds + 1 subwoofer feed over Dante</p>
+<p>This patch is the rendering engine behind <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a>. It receives the positions of up to sixteen sound sources and their audio, encodes them into a <a href="https://en.wikipedia.org/wiki/Ambisonics" target="_blank" rel="noopener noreferrer">third-order ambisonic</a> sound field, and decodes that field to the lab&#39;s measured, irregular layout of sixteen loudspeakers plus a subwoofer, all in real time. Most users never touch it: the <a href="https://derivative.ca/" target="_blank" rel="noopener noreferrer">TouchDesigner</a> component is the interface, and the renderer runs on a dedicated machine. Splitting the work this way keeps audio rendering apart from the graphics and tracking load on the main workstation. It also keeps the decoder calibration in one place, independent of any project.</p></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="role-in-the-setup">Role in the setup</h2></summary><p>The renderer is the second half of the lab&#39;s spatial sound chain. <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a> decides <em>where</em> each sound is and <em>what</em> it plays. The renderer turns that into speaker signals for this particular room. Because the calibration lives here, any TouchDesigner project that sends positions and audio in the expected format sounds correct in the lab without project-specific tuning.</p></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="system-context">System context</h2></summary><table><thead><tr><th>Machine</th><th>Role</th></tr></thead><tbody><tr><td>HP Z8 workstation</td><td>TouchDesigner: tracking, content and source audio. Audio goes onto the Dante network through Dante Via. Positions are sent over OSC.</td></tr><tr><td>Windows NUC</td><td>Max 9.1.5 running this patch. Audio input and output go through Dante Virtual Soundcard in ASIO mode.</td></tr><tr><td>Dante network</td><td>carries all audio between the machines and to the amplifiers and loudspeakers at <strong>48 kHz</strong>. Routing is managed in Dante Controller.</td></tr><tr><td>Authoring machine (Mac)</td><td>where the patch is edited. It is not part of the live chain. Patch iterations reach the NUC through a shared OneDrive folder.</td></tr></tbody></table></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="signal-processing-pipeline">Signal processing pipeline</h2></summary><ol><li><strong>Position intake (OSC).</strong> <code>udpreceive 10000</code> receives the positions. The patch routes the addresses <code>/tx1 /ty1 /tz1</code> … <code>/tx16 /ty16 /tz16</code> (one triplet per source), a tracked listener <code>/lx1 /ly1 /lz1</code>, a global <code>/gain_range</code>, per-source ranges <code>/range_gain1</code> … <code>/range_gain16</code>, and <code>/_samplerate</code> (information only).</li><li><strong>Cartesian → spherical.</strong> Each source position (X = width, Y = height, Z = depth, metres) is converted to azimuth, elevation and distance relative to the reference listening point (X = 0, Y = 1.5, Z = 2.5). A sign-preserving minimum-magnitude floor on the depth term removes the singularity when a source is at exactly the reference depth.</li><li><strong>Gain.</strong> Each source&#39;s level falls with its distance to the listening reference. The <em>gain range</em> is the distance in metres at which the level reaches zero. It is set globally (<code>/gain_range</code>) or per source (<code>/range_gain1</code> … <code>/range_gain16</code>); per source, it is fed by <em>Rangegain</em> in TouchDesigner. The reference is either fixed or tracked. An inversion toggle mirrors the tracked listener through the room centre to correct for the orientation of the tracking. Direction never comes from the listener, because listener orientation cannot be tracked reliably. A minimum floor on the range parameter prevents a division by zero while the patch loads. A global &quot;gain active&quot; switch sets all sources to full gain for direction-only tests.</li><li><strong>Encoding.</strong> <code>ambiencode~ 3 16</code> (ICST) encodes the 16 audio inputs (<code>adc~ 1–16</code>, from Dante) into a <strong>third-order AmbiX</strong> field: 16 channels, ACN order, SN3D normalisation.</li><li><strong>File input.</strong> Two looped players (<code>buffer~</code> + <code>groove~</code>, 16 channels each) add pre-encoded third-order B-format WAV files to the field before decoding. Each player has its own toggle and is off by default. <em>(In development.)</em></li><li><strong>Decoding.</strong> <code>ambidecode~ 3 16</code> (ICST) decodes the field to the 16 measured loudspeaker positions. Each speaker is defined by azimuth, elevation and distance in a decoder grid that can be edited live.</li><li><strong>Subwoofer.</strong> The omnidirectional W component (ACN 0) is taken from the encoder, low-pass filtered (<code>lores~</code>, 100 Hz) and sent to channel 17.</li><li><strong>Output.</strong> <code>dac~ 1–17</code> sends the speaker feeds to Dante.</li></ol></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="system-context">System context</h2></summary><table><thead><tr><th>Machine</th><th>Role</th></tr></thead><tbody><tr><td><a href="https://www.hp.com/us-en/workstations/z8.html" target="_blank" rel="noopener noreferrer">HP Z8</a> workstation</td><td>TouchDesigner: tracking, content and source audio. Audio goes onto the Dante network through Dante Via. Positions are sent over OSC.</td></tr><tr><td>Windows NUC</td><td>Max 9.1.5 running this patch. Audio input and output go through Dante Virtual Soundcard in ASIO mode.</td></tr><tr><td>Dante network</td><td>carries all audio between the machines and to the amplifiers and loudspeakers at <strong>48 kHz</strong>. Routing is managed in Dante Controller.</td></tr><tr><td>Authoring machine (Mac)</td><td>where the patch is edited. It is not part of the live chain. Patch iterations reach the NUC through a shared OneDrive folder.</td></tr></tbody></table></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="signal-processing-pipeline">Signal processing pipeline</h2></summary><ol><li><strong>Position intake (OSC).</strong> <code>udpreceive 10000</code> receives the positions. The patch routes the addresses <code>/tx1 /ty1 /tz1</code> … <code>/tx16 /ty16 /tz16</code> (one triplet per source), a tracked listener <code>/lx1 /ly1 /lz1</code>, a global <code>/gain_range</code>, per-source ranges <code>/range_gain1</code> … <code>/range_gain16</code>, and <code>/_samplerate</code> (information only).</li><li><strong>Cartesian → spherical.</strong> Each source position (X = width, Y = height, Z = depth, metres) is converted to azimuth, elevation and distance relative to the reference listening point (X = 0, Y = 1.5, Z = 2.5). A sign-preserving minimum-magnitude floor on the depth term removes the singularity when a source is at exactly the reference depth.</li><li><strong>Gain.</strong> Each source&#39;s level falls with its distance to the listening reference. The <em>gain range</em> is the distance in metres at which the level reaches zero. It is set globally (<code>/gain_range</code>) or per source (<code>/range_gain1</code> … <code>/range_gain16</code>); per source, it is fed by <em>Rangegain</em> in TouchDesigner. The reference is either fixed or tracked. An inversion toggle mirrors the tracked listener through the room centre to correct for the orientation of the tracking. Direction never comes from the listener, because listener orientation cannot be tracked reliably. A minimum floor on the range parameter prevents a division by zero while the patch loads. A global &quot;gain active&quot; switch sets all sources to full gain for direction-only tests.</li><li><strong>Encoding.</strong> <code>ambiencode~ 3 16</code> (<a href="https://www.zhdk.ch/en/research/icst" target="_blank" rel="noopener noreferrer">ICST</a>) encodes the 16 audio inputs (<code>adc~ 1–16</code>, from Dante) into a <strong>third-order <a href="https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats" target="_blank" rel="noopener noreferrer">AmbiX</a></strong> field: 16 channels, ACN order, SN3D normalisation.</li><li><strong>File input.</strong> Two looped players (<code>buffer~</code> + <code>groove~</code>, 16 channels each) add pre-encoded third-order B-format WAV files to the field before decoding. Each player has its own toggle and is off by default. <em>(In development.)</em></li><li><strong>Decoding.</strong> <code>ambidecode~ 3 16</code> (ICST) decodes the field to the 16 measured loudspeaker positions. Each speaker is defined by azimuth, elevation and distance in a decoder grid that can be edited live.</li><li><strong>Subwoofer.</strong> The omnidirectional W component (ACN 0) is taken from the encoder, low-pass filtered (<code>lores~</code>, 100 Hz) and sent to channel 17.</li><li><strong>Output.</strong> <code>dac~ 1–17</code> sends the speaker feeds to Dante.</li></ol></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="loudspeaker-calibration">Loudspeaker calibration</h2></summary><p>Speaker positions were measured in the room and converted to decoder coordinates with a purpose-built interactive calibration tool, which has a top-down view and an elevation view. The tool exports azimuth, elevation and distance per speaker. These values are typed into the decoder grid, take effect immediately, and need no new patch version. The encoder&#39;s speaker-matched default positions (used in calibration mode) are derived from the same data, so the two stay consistent.</p>
 <table><thead><tr><th>#</th><th>Ring</th><th>X</th><th>Y</th><th>Z</th><th>Azimuth</th><th>Elevation</th><th>Distance</th></tr></thead><tbody><tr><td>1</td><td>ground</td><td>−2.6</td><td>0.5</td><td>4.5</td><td>−127.57°</td><td>−16.95°</td><td>3.43 m</td></tr><tr><td>2</td><td>ground</td><td>−2.6</td><td>0.5</td><td>2.5</td><td>−90.00°</td><td>−21.04°</td><td>2.79 m</td></tr><tr><td>3</td><td>ground</td><td>−2.6</td><td>0.5</td><td>0.1</td><td>−47.29°</td><td>−15.78°</td><td>3.68 m</td></tr><tr><td>4</td><td>ground</td><td>0</td><td>0.5</td><td>−0.3</td><td>0.00°</td><td>−19.65°</td><td>2.97 m</td></tr><tr><td>5</td><td>ground</td><td>2.6</td><td>0.5</td><td>0.1</td><td>47.29°</td><td>−15.78°</td><td>3.68 m</td></tr><tr><td>6</td><td>ground</td><td>2.6</td><td>0.5</td><td>2.5</td><td>90.00°</td><td>−21.04°</td><td>2.79 m</td></tr><tr><td>7</td><td>ground</td><td>2.6</td><td>0.5</td><td>4.5</td><td>127.57°</td><td>−16.95°</td><td>3.43 m</td></tr><tr><td>8</td><td>rear</td><td>0</td><td>3.0</td><td>7.15</td><td>180.00°</td><td>17.88°</td><td>4.89 m</td></tr><tr><td>9</td><td>high</td><td>−2.5</td><td>3.7</td><td>3.25</td><td>−106.70°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>10</td><td>high</td><td>−2.5</td><td>3.7</td><td>1.75</td><td>−73.30°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>11</td><td>high</td><td>−1.25</td><td>3.7</td><td>0</td><td>−26.57°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>12</td><td>high</td><td>1.25</td><td>3.7</td><td>0</td><td>26.57°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>13</td><td>high</td><td>2.5</td><td>3.7</td><td>1.75</td><td>73.30°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>14</td><td>high</td><td>2.5</td><td>3.7</td><td>3.25</td><td>106.70°</td><td>40.13°</td><td>3.41 m</td></tr><tr><td>15</td><td>high</td><td>1.25</td><td>3.7</td><td>5</td><td>153.43°</td><td>38.21°</td><td>3.56 m</td></tr><tr><td>16</td><td>high</td><td>−1.25</td><td>3.7</td><td>5</td><td>−153.43°</td><td>38.21°</td><td>3.56 m</td></tr></tbody></table>
-<p>Convention: azimuth 0° points from the listening point towards the north wall. Positive azimuth turns towards +X. Z increases towards the entrance. The table also appears in the <a href="021_Lab-3D-model.html">Lab 3D model</a>.</p></details>
+<p>Convention: azimuth 0° points from the listening point towards the north wall. Positive azimuth turns towards +X. Z increases towards the entrance. The table also appears in the <a href="016_Lab-model.html">Lab model</a>.</p></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="operating-modes">Operating modes</h2></summary><table><thead><tr><th>Mode</th><th>Options</th><th>Default</th></tr></thead><tbody><tr><td>Direction (global and per source)</td><td>live tracked position, or a fixed position that matches the source&#39;s own speaker (calibration)</td><td>tracked</td></tr><tr><td>Test audio (global and per source)</td><td>live Dante input, or a looped voice recording</td><td>live</td></tr><tr><td>Listener reference</td><td>fixed point, or tracked listener (with optional mirroring)</td><td>—</td></tr><tr><td>Gain active</td><td>distance-based gain, or full gain on all sources</td><td>on</td></tr><tr><td>Ambisonic file players (2)</td><td>off / play</td><td>off</td></tr></tbody></table>
 <p>A debug panel shows each source&#39;s tracked position, its distance to the listener and the gain value sent to the encoder. This makes reactivity problems visible without console output.</p></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="implementation-notes">Implementation notes</h2></summary><ul><li><strong>Re-evaluation in <code>expr</code>.</strong> In practice, Max&#39;s <code>expr</code> only reliably fires on its leftmost inlet. The distance and listener-blend expressions therefore route all their inputs through <code>pak</code>/<code>unpack</code>, which forces re-evaluation whenever any input changes.</li><li><strong>Sample rate.</strong> All content has to arrive at 48 kHz. Dropouts with 44.1 kHz material turned out to be a resampling problem on the sending side, not in the renderer.</li><li><strong>State.</strong> An encoder instance that has been corrupted by invalid coefficients does not recover when the patch file is reopened. Max has to be fully restarted. The same applies to stale test-audio buffers.</li></ul></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="limitations-and-open-questions">Limitations and open questions</h2></summary><ul><li><strong>Directional rendering.</strong> Checking the panning across this irregular layout is ongoing work. A controlled comparison with a regular reference layout is planned.</li><li><strong>Listener model.</strong> There is one listening reference. Multiple listeners and listener orientation are outside the current scope.</li><li><strong>Built-in distance model.</strong> ICST&#39;s own distance attenuation is disabled in favour of the custom gain model above. It remains an option.</li><li><strong>Speaker aiming.</strong> The decoder stores position only. It does not store per-speaker aim (yaw/pitch).</li></ul></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outlook">Outlook</h2></summary><ul><li>A Dante input for B-format audio rendered in TouchDesigner, mixed in at the same point as the file players.</li><li>A control interface in TouchDesigner, so live operation no longer requires editing the Max patch.</li><li>A head-tracked headphone mode (&quot;Augmented Audio Reality&quot;) alongside the loudspeaker array.</li></ul></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="availability">Availability</h2></summary><p>The renderer is not part of the public <a href="https://github.com/SpatialComputingL/Td-updates" target="_blank" rel="noopener noreferrer">Td-updates</a> repository. It runs on the lab&#39;s NUC and is maintained by the lab.</p></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>← <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a> (OSC positions, Dante audio)</li><li>↔ <a href="021_Lab-3D-model.html">Lab 3D model</a> (speaker positions)</li><li>Overview: <a href="003_Lab-tools.html">Lab tools</a></li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>← <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a> (OSC positions, Dante audio)</li><li>↔ <a href="016_Lab-model.html">Lab model</a> (speaker positions)</li><li>Overview: <a href="003_Lab-Tools.html">Lab Tools</a></li><li>Hardware: <a href="015_Inventory.html">Inventory</a> (loudspeakers, renderer computer, Dante network)</li></ul></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="references">References</h2></summary><ul><li>ICST Ambisonics externals for Max: Institute for Computer Music and Sound Technology, Zurich University of the Arts.</li><li>AmbiX format: ACN channel ordering, SN3D normalisation.</li></ul></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
@@ -340,7 +343,7 @@
       </header>
       <nav class="contents-navigation" aria-label="Exported pages">
         <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
-        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="023_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="021_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Lab-tools.html">Lab tools</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Max-MSP ambisonic renderer</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Wall-projection.html">Wall projection</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="008_Azure-Kinect-sensors.html">Azure Kinect sensors</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="014_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="015_Inventory.html">Inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="016_Lab-model.html">Lab model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Lab-Tools.html">Lab Tools</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Max-MSP ambisonic renderer</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Wall-projection.html">Wall projection</a></li></ul></section>
       </nav>
     </aside>
   </div>

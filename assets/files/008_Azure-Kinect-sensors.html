@@ -8,7 +8,7 @@
   <title>Azure Kinect sensors</title>
   <!-- Exported by canvas-html-exporter v1.6.0 -->
   <style>
-    :root { --canvas-color-0: rgb(192, 192, 192); --canvas-color-0-bg: rgba(192, 192, 192, 0.18); --canvas-color-1: rgb(233, 49, 71); --canvas-color-1-bg: rgba(233, 49, 71, 0.18); --canvas-color-2: rgb(236, 117, 0); --canvas-color-2-bg: rgba(236, 117, 0, 0.18); --canvas-color-3: rgb(224, 172, 0); --canvas-color-3-bg: rgba(224, 172, 0, 0.18); --canvas-color-4: rgb(8, 185, 78); --canvas-color-4-bg: rgba(8, 185, 78, 0.18); --canvas-color-5: rgb(0, 191, 188); --canvas-color-5-bg: rgba(0, 191, 188, 0.18); --canvas-color-6: rgb(120, 82, 238); --canvas-color-6-bg: rgba(120, 82, 238, 0.18); }
+    :root { --canvas-color-0: rgb(126, 126, 126); --canvas-color-0-bg: rgba(126, 126, 126, 0.18); --canvas-color-1: rgb(251, 70, 76); --canvas-color-1-bg: rgba(251, 70, 76, 0.18); --canvas-color-2: rgb(233, 151, 63); --canvas-color-2-bg: rgba(233, 151, 63, 0.18); --canvas-color-3: rgb(224, 222, 113); --canvas-color-3-bg: rgba(224, 222, 113, 0.18); --canvas-color-4: rgb(68, 207, 110); --canvas-color-4-bg: rgba(68, 207, 110, 0.18); --canvas-color-5: rgb(83, 223, 221); --canvas-color-5-bg: rgba(83, 223, 221, 0.18); --canvas-color-6: rgb(168, 130, 255); --canvas-color-6-bg: rgba(168, 130, 255, 0.18); }
     html, body { margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -67,12 +67,12 @@
     details.heading-section:not([open]) > summary.heading-summary::before { content: "›"; }
     details.heading-section > summary.heading-summary:hover::before,
     details.heading-section > summary.heading-summary:focus-visible::before { opacity: 1; }
-        h1 { color: rgb(34, 34, 34); }
-    h2 { color: rgb(34, 34, 34); }
-    h3 { color: rgb(34, 34, 34); }
-    h4 { color: rgb(34, 34, 34); }
-    h5 { color: rgb(34, 34, 34); }
-    h6 { color: rgb(2, 8, 50); }
+        h1 { color: rgb(253, 247, 205); }
+    h2 { color: rgb(253, 247, 205); }
+    h3 { color: rgb(253, 247, 205); }
+    h4 { color: rgb(253, 247, 205); }
+    h5 { color: rgb(253, 247, 205); }
+    h6 { color: rgb(233, 39, 65); }
         strong { font-weight: 700; }
     em { font-style: italic; }
     del { text-decoration: line-through; }
@@ -105,64 +105,64 @@
     .callout-content { padding: 4px 10px 6px; }
     .callout-icon { margin-right: 5px; font-style: normal; display: inline-flex; align-items: center; vertical-align: -0.12em; }
     .callout-icon svg { width: 1em; height: 1em; fill: currentColor; display: block; }
-        .callout-note { border-color: #086ddd; }
-    .callout-note .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-info { border-color: #086ddd; }
-    .callout-info .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-todo { border-color: #086ddd; }
-    .callout-todo .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-abstract { border-color: #00bfbc; }
-    .callout-abstract .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-summary { border-color: #00bfbc; }
-    .callout-summary .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-tldr { border-color: #00bfbc; }
-    .callout-tldr .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-tip { border-color: #00bfbc; }
-    .callout-tip .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-hint { border-color: #00bfbc; }
-    .callout-hint .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-important { border-color: #00bfbc; }
-    .callout-important .callout-title { background: rgba(0, 191, 188, 0.18); color: #00bfbc; }
-    .callout-success { border-color: #08b94e; }
-    .callout-success .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-check { border-color: #08b94e; }
-    .callout-check .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-done { border-color: #08b94e; }
-    .callout-done .callout-title { background: rgba(8, 185, 78, 0.18); color: #08b94e; }
-    .callout-warning { border-color: #ec7500; }
-    .callout-warning .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-caution { border-color: #ec7500; }
-    .callout-caution .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-attention { border-color: #ec7500; }
-    .callout-attention .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-question { border-color: #ec7500; }
-    .callout-question .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-help { border-color: #ec7500; }
-    .callout-help .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-faq { border-color: #ec7500; }
-    .callout-faq .callout-title { background: rgba(236, 117, 0, 0.18); color: #ec7500; }
-    .callout-danger { border-color: #e93147; }
-    .callout-danger .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-error { border-color: #e93147; }
-    .callout-error .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-failure { border-color: #e93147; }
-    .callout-failure .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-fail { border-color: #e93147; }
-    .callout-fail .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-missing { border-color: #e93147; }
-    .callout-missing .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-bug { border-color: #e93147; }
-    .callout-bug .callout-title { background: rgba(233, 49, 71, 0.18); color: #e93147; }
-    .callout-example { border-color: #7852ee; }
-    .callout-example .callout-title { background: rgba(120, 82, 238, 0.18); color: #7852ee; }
+        .callout-note { border-color: #027aff; }
+    .callout-note .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-info { border-color: #027aff; }
+    .callout-info .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-todo { border-color: #027aff; }
+    .callout-todo .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-abstract { border-color: #53dfdd; }
+    .callout-abstract .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-summary { border-color: #53dfdd; }
+    .callout-summary .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-tldr { border-color: #53dfdd; }
+    .callout-tldr .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-tip { border-color: #53dfdd; }
+    .callout-tip .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-hint { border-color: #53dfdd; }
+    .callout-hint .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-important { border-color: #53dfdd; }
+    .callout-important .callout-title { background: rgba(83, 223, 221, 0.18); color: #53dfdd; }
+    .callout-success { border-color: #44cf6e; }
+    .callout-success .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-check { border-color: #44cf6e; }
+    .callout-check .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-done { border-color: #44cf6e; }
+    .callout-done .callout-title { background: rgba(68, 207, 110, 0.18); color: #44cf6e; }
+    .callout-warning { border-color: #e9973f; }
+    .callout-warning .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-caution { border-color: #e9973f; }
+    .callout-caution .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-attention { border-color: #e9973f; }
+    .callout-attention .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-question { border-color: #e9973f; }
+    .callout-question .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-help { border-color: #e9973f; }
+    .callout-help .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-faq { border-color: #e9973f; }
+    .callout-faq .callout-title { background: rgba(233, 151, 63, 0.18); color: #e9973f; }
+    .callout-danger { border-color: #fb464c; }
+    .callout-danger .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-error { border-color: #fb464c; }
+    .callout-error .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-failure { border-color: #fb464c; }
+    .callout-failure .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-fail { border-color: #fb464c; }
+    .callout-fail .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-missing { border-color: #fb464c; }
+    .callout-missing .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-bug { border-color: #fb464c; }
+    .callout-bug .callout-title { background: rgba(251, 70, 76, 0.18); color: #fb464c; }
+    .callout-example { border-color: #a882ff; }
+    .callout-example .callout-title { background: rgba(168, 130, 255, 0.18); color: #a882ff; }
     .callout-quote { border-color: #9e9e9e; }
     .callout-quote .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
     .callout-cite { border-color: #9e9e9e; }
     .callout-cite .callout-title { background: rgba(158, 158, 158, 0.18); color: #9e9e9e; }
-    .callout-settings { border-color: #086ddd; }
-    .callout-settings .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
-    .callout-award { border-color: #086ddd; }
-    .callout-award .callout-title { background: rgba(8, 109, 221, 0.18); color: #086ddd; }
+    .callout-settings { border-color: #027aff; }
+    .callout-settings .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
+    .callout-award { border-color: #027aff; }
+    .callout-award .callout-title { background: rgba(2, 122, 255, 0.18); color: #027aff; }
     details.callout { display: block; }
     details.callout > summary.callout-title { cursor: pointer; list-style: none; user-select: none; }
     details.callout > summary.callout-title::-webkit-details-marker { display: none; }
@@ -316,11 +316,13 @@
       <button id="page-navigation-button" class="page-navigation-button" type="button" aria-pressed="false">Navigation</button>
     </div>
     <h1>Azure Kinect sensors</h1>
-    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="azure_kinect_sensortox">Azure_Kinect_sensor.tox</h2></summary><p><strong>Layer:</strong> sensing&lt;br&gt;<strong>In:</strong> none&lt;br&gt;<strong>Out:</strong> one CHOP per selected joint (<code>tx ty tz</code>, metres)</p>
-<p>This component gives live three-dimensional positions of human body joints, measured by the lab&#39;s Azure Kinect sensors. You choose which joints you need, and each one gets its own outlet as a CHOP with the position in room coordinates. Several people can be tracked at the same time (active since the first week of October 2026): each copy of the component follows one person. When you are away from the lab, a mouse mode stands in for the tracked body. This lets you develop and test interaction logic without sensors, and the patch keeps the same structure in the lab.</p></details>
+    <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="azure_kinect_sensortox">Azure_Kinect_sensor.tox</h2></summary><p><strong>Layer:</strong> sensing<br>
+<strong>In:</strong> none<br>
+<strong>Out:</strong> one CHOP per selected joint (<code>tx ty tz</code>, metres)</p>
+<p>This component gives live three-dimensional positions of human body joints, measured by the lab&#39;s <a href="https://learn.microsoft.com/en-us/previous-versions/azure/kinect-dk/" target="_blank" rel="noopener noreferrer">Azure Kinect</a> sensors. You choose which joints you need, and each one gets its own outlet as a CHOP with the position in room coordinates. Several people can be tracked at the same time (active since the first week of October 2026): each copy of the component follows one person. When you are away from the lab, a mouse mode stands in for the tracked body. This lets you develop and test interaction logic without sensors, and the patch keeps the same structure in the lab.</p></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="role-in-the-setup">Role in the setup</h2></summary><p>The component is the main way bodies enter the system. Its outputs feed:</p>
 <ul><li><a href="007_Calculations.html">Calculations</a>, to relate a body to a virtual object</li><li><a href="009_Virtual-object-viewer.html">Virtual object viewer</a>, to check the tracking</li><li><a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a>, to place sound sources on a moving body</li></ul>
-<p>It is the client of the <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Kinect host</a>. The host decides <em>who</em> is in the room and sends every joint of every person. This component decides <em>what this project uses</em>: which person, which joints, and what to output when there is no usable data. It covers position only. For images from the same sensors, use <a href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a>.</p></details>
+<p>It is the client of the <a href="011_Azure-Kinects-calibration.html">Kinect host</a>. The host decides <em>who</em> is in the room and sends every joint of every person. This component decides <em>what this project uses</em>: which person, which joints, and what to output when there is no usable data. It covers position only. For images from the same sensors, use <a href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a>.</p></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="technical-specification">Technical specification</h2></summary><details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="inside-the-component">Inside the component</h3></summary><pre class="shiki one-light" style="background-color:#FAFAFA;color:#383A42" tabindex="0"><code><span class="line"><span>OSC In (all_oscin1) ─► null1 ─┐                                 ┌─► joint_sel_0 ─► out_0</span></span>
 <span class="line"><span>   or, in a copy:             ├─► joints_resolved (Script CHOP) ─┼─► joint_sel_1 ─► out_1</span></span>
 <span class="line"><span>   shared_stream (Select) ────┘        ▲ input 1                 └─► …</span></span>
@@ -328,7 +330,7 @@
 <span class="line"><span>joint_utils (shared code) · joint_watch (Execute DAT, every frame) · fps_oscin ─► merge_view</span></span></code></pre>
 <ul><li><strong><code>joints_resolved</code></strong> (Script CHOP, code in <code>joints_resolved_callbacks</code>) makes every per-frame decision about values: live, mouse or fallback, and smoothing.</li><li><strong><code>joint_watch</code></strong> (Execute DAT) maintains the structure: it builds the outlets from the joint list and decides which copy is the receiver.</li><li><strong><code>joint_utils</code></strong> holds the code both share: reading the joint list and the parameters, and finding the receiver.</li></ul>
 <p>The joint list on the component (<em>Add joints</em>) is the <strong>single source of truth</strong>. It is saved with the project, and nothing that arrives from the host can change it. That is what keeps the list editable without a connection, and what keeps the outlets from disappearing when the connection drops.</p></details>
-<details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="source-data">Source data</h3></summary><p>The host sends every joint of every tracked person over OSC (UDP 1030), named <code>p{N}/{joint}:tx/ty/tz</code>, plus <code>p{N}/present</code> and a <code>heartbeat</code> (see <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Azure Kinects calibration &amp;amp; decisionmaking</a>). Joints are matched <strong>by name</strong>, never by position in the stream, so the order of joints on the host and in the component never has to agree.</p></details>
+<details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="source-data">Source data</h3></summary><p>The host sends every joint of every tracked person over <a href="https://opensoundcontrol.stanford.edu/" target="_blank" rel="noopener noreferrer">OSC</a> (UDP 1030), named <code>p{N}/{joint}:tx/ty/tz</code>, plus <code>p{N}/present</code> and a <code>heartbeat</code> (see <a href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a>). Joints are matched <strong>by name</strong>, never by position in the stream, so the order of joints on the host and in the component never has to agree.</p></details>
 <details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="coordinate-frame">Coordinate frame</h3></summary><p>Output values are in metres in the lab&#39;s room frame: X = width, Y = height, Z = depth. This is the same frame used by <a href="006_Virtual-objects.html">Virtual objects</a> and the sound system, so you can compare joint and object positions directly without converting.</p></details></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="decision-making">Decision making</h2></summary><details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="per-joint-every-frame">Per joint, every frame</h3></summary><p><code>joints_resolved</code> cooks every frame (it reads the clock on purpose, so it also notices when the stream stops). For each joint in the list it decides, in this order:</p>
 <pre class="shiki one-light" style="background-color:#FAFAFA;color:#383A42" tabindex="0"><code><span class="line"><span>Mouse on? ──yes──► mouse position (same value for every joint)</span></span>
@@ -341,11 +343,11 @@
 <details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="what-counts-as-usable-live-data">What counts as &quot;usable live data&quot;</h3></summary><p>OSC has one property that drives most of this design: <strong>a channel that stops arriving keeps showing its last value forever.</strong> A person who left, a frozen host and a dropped network all look like someone standing perfectly still. The component therefore treats live data as unusable when any of these is true:</p>
 <ol><li><strong>No stream</strong> is connected.</li><li><strong>The person is absent:</strong> the host&#39;s <code>p{N}/present</code> for this component&#39;s Person number is 0.</li><li><strong>This person&#39;s values have stopped changing</strong> for <strong>0.5 s</strong> (<code>STALE_SEC</code>). Real tracking always jitters by a fraction of a millimetre, so values that are exactly constant mean the data has stopped. This check works even with an older host that sends no presence flags or heartbeat.</li><li><strong>The host&#39;s <code>heartbeat</code></strong> hasn&#39;t changed for 0.5 s: the host has stopped, frozen or lost the connection.</li><li><strong>None of the chosen joints</strong> exist in the stream for this person.</li></ol>
 <p>If live data is unusable, every joint of this component goes to the fallback at once. The outlets themselves never change; only their values do.</p></details>
-<details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="smoothing">Smoothing</h3></summary><p>Live values pass through a <strong>One Euro filter</strong> (Casiez et al., CHI 2012), per channel. It is an adaptive low-pass filter whose cut-off frequency rises with the speed of the joint:</p>
+<details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="smoothing">Smoothing</h3></summary><p>Live values pass through a <strong><a href="https://gery.casiez.net/1euro/" target="_blank" rel="noopener noreferrer">One Euro filter</a></strong> (Casiez et al., CHI 2012), per channel. It is an adaptive low-pass filter whose cut-off frequency rises with the speed of the joint:</p>
 <ul><li>When a joint is (nearly) still, the cut-off is low (<em>MIN_CUTOFF</em>), so sensor jitter disappears.</li><li>When it moves fast, the cut-off rises by <em>BETA</em> × speed, so the filter hardly smooths and adds almost no delay.</li></ul>
 <p>A Lag CHOP smooths everything equally, so it always trails behind fast movement. In a simulation with 1 cm sensor noise and a fast 1 m hand swing, both reduced jitter at rest from 8.6 mm to about 2 mm, but the lag trailed by 133 ms and the One Euro filter by 50 ms. There are no Lag CHOPs left in the chain, on the host or in this component.</p>
 <p>Two details matter in practice:</p>
-<ul><li><strong>The filter only updates when a new sample arrives.</strong> The sensors deliver 15–30 samples per second while TouchDesigner runs at 60 fps. Repeated values between samples would otherwise read as &quot;standing still&quot; and distort the speed estimate.</li><li><strong>The filter resets whenever live data stops.</strong> A person who comes back snaps to their real position instead of gliding in from the fallback origin.</li></ul>
+<ul><li><strong>The filter only updates when a new sample arrives.</strong> The sensors deliver 15–30 samples per second while <a href="https://derivative.ca/" target="_blank" rel="noopener noreferrer">TouchDesigner</a> runs at 60 fps. Repeated values between samples would otherwise read as &quot;standing still&quot; and distort the speed estimate.</li><li><strong>The filter resets whenever live data stops.</strong> A person who comes back snaps to their real position instead of gliding in from the fallback origin.</li></ul>
 <p>The constants are at the top of <code>joints_resolved_callbacks</code>: <code>MIN_CUTOFF</code> (Hz), <code>BETA</code> and <code>D_CUTOFF</code>. Tune in this order: stand still and lower <code>MIN_CUTOFF</code> until the jitter is gone, then move fast and raise <code>BETA</code> until the lag is gone. <code>SMOOTHING = False</code> switches the filter off for comparison. Mouse mode and the fallback are never smoothed.</p></details>
 <details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="outlets-when-the-structure-changes">Outlets: when the structure changes</h3></summary><p><code>joint_watch</code> compares the joint list and the Person number with the previous frame. Only when one of them changes does it rebuild:</p>
 <ul><li>one Select CHOP (<code>joint_sel_i</code>) per slot, picking <code>p{Person}/{joint}:tx/ty/tz</code> and renaming it to <code>tx ty tz</code></li><li>one Out CHOP (<code>out_i</code>) per slot, labelled with the joint name</li></ul>
@@ -358,9 +360,9 @@
 <details class="heading-section heading-section-h3" open><summary class="heading-summary"><h3 id="simulation">Simulation</h3></summary><p>With <em>Mouse</em> on, every joint follows the mouse in a chosen plane (<em>Mouse orientation</em>, for example XZ = across the floor), already mapped to room metres by <code>Mouse_base</code>. This lets you test downstream logic without the lab. The mouse is never used as a fallback when <em>Mouse</em> is off.</p></details></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="parameters">Parameters</h2></summary><table><thead><tr><th>Parameter</th><th>Function</th></tr></thead><tbody><tr><td>Mouse</td><td>off = sensor data. On = every joint follows the mouse.</td></tr><tr><td>Mouse orientation</td><td>the plane the mouse moves in (e.g. XZ = floor plane). Only active when Mouse is on.</td></tr><tr><td>Person</td><td>which tracked person (1–8, i.e. <code>p1</code> … <code>p8</code>) this copy outputs. For several people, use one copy per person.</td></tr><tr><td>Add joints (+/−)</td><td>adds or removes joint slots. Each slot has a joint selector. Outlets follow automatically.</td></tr><tr><td>Configure</td><td>re-initialises the sensors on the Kinect host. Only active in the receiving copy.</td></tr><tr><td>Fallback origin / Position</td><td>where joints rest when there is no usable data. Off = 0 0 0.</td></tr></tbody></table></details>
 <details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="outputs">Outputs</h2></summary><ul><li>One outlet per slot, in slot order, each with channels <code>tx ty tz</code> in metres.</li><li>The component&#39;s viewer shows the chosen joints with their full names (<code>p1/head:tx</code>, …).</li><li>Recommended convention: attach a <code>null</code> named after the joint (<code>null_head</code>, <code>null_handl</code>, …) to each outlet and reference that null downstream.</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="limitations-and-expected-behaviour">Limitations and expected behaviour</h2></summary><ul><li><strong>Values at 0 or at Position:</strong> you are outside the lab, nobody with that Person number is in the room, or no new data has arrived for 0.5 s. Turn on Mouse to keep working.</li><li><strong>Numbers are tracks, not individuals:</strong> someone who leaves and comes back may get a different number. When person 1 leaves, person 2 keeps their number and <code>p1</code> stays empty until someone new arrives. How numbers are assigned is explained in <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Azure Kinects calibration &amp;amp; decisionmaking</a>.</li><li><strong>Hands are less steady than head and pelvis:</strong> the sensors rate hands as uncertain most of the time. Wrists are steadier and move almost the same.</li><li><strong>Left/right swaps</strong> when someone turns their back to the sensors, and <strong>less reliable tracking</strong> for dark or long hair, darker skin and dark clothing: limitations of the sensors, see <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Azure Kinects calibration &amp;amp; decisionmaking</a>.</li><li><strong>External .tox:</strong> the component is loaded from <code>Azure_Kinect_sensor.tox</code>, and copies are loaded from that file. After changing the component, save it back to the .tox from the <strong>original</strong>, never from a copy, and make new copies.</li><li><strong>Hardware lifecycle:</strong> Microsoft stopped producing the Azure Kinect DK in 2023. In the long run the lab will need a successor sensor. Because the component&#39;s output is a sensor-independent CHOP interface, patches built on it should keep working when the hardware changes.</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>→ <a href="007_Calculations.html">Calculations</a> (input 1, as a point)</li><li>→ <a href="009_Virtual-object-viewer.html">Virtual object viewer</a> (green inputs)</li><li>→ <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a> (source position)</li><li>← <a href="#missing-Azure%20Kinects%20calibration%20%26amp%3B%20decisionmaking">Azure Kinects calibration &amp;amp; decisionmaking</a> (OSC skeletons)</li><li>↔ <a href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a> (same sensors, image stream)</li></ul></details>
-<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="references">References</h2></summary><ul><li>User README: <a href="017_Azure_Kinect_sensor-README.html">Azure_Kinect_sensor-README</a></li><li>Repository: &lt;https://github.com/SpatialComputingL/Td-updates&gt;</li><li>Overview: <a href="003_Lab-tools.html">Lab tools</a></li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="limitations-and-expected-behaviour">Limitations and expected behaviour</h2></summary><ul><li><strong>Values at 0 or at Position:</strong> you are outside the lab, nobody with that Person number is in the room, or no new data has arrived for 0.5 s. Turn on Mouse to keep working.</li><li><strong>Numbers are tracks, not individuals:</strong> someone who leaves and comes back may get a different number. When person 1 leaves, person 2 keeps their number and <code>p1</code> stays empty until someone new arrives. How numbers are assigned is explained in <a href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a>.</li><li><strong>Hands are less steady than head and pelvis:</strong> the sensors rate hands as uncertain most of the time. Wrists are steadier and move almost the same.</li><li><strong>Left/right swaps</strong> when someone turns their back to the sensors, and <strong>less reliable tracking</strong> for dark or long hair, darker skin and dark clothing: limitations of the sensors, see <a href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a>.</li><li><strong>External .tox:</strong> the component is loaded from <code>Azure_Kinect_sensor.tox</code>, and copies are loaded from that file. After changing the component, save it back to the .tox from the <strong>original</strong>, never from a copy, and make new copies.</li><li><strong>Hardware lifecycle:</strong> Microsoft stopped producing the Azure Kinect DK in 2023. In the long run the lab will need a successor sensor. Because the component&#39;s output is a sensor-independent CHOP interface, patches built on it should keep working when the hardware changes.</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="relations">Relations</h2></summary><ul><li>→ <a href="007_Calculations.html">Calculations</a> (input 1, as a point)</li><li>→ <a href="009_Virtual-object-viewer.html">Virtual object viewer</a> (green inputs)</li><li>→ <a href="005_Ambisonics-sound-control.html">Ambisonics sound control</a> (source position)</li><li>← <a href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a> (OSC skeletons)</li><li>↔ <a href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a> (same sensors, image stream)</li><li>Hardware: <a href="015_Inventory.html">Inventory</a> (the installed sensors, and other sensors available in the lab)</li></ul></details>
+<details class="heading-section heading-section-h2" open><summary class="heading-summary"><h2 id="references">References</h2></summary><ul><li>User README: <a href="021_Azure_Kinect_sensor-README.html">Azure_Kinect_sensor-README</a></li><li>Repository: &lt;https://github.com/SpatialComputingL/Td-updates&gt;</li><li>Overview: <a href="003_Lab-Tools.html">Lab Tools</a></li></ul></details>
   </main>
   <div id="contents-overlay" class="contents-overlay" hidden>
     <aside id="contents-panel" class="contents-panel" aria-labelledby="contents-title">
@@ -369,7 +371,7 @@
       </header>
       <nav class="contents-navigation" aria-label="Exported pages">
         <section class="contents-section"><h3>Canvases</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="canvas"><a class="contents-link" href="../../index.html">researchcatalogue</a></li></ul></section>
-        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Azure Kinect sensors</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="023_Azure-Kinects-calibration-decisionmaking.html">Azure Kinects calibration &amp; decisionmaking</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="021_Lab-3D-model.html">Lab 3D model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Lab-inventory.html">Lab inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Lab-tools.html">Lab tools</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="026_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Wall-projection.html">Wall projection</a></li></ul></section>
+        <section class="contents-section"><h3>Pages in this canvas</h3><ul class="contents-list"><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="002_Abstract-Spatial-Computing-Lab.html">Abstract Spatial Computing Lab</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="005_Ambisonics-sound-control.html">Ambisonics sound control</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="012_Azure-Kinect-cameras.html">Azure Kinect cameras</a></li><li class="contents-item" data-contents-kind="markdown"><span class="contents-link is-current" aria-current="page">Azure Kinect sensors</span></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="011_Azure-Kinects-calibration.html">Azure Kinects calibration</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="007_Calculations.html">Calculations</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="014_Floor-projection.html">Floor projection</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="015_Inventory.html">Inventory</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="016_Lab-model.html">Lab model</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="003_Lab-Tools.html">Lab Tools</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="004_Max-MSP-ambisonic-renderer.html">Max-MSP ambisonic renderer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="001_Partner-FilmEU.html">Partner FilmEU</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="025_Support-STAGEtech.html">Support STAGEtech</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="009_Virtual-object-viewer.html">Virtual object viewer</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="006_Virtual-objects.html">Virtual objects</a></li><li class="contents-item" data-contents-kind="markdown"><a class="contents-link" href="013_Wall-projection.html">Wall projection</a></li></ul></section>
       </nav>
     </aside>
   </div>

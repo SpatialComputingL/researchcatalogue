@@ -50,6 +50,7 @@
   syncThemeButton();
   themeButton.addEventListener("click", () => {
     document.body.classList.toggle("theme-night");
+    document.body.classList.remove("groups-flipped");
     localStorage.setItem("spatial-lab-theme", document.body.classList.contains("theme-night") ? "night" : "day");
     syncThemeButton();
   });
@@ -67,20 +68,22 @@
   const controlGuideTrack = document.createElement("div");
   controlGuideTrack.className = "canvas-controls-guide-track";
   const controlGuideItems = [
-    "−/+ buttons: zoom",
-    "reload: reframe",
-    "two-finger scroll: pan",
-    "pinch: zoom",
-    "Ctrl/Cmd + scroll: zoom",
-    "Shift/Ctrl/Cmd + drag: zoom",
-    "Space: reframe",
+    ["touch", "drag or two-finger scroll: pan"],
+    ["touch", "pinch: zoom"],
+    ["touch", "reload button: reframe"],
+    ["mouse", "click + drag: pan"],
+    ["mouse", "scroll: pan"],
+    ["mouse", "Ctrl/Cmd + scroll or pinch: zoom"],
+    ["mouse", "Shift/Ctrl/Cmd + drag: zoom"],
+    ["mouse", "Space: reframe"],
   ];
   for (let copy = 0; copy < 2; copy += 1) {
     const sequence = document.createElement("div");
     sequence.className = "canvas-controls-guide-sequence";
     if (copy) sequence.setAttribute("aria-hidden", "true");
-    for (const text of controlGuideItems) {
+    for (const [kind, text] of controlGuideItems) {
       const item = document.createElement("span");
+      item.className = `guide-${kind}`;
       item.textContent = text;
       sequence.append(item);
     }
@@ -234,6 +237,25 @@
   });
   const minimapTitle = document.querySelector("#minimap-panel .minimap-header strong");
   if (minimapTitle) minimapTitle.textContent = "NAVIGATION";
+  const minimapDragHandle = document.querySelector("#minimap-drag-handle");
+  if (minimapPanel && minimapDragHandle) {
+    const edgeHandle = document.createElement("div");
+    edgeHandle.className = "minimap-edge-handle";
+    minimapPanel.prepend(edgeHandle);
+    edgeHandle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      minimapDragHandle.dispatchEvent(new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        button: event.button,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        pointerId: event.pointerId,
+        pointerType: event.pointerType,
+      }));
+    });
+  }
 
   const publicationTitle = document.createElement("span");
   publicationTitle.className = "publication-title";
@@ -291,9 +313,6 @@
       navigationButton.focus();
     }
   });
-  if (window.matchMedia("(max-width: 760px)").matches) {
-    window.openContents?.();
-  }
 
   const zoomViewport = document.querySelector(".viewport");
   const zoomCanvas = document.querySelector("#canvas");
@@ -311,6 +330,24 @@
     if (!heading?.textContent?.trim().toLowerCase().startsWith("comments on ")) continue;
     node.classList.add("overview-comment-node");
   }
+  const translucentFill = /rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*0?\.[0-2]\d*\)/g;
+  for (const node of zoomCanvas.querySelectorAll(".node:not(.group)")) {
+    for (const property of ["background", "--node-background-color"]) {
+      const value = node.style.getPropertyValue(property);
+      if (translucentFill.test(value)) {
+        translucentFill.lastIndex = 0;
+        node.style.setProperty(property, value.replace(translucentFill, "rgb($1, $2, $3)"));
+      }
+      translucentFill.lastIndex = 0;
+    }
+  }
+  for (const node of zoomCanvas.querySelectorAll(".node.text:not(.overview-comment-node)")) {
+    if (node.querySelector(".md-card-title")) continue;
+    const walker = document.createTreeWalker(node.querySelector(".node-content") || node, NodeFilter.SHOW_TEXT);
+    let first = "";
+    while (!first && walker.nextNode()) first = walker.currentNode.textContent.replace(/\s+/g, " ").trim();
+    if (first) node.setAttribute("data-overview-title", first);
+  }
   for (const node of zoomCanvas.querySelectorAll(".overview-comment-node, .overview-orbit-node")) {
     const icon = document.createElement("span");
     icon.className = "overview-node-icon";
@@ -327,9 +364,15 @@
     }
     node.append(icon);
   }
+  const groupChannels = (node) => {
+    const raw = getComputedStyle(node).getPropertyValue("--node-border-color").trim();
+    const hex = raw.match(/^#([0-9a-f]{6})/i);
+    if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16));
+    return getComputedStyle(node).borderTopColor.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+  };
   for (const node of groupNodes) {
-    const borderColor = getComputedStyle(node).borderTopColor;
-    if (borderColor === "rgb(170, 181, 196)") {
+    const channels = groupChannels(node);
+    if (channels && channels.join() === "170,181,196") {
       node.classList.add("neutral-gray-group", "group-shape-oval");
       zoomCanvas
         .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
@@ -337,10 +380,10 @@
     }
   }
   for (const node of groupNodes) {
-    const channels = getComputedStyle(node).borderTopColor.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+    const channels = groupChannels(node);
     if (!channels || channels.length < 3) continue;
     const luminance = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
-    if (luminance < 0.6) continue;
+    if (luminance < 0.8) continue;
     zoomCanvas
       .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
       ?.classList.add("light-group-title");
@@ -485,13 +528,9 @@
   let targetScale = readTargetScale();
   let focusedNodeScale = 0;
   let focusedNode = null;
-  const initialFitBounds = boundsForVisibleNodes();
-  const initialFitScale = Math.min(
-      1,
-      Math.max(100, zoomViewport.clientWidth - 64) / initialFitBounds.width,
-      Math.max(100, zoomViewport.clientHeight - 96) / initialFitBounds.height,
-    ) * 0.96;
-  let fitToViewport = Math.abs(targetScale - initialFitScale) < 0.015;
+  const heightFitScale = (bounds = boundsForVisibleNodes()) =>
+    Math.min(1, Math.max(100, zoomViewport.clientHeight - 64) / bounds.height);
+  let fitToViewport = true;
   zoomCanvas.style.transform = `scale(${targetScale})`;
   zoomCanvas.querySelectorAll(".node[data-node-id]").forEach((node) => {
     const title = node.querySelector(".md-card-title")?.textContent?.trim();
@@ -540,6 +579,7 @@
     cancelAnimationFrame(zoomAnimationFrame);
     zoomAnimationFrame = 0;
   };
+  let lastDetailScale = 0;
   const setRenderedScale = (scale) => {
     targetScale = scale;
     const zoomPercentage = `${Math.round(scale * 100)}%`;
@@ -548,15 +588,16 @@
     zoomLevelIndicator.setAttribute("aria-label", `Current zoom level ${zoomPercentage}`);
     zoomCanvas.style.transform = `scale(${scale})`;
     zoomCanvas.style.setProperty("--canvas-scale", String(scale));
-    const overviewProgress = Math.max(0, Math.min(1, (0.25 - scale) / 0.05));
-    const dayOverviewProgress = Math.max(0, Math.min(1, (0.25 - scale) / 0.05));
+    const overviewProgress = Math.round(Math.max(0, Math.min(1, (0.25 - scale) / 0.05)) * 100) / 100;
     const isNight = document.body.classList.contains("theme-night");
-    zoomCanvas.style.setProperty(
-      "--group-fill-strength",
-      `${isNight ? 44 + overviewProgress * 48 : dayOverviewProgress * 84}%`,
-    );
-    zoomCanvas.style.setProperty("--canvas-title-size", `${12 + 6 * Math.min(scale, 1)}px`);
-    for (const node of zoomCanvas.querySelectorAll(".node[data-overview-title]")) {
+    const fillStrength = `${isNight ? 44 + overviewProgress * 48 : overviewProgress * 84}%`;
+    if (zoomCanvas.style.getPropertyValue("--group-fill-strength") !== fillStrength) {
+      zoomCanvas.style.setProperty("--group-fill-strength", fillStrength);
+    }
+    const detailsChanged = !lastDetailScale || Math.abs(scale - lastDetailScale) / lastDetailScale > 0.02;
+    if (detailsChanged) lastDetailScale = scale;
+    if (detailsChanged) zoomCanvas.style.setProperty("--canvas-title-size", `${12 + 6 * Math.min(scale, 1)}px`);
+    if (detailsChanged) for (const node of zoomCanvas.querySelectorAll(".node[data-overview-title]")) {
       const title = node.getAttribute("data-overview-title") || "";
       const screenWidth = node.offsetWidth * scale;
       const screenHeight = node.offsetHeight * scale;
@@ -564,7 +605,7 @@
       const labelSize = Math.max(5, Math.min(13, screenHeight * 0.62, widthFit));
       node.style.setProperty("--overview-label-size", `${labelSize}px`);
     }
-    for (const title of zoomCanvas.querySelectorAll(".group-title[data-group-title-node-id]")) {
+    if (detailsChanged) for (const title of zoomCanvas.querySelectorAll(".group-title[data-group-title-node-id]")) {
       const node = zoomCanvas.querySelector(`#node-${CSS.escape(title.dataset.groupTitleNodeId)}`);
       const text = title.querySelector(".group-title-text")?.textContent?.trim() || "";
       const availableWidth = Number(node?.dataset.canvasWidth || 0) * scale;
@@ -601,7 +642,10 @@
         background.setAttribute("transform", transform);
       }
     }
-    document.body.classList.toggle("canvas-overview", scale <= 0.2);
+    const overview = scale <= 0.2;
+    if (document.body.classList.contains("canvas-overview") !== overview) {
+      document.body.classList.toggle("canvas-overview", overview);
+    }
     updateCanvasExtent(scale);
   };
   setRenderedScale(targetScale);
@@ -621,12 +665,7 @@
     if (!groupNode?.classList.contains("group")) return;
     event.preventDefault();
     event.stopPropagation();
-    const color = getComputedStyle(groupNode).borderTopColor;
-    const nextIsOval = !groupNode.classList.contains("group-shape-oval");
-    for (const node of groupNodes) {
-      if (getComputedStyle(node).borderTopColor !== color) continue;
-      node.classList.toggle("group-shape-oval", nextIsOval);
-    }
+    document.body.classList.toggle("groups-flipped");
   }, true);
 
   const setScaleAtWorldPoint = (nextScale, worldPoint, anchor, immediate = false) => {
@@ -709,6 +748,7 @@
     ));
   };
   let activeCanvasPinch = null;
+  const pendingPinch = { factor: 1, anchor: null, frame: 0 };
   const touchDistance = (touches) => Math.hypot(
     touches[0].clientX - touches[1].clientX,
     touches[0].clientY - touches[1].clientY,
@@ -731,9 +771,17 @@
     }
     event.preventDefault();
     const distance = touchDistance(event.touches);
-    const anchor = touchMidpoint(event.touches);
+    pendingPinch.anchor = touchMidpoint(event.touches);
     if (activeCanvasPinch && activeCanvasPinch.distance > 0 && distance > 0) {
-      window.zoomBy(distance / activeCanvasPinch.distance, anchor, true);
+      pendingPinch.factor *= distance / activeCanvasPinch.distance;
+      if (!pendingPinch.frame) {
+        pendingPinch.frame = requestAnimationFrame(() => {
+          const { factor, anchor } = pendingPinch;
+          pendingPinch.frame = 0;
+          pendingPinch.factor = 1;
+          window.zoomBy(factor, anchor, true);
+        });
+      }
     }
     activeCanvasPinch = { distance };
   }, { passive: false });
@@ -810,114 +858,82 @@
     }) || null;
   };
   if (contentsNavigation) {
-    const groups = [...zoomCanvas.querySelectorAll(".node.group[data-node-id]")]
-      .map((node) => {
-        const title = zoomCanvas.querySelector(
-          `.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"] .group-title-text`,
-        )?.textContent?.trim() || node.querySelector(".md-card-title")?.textContent?.trim();
-        return title ? { node, title, pages: [], children: [], parent: null } : null;
-      })
-      .filter(Boolean);
-    const independentPages = [];
-    let mainPage = null;
-    for (const link of contentsPageLinks) {
-      const item = link.closest(".contents-item") || link;
-      const pageNode = nodeForPageLink(link);
-      if (pageNode === mainMapNode || link.textContent.trim().toLowerCase() === "abstract spatial computing lab") {
-        mainPage = item;
-        continue;
-      }
-      if (pageNode) {
-        const left = Number(pageNode.dataset.canvasLeft);
-        const top = Number(pageNode.dataset.canvasTop);
-        const centerX = left + Number(pageNode.dataset.canvasWidth) / 2;
-        const centerY = top + Number(pageNode.dataset.canvasHeight) / 2;
-        const containingGroup = groups
-          .filter(({ node }) => {
-            const groupLeft = Number(node.dataset.canvasLeft);
-            const groupTop = Number(node.dataset.canvasTop);
-            return centerX >= groupLeft
-              && centerX <= groupLeft + Number(node.dataset.canvasWidth)
-              && centerY >= groupTop
-              && centerY <= groupTop + Number(node.dataset.canvasHeight);
-          })
-          .sort((a, b) =>
-            Number(a.node.dataset.canvasWidth) * Number(a.node.dataset.canvasHeight)
-            - Number(b.node.dataset.canvasWidth) * Number(b.node.dataset.canvasHeight),
-          )[0];
-        if (containingGroup) {
-          containingGroup.pages.push(item);
-          continue;
-        }
-      }
-      independentPages.push(item);
-    }
-    const list = document.createElement("ul");
-    list.className = "contents-list";
-    const addPage = (item, className) => {
-      item.className = `contents-item ${className}`;
-      const link = item.querySelector(".contents-link");
-      if (link) link.classList.add("contents-page-link");
-      list.append(item);
-    };
-    if (mainPage) addPage(mainPage, "contents-main-item");
+    const dim = (node, key) => Number(node.dataset[key]);
+    const areaOf = (node) => dim(node, "canvasWidth") * dim(node, "canvasHeight");
+    const byPosition = (a, b) => dim(a.node, "canvasTop") - dim(b.node, "canvasTop")
+      || dim(a.node, "canvasLeft") - dim(b.node, "canvasLeft");
+    const groups = [...zoomCanvas.querySelectorAll(".node.group[data-node-id]")].map((node) => ({
+      node,
+      title: zoomCanvas.querySelector(
+        `.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"] .group-title-text`,
+      )?.textContent?.trim() || node.querySelector(".md-card-title")?.textContent?.trim() || "Group",
+      entries: [],
+      children: [],
+      parent: null,
+    }));
+    const smallest = (list) => list.sort((a, b) => areaOf(a.node) - areaOf(b.node))[0] || null;
     for (const group of groups) {
-      const groupBounds = {
-        left: Number(group.node.dataset.canvasLeft),
-        top: Number(group.node.dataset.canvasTop),
-        right: Number(group.node.dataset.canvasLeft) + Number(group.node.dataset.canvasWidth),
-        bottom: Number(group.node.dataset.canvasTop) + Number(group.node.dataset.canvasHeight),
-      };
-      const groupArea = Number(group.node.dataset.canvasWidth) * Number(group.node.dataset.canvasHeight);
-      group.parent = groups
-        .filter((candidate) => candidate !== group)
-        .filter((candidate) => {
-          const left = Number(candidate.node.dataset.canvasLeft);
-          const top = Number(candidate.node.dataset.canvasTop);
-          const right = left + Number(candidate.node.dataset.canvasWidth);
-          const bottom = top + Number(candidate.node.dataset.canvasHeight);
-          const candidateArea = Number(candidate.node.dataset.canvasWidth)
-            * Number(candidate.node.dataset.canvasHeight);
-          return candidateArea > groupArea
-            && left <= groupBounds.left && top <= groupBounds.top
-            && right >= groupBounds.right && bottom >= groupBounds.bottom;
-        })
-        .sort((a, b) =>
-          Number(a.node.dataset.canvasWidth) * Number(a.node.dataset.canvasHeight)
-          - Number(b.node.dataset.canvasWidth) * Number(b.node.dataset.canvasHeight),
-        )[0] || null;
+      const left = dim(group.node, "canvasLeft");
+      const top = dim(group.node, "canvasTop");
+      const right = left + dim(group.node, "canvasWidth");
+      const bottom = top + dim(group.node, "canvasHeight");
+      group.parent = smallest(groups.filter((other) => other !== group
+        && areaOf(other.node) > areaOf(group.node)
+        && dim(other.node, "canvasLeft") <= left && dim(other.node, "canvasTop") <= top
+        && dim(other.node, "canvasLeft") + dim(other.node, "canvasWidth") >= right
+        && dim(other.node, "canvasTop") + dim(other.node, "canvasHeight") >= bottom));
       group.parent?.children.push(group);
     }
+    const entries = [];
+    for (const node of zoomCanvas.querySelectorAll(".node[data-node-id]:not(.group):not(.model-preview-node)")) {
+      const titleLink = node.querySelector(".md-card-title-link[href]");
+      const label = node.querySelector(".md-card-title")?.textContent?.trim()
+        || node.querySelector(".node-content :is(h1, h2, h3, h4, h5, h6)")?.textContent?.trim();
+      if (!label) continue;
+      const centerX = dim(node, "canvasLeft") + dim(node, "canvasWidth") / 2;
+      const centerY = dim(node, "canvasTop") + dim(node, "canvasHeight") / 2;
+      const group = smallest(groups.filter(({ node: g }) =>
+        centerX >= dim(g, "canvasLeft") && centerX <= dim(g, "canvasLeft") + dim(g, "canvasWidth")
+        && centerY >= dim(g, "canvasTop") && centerY <= dim(g, "canvasTop") + dim(g, "canvasHeight")));
+      const entry = { node, label, href: titleLink?.href || null, group };
+      group?.entries.push(entry);
+      entries.push(entry);
+    }
+    const makeItem = (label, node, href) => {
+      const item = document.createElement("li");
+      item.className = "contents-item";
+      const link = document.createElement("a");
+      link.className = href ? "contents-link contents-page-link" : "contents-link contents-plain-link";
+      link.href = href || "#";
+      link.textContent = label;
+      if (!href) {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          zoomToNode(node);
+        });
+      }
+      item.append(link);
+      return item;
+    };
     const appendGroup = (group, parentList) => {
-      const heading = document.createElement("li");
-      heading.className = "contents-item contents-group-item";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "contents-link contents-group-link";
-      button.textContent = group.title;
-      button.addEventListener("click", () => zoomToNode(group.node));
-      heading.append(button);
+      const item = makeItem(group.title, group.node, null);
+      item.classList.add("contents-group-item");
       const children = document.createElement("ul");
       children.className = "contents-list contents-group-children";
-      for (const item of group.pages) {
-        item.className = "contents-item contents-group-page";
-        const link = item.querySelector(".contents-link");
-        if (link) link.classList.add("contents-page-link");
-        children.append(item);
-      }
-      group.children
-        .sort((a, b) => Number(a.node.dataset.canvasTop) - Number(b.node.dataset.canvasTop)
-          || Number(a.node.dataset.canvasLeft) - Number(b.node.dataset.canvasLeft))
-        .forEach((child) => appendGroup(child, children));
-      if (children.childElementCount) heading.append(children);
-      parentList.append(heading);
+      group.entries.sort(byPosition).forEach((entry) => children.append(makeItem(entry.label, entry.node, entry.href)));
+      group.children.sort(byPosition).forEach((child) => appendGroup(child, children));
+      if (children.childElementCount) item.append(children);
+      parentList.append(item);
     };
-    groups
-      .filter(({ parent }) => !parent)
-      .sort((a, b) => Number(a.node.dataset.canvasTop) - Number(b.node.dataset.canvasTop)
-        || Number(a.node.dataset.canvasLeft) - Number(b.node.dataset.canvasLeft))
-      .forEach((group) => appendGroup(group, list));
-    for (const item of independentPages) addPage(item, "contents-independent-item");
+    const list = document.createElement("ul");
+    list.className = "contents-list";
+    const mainEntry = entries.find((entry) => entry.node === mainMapNode);
+    if (mainEntry) list.append(makeItem(mainEntry.label, mainEntry.node, mainEntry.href));
+    groups.filter(({ parent }) => !parent).sort(byPosition).forEach((group) => appendGroup(group, list));
+    entries
+      .filter((entry) => !entry.group && entry !== mainEntry)
+      .sort(byPosition)
+      .forEach((entry) => list.append(makeItem(entry.label, entry.node, entry.href)));
     contentsNavigation.append(list);
   }
   document.addEventListener("click", (event) => {
@@ -942,6 +958,13 @@
     zoomToNode(node);
   }, true);
 
+  const wheelScroll = { el: null, time: 0 };
+  const wheelPan = { time: 0 };
+  // Trackpad pinch arrives as ctrl+wheel without a real Control key press.
+  const heldKeys = { ctrl: false };
+  window.addEventListener("keydown", (e) => { if (e.key === "Control") heldKeys.ctrl = true; });
+  window.addEventListener("keyup", (e) => { if (e.key === "Control") heldKeys.ctrl = false; });
+  window.addEventListener("blur", () => { heldKeys.ctrl = false; });
   zoomViewport.addEventListener("wheel", (event) => {
     const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE
       ? 16
@@ -950,9 +973,13 @@
     const deltaY = event.deltaY * unit;
     if (event.ctrlKey || event.metaKey) {
       event.preventDefault();
-      window.zoomBy(Math.exp(-deltaY * 0.037), { x: event.clientX, y: event.clientY }, true);
+      const keyHeld = event.metaKey || heldKeys.ctrl;
+      const zoomDelta = keyHeld ? Math.max(-60, Math.min(60, deltaY)) * 0.012 : deltaY * 0.037;
+      window.zoomBy(Math.exp(-zoomDelta), { x: event.clientX, y: event.clientY }, true);
       return;
     }
+    const now = performance.now();
+    const gestureGap = 300;
     if (event.target instanceof Element && event.target.closest(".node-content")) {
       const horizontal = Math.abs(deltaX) > Math.abs(deltaY) || event.shiftKey;
       if (!horizontal) {
@@ -961,12 +988,24 @@
           const canScroll = scroller.scrollHeight > scroller.clientHeight + 1
             && /(auto|scroll)/.test(getComputedStyle(scroller).overflowY);
           const atEdge = deltaY < 0 ? scroller.scrollTop <= 0 : scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
-          if (canScroll && !atEdge) return;
+          if (canScroll && now - wheelPan.time > gestureGap) {
+            if (!atEdge) {
+              wheelScroll.el = scroller;
+              wheelScroll.time = now;
+              return;
+            }
+            if (wheelScroll.el === scroller && now - wheelScroll.time <= gestureGap) {
+              wheelScroll.time = now;
+              event.preventDefault();
+              return;
+            }
+          }
           scroller = scroller.parentElement;
         }
       }
     }
     if (!deltaX && !deltaY) return;
+    wheelPan.time = now;
     event.preventDefault();
     if (event.shiftKey) {
       const horizontalDelta = deltaX || deltaY;
@@ -1056,24 +1095,55 @@
       y: zoomViewport.getBoundingClientRect().top + zoomViewport.clientHeight / 2,
     });
   }
-  requestAnimationFrame(() => requestAnimationFrame(centerMapInViewport));
+  const updateFades = () => {
+    for (const content of zoomCanvas.querySelectorAll(".node-content")) {
+      content.classList.toggle(
+        "has-more",
+        content.scrollTop + content.clientHeight < content.scrollHeight - 2,
+      );
+    }
+  };
+  zoomCanvas.addEventListener("scroll", (event) => {
+    const content = event.target;
+    if (!(content instanceof Element) || !content.classList.contains("node-content")) return;
+    content.classList.toggle("has-more", content.scrollTop + content.clientHeight < content.scrollHeight - 2);
+  }, true);
+  let userInteracted = false;
+  for (const type of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+    window.addEventListener(type, () => { userInteracted = true; }, { capture: true, once: true, passive: true });
+  }
+  const applyInitialState = () => {
+    updateFades();
+    if (userInteracted) return;
+    frameCanvas(true);
+    window.closeContents?.();
+    window.closeSearch?.();
+    if (!externalLinksPanel.hidden) {
+      externalLinksPanel.hidden = true;
+      syncExternalLinksState();
+    }
+    if (minimapPanel?.hidden) window.toggleMinimap?.();
+  };
+  requestAnimationFrame(() => requestAnimationFrame(applyInitialState));
+  window.addEventListener("load", () => window.setTimeout(applyInitialState, 250), { once: true });
 
-  const frameCanvas = () => {
+  const startCenter = (bounds) => {
+    if (!mainMapNode) return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+    return {
+      x: Number(mainMapNode.dataset.canvasLeft) + Number(mainMapNode.dataset.canvasWidth) / 2,
+      y: Number(mainMapNode.dataset.canvasTop) + Number(mainMapNode.dataset.canvasHeight) / 2,
+    };
+  };
+  const frameCanvas = (immediate = false) => {
     fitToViewport = true;
     focusedNodeScale = 0;
     focusedNode = null;
     const bounds = boundsForVisibleNodes();
-    const scale = Math.min(
-      1,
-      Math.max(100, zoomViewport.clientWidth - 64) / bounds.width,
-      Math.max(100, zoomViewport.clientHeight - 96) / bounds.height,
-    ) * 0.96;
-    const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
-    const viewportRect = zoomViewport.getBoundingClientRect();
+    const scale = Math.max(zoomLimits().minScale, heightFitScale(bounds));
     const anchor = viewportContentCenter();
-    setScaleAtWorldPoint(scale, center, anchor);
+    setScaleAtWorldPoint(scale, startCenter(bounds), anchor, immediate);
   };
-  window.reframeCanvas = frameCanvas;
+  window.reframeCanvas = () => frameCanvas();
   window.addEventListener("keydown", (event) => {
     if (
       event.code !== "Space"
@@ -1129,15 +1199,10 @@
     const limits = zoomLimits();
     if (fitToViewport) {
       const bounds = boundsForVisibleNodes();
-      const fitScale = Math.min(
-          limits.maxScale,
-          1,
-          Math.max(100, zoomViewport.clientWidth - 64) / bounds.width,
-          Math.max(100, zoomViewport.clientHeight - 96) / bounds.height,
-        ) * 0.96;
+      const fitScale = Math.max(limits.minScale, Math.min(limits.maxScale, heightFitScale(bounds)));
       setScaleAtWorldPoint(
         fitScale,
-        { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 },
+        startCenter(bounds),
         viewportContentCenter(),
         true,
       );

@@ -116,7 +116,7 @@ body {
 }
 
 #edge-layer {
-  z-index: 20 !important;
+  z-index: 2 !important;
   pointer-events: none !important;
 }
 
@@ -282,9 +282,20 @@ body {
 }
 
 .node-content table {
-  width: 100%;
-  table-layout: fixed;
-  overflow-wrap: anywhere;
+  width: auto;
+  max-width: 100%;
+  table-layout: auto;
+}
+
+.node-content th,
+.node-content td {
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  vertical-align: top;
+}
+
+.node-content tr > :first-child {
+  min-width: 7em;
 }
 
 .node[data-node-border="invisible"] {
@@ -503,7 +514,7 @@ body {
 }
 
 .zoom-level-indicator.is-menu-hidden {
-  top: 32px;
+  top: 8px;
 }
 
 .toolbar.is-hidden {
@@ -686,15 +697,11 @@ body.contents-open {
 }
 
 .contents-list .contents-group-children {
-  padding-left: 8px;
+  padding-left: 14px;
 }
 
 .contents-item {
   margin: 0;
-}
-
-.contents-group-item {
-  margin-top: 8px;
 }
 
 .contents-link,
@@ -707,29 +714,6 @@ body.contents-open {
   font-weight: 400;
   line-height: 1.35;
   text-decoration: none !important;
-}
-
-.contents-group-link {
-  width: 100%;
-  padding: 4px 0 2px 6px !important;
-  border: 0;
-  color: #666 !important;
-  cursor: pointer;
-  font: inherit;
-  font-style: italic;
-  text-align: left;
-}
-
-.contents-group-page .contents-page-link {
-  padding-left: 16px !important;
-}
-
-.contents-main-item .contents-page-link {
-  font-weight: 600;
-}
-
-.contents-independent-item .contents-page-link {
-  padding-left: 16px !important;
 }
 
 .contents-link:hover,
@@ -878,10 +862,6 @@ body.contents-open {
     display: grid;
     left: 16px;
     bottom: 16px;
-  }
-
-  .canvas-controls-guide {
-    display: none;
   }
 
   .zoom-level-indicator {
@@ -1285,10 +1265,6 @@ body.contents-open {
 .theme-night .contents-link:hover {
   color: #fff !important;
   text-decoration-color: #fff !important;
-}
-
-.theme-night .contents-group-link {
-  color: #aaa !important;
 }
 
 .theme-night #edge-layer > path {
@@ -1707,3 +1683,143 @@ body:not(.theme-night) .node.group.neutral-gray-group {
 #minimap-svg {
   background: transparent !important;
 }
+
+.minimap-edge-handle {
+  position: absolute;
+  z-index: 2;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 18px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.minimap.is-dragging .minimap-edge-handle {
+  cursor: grabbing;
+}
+
+.node-content.has-more {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent 100%);
+}
+
+.node-content pre,
+.node-content pre code {
+  background: transparent !important;
+  color: inherit !important;
+  border: 1px solid currentColor;
+}
+
+.node-content pre code {
+  border: 0;
+}
+
+.contents-link.contents-plain-link {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.contents-link.contents-plain-link:hover {
+  text-decoration: underline !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .canvas-controls-guide-sequence .guide-mouse {
+    display: none;
+  }
+}
+
+@media not all and ((hover: none) and (pointer: coarse)) {
+  .canvas-controls-guide-sequence .guide-touch {
+    display: none;
+  }
+}
+
+.contents-link.contents-page-link {
+  color: #00e !important;
+  text-decoration: underline !important;
+}
+
+.theme-night .contents-link.contents-page-link {
+  color: #fff !important;
+}
+
+.theme-night .contents-link.contents-plain-link {
+  color: #fff !important;
+}
+
+#canvas {
+  --line-weight: calc(1px / var(--canvas-scale, 1));
+}
+
+#canvas .node:not([data-node-border="invisible"]),
+#canvas .node.group {
+  border-width: var(--line-weight) !important;
+  border-style: solid;
+}
+
+#canvas .node.group.group-shape-oval,
+#canvas .node.group {
+  border-radius: 3px;
+}
+
+#edge-layer > path {
+  stroke-width: 1px !important;
+  vector-effect: non-scaling-stroke;
+}
+
+.node .md-card-title {
+  font-size: 1.5em;
+}
+
+.node .md-card-preview > details.heading-section:first-child > summary {
+  display: none;
+}
+
+/* Typographic day-mode look: white boxes, light-tinted groups */
+body:not(.theme-night) #canvas .node:not(.group):not([data-node-border="invisible"]),
+body:not(.theme-night).canvas-overview .node:not(.group):not([data-node-border="invisible"]) {
+  background: #fff !important;
+  border-color: #c4c4c4 !important;
+  border-radius: 0 !important;
+}
+
+body:not(.theme-night) #canvas .node.overview-comment-node {
+  background: color-mix(in srgb, var(--node-border-color, #808080) 14%, #fff) !important;
+}
+
+body:not(.theme-night) #canvas .node.group,
+body:not(.theme-night).canvas-overview .node.group {
+  background: color-mix(in srgb, var(--node-border-color, #808080) max(0%, calc(12% - var(--group-fill-strength, 0%) * 0.143)), transparent) !important;
+  border-color: var(--node-border-color, #808080) !important;
+  border-radius: 3px !important;
+}
+
+body:not(.theme-night) #canvas .node.group.neutral-gray-group,
+body:not(.theme-night).canvas-overview .node.group.neutral-gray-group {
+  background: #f6f6f6 !important;
+  border-color: #c4c4c4 !important;
+}
+
+body:not(.theme-night) #canvas .node.overview-comment-node:not(.group):not([data-node-border="invisible"]),
+body:not(.theme-night).canvas-overview .node.overview-comment-node:not(.group):not([data-node-border="invisible"]) {
+  background: color-mix(in srgb, var(--node-border-color, #808080) max(0%, calc(12% - var(--group-fill-strength, 0%) * 0.143)), transparent) !important;
+  border-color: var(--node-border-color, #808080) !important;
+}
+
+body:not(.theme-night) #canvas .node.group.neutral-gray-group { border-radius: 3px !important; }
+
+/* Frost for day-mode coloured groups and comments */
+body:not(.theme-night) #canvas .node.group:not(.neutral-gray-group),
+body:not(.theme-night) #canvas .node.overview-comment-node {
+  -webkit-backdrop-filter: blur(8px) saturate(1.15);
+  backdrop-filter: blur(8px) saturate(1.15);
+}
+
+/* Group shape: rectangles by day, ovals by night; double-click flips all */
+body #canvas .node.group { border-radius: 3px !important; }
+body.theme-night #canvas .node.group,
+body.groups-flipped:not(.theme-night) #canvas .node.group { border-radius: 50% !important; }
+body.theme-night.groups-flipped #canvas .node.group { border-radius: 3px !important; }
+body.theme-night.canvas-overview #canvas .node.main-map-node { border-radius: 0 !important; }
