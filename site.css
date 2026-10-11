@@ -1818,3 +1818,20 @@ body.groups-flipped:not(.theme-night) #canvas .node.group { border-radius: 50% !
 body.theme-night.groups-flipped #canvas .node.group { border-radius: 3px !important; }
 
 .group-title.neutral-gray-group-title .group-title-text { font-weight: 400 !important; }
+
+/* Node frost is costly on huge canvases: skip it when zoomed out and on touch devices */
+body.canvas-overview #canvas .node,
+body.canvas-overview #canvas .node.group,
+body.canvas-overview #canvas .node.overview-comment-node {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body #canvas .node,
+  body #canvas .node.group,
+  body #canvas .node.overview-comment-node {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
