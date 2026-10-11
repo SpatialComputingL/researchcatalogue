@@ -1565,12 +1565,6 @@ body.contents-open {
   border: 2px solid var(--node-border-color, #808080) !important;
 }
 
-.canvas-overview .main-map-node {
-  left: var(--main-node-circle-left) !important;
-  width: var(--main-node-circle-size) !important;
-  height: var(--main-node-circle-size) !important;
-  border-radius: 50% !important;
-}
 
 .canvas-overview .node.group {
   background: #fff !important;
@@ -1750,7 +1744,7 @@ body:not(.theme-night) .node.group.neutral-gray-group {
 }
 
 #canvas {
-  --line-weight: calc(1px / var(--canvas-scale, 1));
+  --line-weight: calc(var(--line-factor, 1) * 1px / var(--canvas-scale, 1));
 }
 
 #canvas .node:not([data-node-border="invisible"]),
@@ -1781,7 +1775,7 @@ body:not(.theme-night) .node.group.neutral-gray-group {
 body:not(.theme-night) #canvas .node:not(.group):not([data-node-border="invisible"]),
 body:not(.theme-night).canvas-overview .node:not(.group):not([data-node-border="invisible"]) {
   background: #fff !important;
-  border-color: #c4c4c4 !important;
+  border-color: #000 !important;
   border-radius: 0 !important;
 }
 
@@ -1822,4 +1816,5 @@ body #canvas .node.group { border-radius: 3px !important; }
 body.theme-night #canvas .node.group,
 body.groups-flipped:not(.theme-night) #canvas .node.group { border-radius: 50% !important; }
 body.theme-night.groups-flipped #canvas .node.group { border-radius: 3px !important; }
-body.theme-night.canvas-overview #canvas .node.main-map-node { border-radius: 0 !important; }
+
+.group-title.neutral-gray-group-title .group-title-text { font-weight: 400 !important; }

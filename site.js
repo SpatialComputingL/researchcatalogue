@@ -588,6 +588,8 @@
     zoomLevelIndicator.setAttribute("aria-label", `Current zoom level ${zoomPercentage}`);
     zoomCanvas.style.transform = `scale(${scale})`;
     zoomCanvas.style.setProperty("--canvas-scale", String(scale));
+    const lineFactor = 1 - 0.5 * Math.max(0, Math.min(1, (0.5 - scale) / 0.3));
+    zoomCanvas.style.setProperty("--line-factor", lineFactor.toFixed(2));
     const overviewProgress = Math.round(Math.max(0, Math.min(1, (0.25 - scale) / 0.05)) * 100) / 100;
     const isNight = document.body.classList.contains("theme-night");
     const fillStrength = `${isNight ? 44 + overviewProgress * 48 : overviewProgress * 84}%`;
