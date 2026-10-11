@@ -1947,3 +1947,90 @@ body.theme-night .toolbar button.is-active {
 
 /* Note: transitions and fade masks are switched off on touch devices (see the touch block above).
    Transitions are the suspected cause of the iPhone Safari crash; reintroduce them once confirmed. */
+
+/* Menu items: same inset look for all, no blue tap/focus highlight */
+.toolbar button,
+.toolbar .external-links-button,
+.toolbar .navigation-dropdown > button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toolbar button:focus,
+.toolbar button:focus-visible,
+.toolbar button:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.toolbar button:focus:not([aria-expanded="true"]):not(.is-active):not(:hover) {
+  background: transparent !important;
+}
+
+@media (max-width: 760px) {
+  .toolbar > #minimap-toolbar-button,
+  .toolbar > #search-toolbar-button,
+  .toolbar .external-links-button,
+  .toolbar .navigation-dropdown > button {
+    height: 28px !important;
+    margin: 4px 0 !important;
+    padding: 2px 8px !important;
+    line-height: 24px;
+  }
+
+  .toolbar > #minimap-toolbar-button,
+  .toolbar > #search-toolbar-button {
+    align-self: center;
+  }
+
+  .external-links-dropdown,
+  .navigation-dropdown {
+    align-items: center;
+  }
+
+  .navigation-dropdown { padding-left: 8px !important; }
+
+  /* Popups sit a little in from the screen edge */
+  .contents-overlay,
+  .external-links-panel {
+    margin-left: 8px;
+  }
+}
+
+/* Search popup: black text, black-bordered close button */
+body .search-panel,
+body .search-panel *,
+body .search-scope,
+body .search-summary,
+body .search-result-title,
+body .search-result-meta,
+body .search-result-snippet {
+  color: #000 !important;
+}
+
+body .search-close-button,
+body .search-input,
+body .search-result {
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #000 !important;
+}
+
+body .search-result.is-active {
+  border-color: #000 !important;
+  box-shadow: none !important;
+  background: #eee !important;
+}
+
+body.theme-night .search-panel,
+body.theme-night .search-panel *,
+body.theme-night .search-close-button {
+  color: #fff !important;
+}
+
+body.theme-night .search-close-button,
+body.theme-night .search-input,
+body.theme-night .search-result {
+  border-color: #fff !important;
+  background: #000 !important;
+}

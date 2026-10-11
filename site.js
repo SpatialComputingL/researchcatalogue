@@ -236,6 +236,10 @@
     }
     syncExternalLinksState();
   });
+  // Opening CONTENT, NAVIGATION or LINKS closes the search panel
+  for (const button of [navigationButton, minimapButton, externalLinksButton]) {
+    button?.addEventListener("click", () => window.closeSearch?.());
+  }
   document.addEventListener("click", (event) => {
     if (!externalLinksPanel.hidden && !externalLinksDropdown.contains(event.target)) {
       externalLinksPanel.hidden = true;
