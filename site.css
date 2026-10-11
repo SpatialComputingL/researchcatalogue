@@ -1852,15 +1852,8 @@ body.canvas-overview #canvas .node.overview-comment-node {
     -webkit-mask-image: none !important;
     mask-image: none !important;
   }
-  body .toolbar::before,
-  body .contents-overlay,
-  body .search-panel,
-  body #minimap-panel,
-  body .canvas-controls-guide,
-  body .canvas-controls-guide * {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    animation: none !important;
+  body .canvas-controls-guide {
+    display: none !important;
   }
   body #canvas .node,
   body #canvas .edge,
