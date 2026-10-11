@@ -11,12 +11,19 @@
     openLink.className = "model-preview-link";
     openLink.textContent = "Open interactive model ↗";
     openLink.href = customModelUrl.href;
-    const previewFrame = document.createElement("iframe");
-    previewFrame.className = "model-preview-frame";
-    previewFrame.title = "Orbitable Spatial Computing Lab 3D model";
-    previewFrame.loading = "lazy";
-    previewFrame.src = previewUrl.href;
-    modelContent.replaceChildren(openLink, previewFrame);
+    const startButton = document.createElement("button");
+    startButton.type = "button";
+    startButton.className = "model-preview-start";
+    startButton.textContent = "Tap to start the 3D model";
+    startButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const previewFrame = document.createElement("iframe");
+      previewFrame.className = "model-preview-frame";
+      previewFrame.title = "Orbitable Spatial Computing Lab 3D model";
+      previewFrame.src = previewUrl.href;
+      startButton.replaceWith(previewFrame);
+    });
+    modelContent.replaceChildren(openLink, startButton);
     modelNode.classList.add("model-preview-node", "overview-orbit-node");
   }
 
