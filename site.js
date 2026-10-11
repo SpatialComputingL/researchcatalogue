@@ -15,7 +15,6 @@
     startButton.type = "button";
     startButton.className = "model-preview-start";
     startButton.textContent = "Tap to start the 3D model";
-    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
     const startPreview = (event) => {
       event?.stopPropagation();
       const previewFrame = document.createElement("iframe");
@@ -26,7 +25,7 @@
     };
     startButton.addEventListener("click", startPreview);
     modelContent.replaceChildren(openLink, startButton);
-    if (!isTouch) startPreview();
+    startPreview();
     modelNode.classList.add("model-preview-node", "overview-orbit-node");
   }
 
@@ -231,6 +230,10 @@
   externalLinksButton.addEventListener("click", () => {
     externalLinksPanel.hidden = !externalLinksPanel.hidden;
     if (!externalLinksPanel.hidden) window.closeContents?.();
+    if (!externalLinksPanel.hidden && window.matchMedia("(max-width: 760px)").matches) {
+      // Open where the content list opens: under the CONTENT button
+      externalLinksPanel.style.left = `${navigationDropdown.getBoundingClientRect().left - externalLinksDropdown.getBoundingClientRect().left}px`;
+    }
     syncExternalLinksState();
   });
   document.addEventListener("click", (event) => {

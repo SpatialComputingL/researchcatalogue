@@ -519,7 +519,11 @@ body {
 
 .toolbar.is-hidden {
   background: transparent !important;
-  border-color: transparent !important;
+  border-color: #000 !important;
+}
+
+.theme-night .toolbar.is-hidden {
+  border-color: #fff !important;
 }
 
 @keyframes canvas-controls-scroll {
@@ -1862,3 +1866,84 @@ body.canvas-overview #canvas .node.overview-comment-node {
     animation: none !important;
   }
 }
+
+/* Popups: black border everywhere, including the CONTENT and NAVIGATION panels */
+body .contents-overlay,
+body #minimap-panel,
+body .external-links-panel,
+body .search-panel {
+  border: 1px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.theme-night .contents-overlay,
+body.theme-night #minimap-panel,
+body.theme-night .external-links-panel,
+body.theme-night .search-panel {
+  border-color: #fff !important;
+}
+
+/* Active menu item: anthracite fill, white text */
+body .toolbar .navigation-dropdown > button[aria-expanded="true"],
+body .toolbar #minimap-toolbar-button[aria-expanded="true"],
+body .toolbar .external-links-button[aria-expanded="true"],
+body .toolbar button.is-active {
+  background: #2b2b2b !important;
+  color: #fff !important;
+}
+
+body.theme-night .toolbar .navigation-dropdown > button[aria-expanded="true"],
+body.theme-night .toolbar #minimap-toolbar-button[aria-expanded="true"],
+body.theme-night .toolbar .external-links-button[aria-expanded="true"],
+body.theme-night .toolbar button.is-active {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+@media (max-width: 760px) {
+  .external-links-panel { width: min(320px, calc(100vw - 32px)); }
+}
+
+/* Desktop: a hidden menu bar keeps CONTENT, NAVIGATION, LINKS and search in place; title and zoom controls slide up */
+@media (min-width: 761px) {
+  .toolbar.is-hidden {
+    right: auto !important;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .toolbar.is-hidden > * {
+    visibility: visible;
+  }
+
+  .toolbar .publication-title,
+  .toolbar .zoom-out-button,
+  .toolbar .zoom-in-button,
+  .toolbar .reset-zoom-button {
+    max-width: 800px;
+    transition: transform 180ms ease-out, opacity 150ms ease-out, max-width 180ms ease-out, padding 180ms ease-out;
+  }
+
+  .toolbar .zoom-out-button,
+  .toolbar .zoom-in-button,
+  .toolbar .reset-zoom-button {
+    max-width: 80px;
+  }
+
+  .toolbar.is-hidden .publication-title,
+  .toolbar.is-hidden .zoom-out-button,
+  .toolbar.is-hidden .zoom-in-button,
+  .toolbar.is-hidden .reset-zoom-button {
+    max-width: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+}
+
+/* Note: transitions and fade masks are switched off on touch devices (see the touch block above).
+   Transitions are the suspected cause of the iPhone Safari crash; reintroduce them once confirmed. */
