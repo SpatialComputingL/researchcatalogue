@@ -15,15 +15,18 @@
     startButton.type = "button";
     startButton.className = "model-preview-start";
     startButton.textContent = "Tap to start the 3D model";
-    startButton.addEventListener("click", (event) => {
-      event.stopPropagation();
+    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const startPreview = (event) => {
+      event?.stopPropagation();
       const previewFrame = document.createElement("iframe");
       previewFrame.className = "model-preview-frame";
       previewFrame.title = "Orbitable Spatial Computing Lab 3D model";
       previewFrame.src = previewUrl.href;
-      startButton.replaceWith(previewFrame);
-    });
+      startButton.isConnected ? startButton.replaceWith(previewFrame) : modelContent.append(previewFrame);
+    };
+    startButton.addEventListener("click", startPreview);
     modelContent.replaceChildren(openLink, startButton);
+    if (!isTouch) startPreview();
     modelNode.classList.add("model-preview-node", "overview-orbit-node");
   }
 
