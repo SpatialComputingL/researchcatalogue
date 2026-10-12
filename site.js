@@ -373,8 +373,7 @@
     icon.style.setProperty("--overview-icon-size", `${nodeHeight * 0.75}px`);
     if (node.classList.contains("overview-comment-node")) {
       icon.classList.add("overview-question-icon");
-      icon.style.setProperty("--overview-question-size", `${nodeHeight}px`);
-      icon.textContent = "?";
+      icon.innerHTML = '<svg viewBox="0 0 24 24" focusable="false"><path d="M7.5 8a4.5 4.5 0 1 1 7.6 3.2c-1.7 1.6-3.1 2.6-3.1 4.8M12 20.5h.01"></path></svg>';
     } else {
       icon.classList.add("overview-world-icon");
       icon.innerHTML = '<svg viewBox="0 0 100 100" focusable="false"><circle cx="50" cy="50" r="25"></circle><ellipse cx="50" cy="50" rx="43" ry="15" transform="rotate(-28 50 50)"></ellipse><path d="M29 37c12 5 30 5 42 0M27 61c14-6 32-6 46 0M50 25c-8 8-12 17-12 25s4 17 12 25m0-50c8 8 12 17 12 25s-4 17-12 25"></path></svg>';
@@ -395,15 +394,6 @@
         .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
         ?.classList.add("neutral-gray-group-title");
     }
-  }
-  for (const node of groupNodes) {
-    const channels = groupChannels(node);
-    if (!channels || channels.length < 3) continue;
-    const luminance = (0.299 * channels[0] + 0.587 * channels[1] + 0.114 * channels[2]) / 255;
-    if (luminance < 0.8) continue;
-    zoomCanvas
-      .querySelector(`.group-title[data-group-title-node-id="${CSS.escape(node.dataset.nodeId)}"]`)
-      ?.classList.add("light-group-title");
   }
   zoomCanvas.querySelectorAll(".group-title-text").forEach((title) => {
     title.title = "Double-click to toggle the shape of groups with this color";
@@ -631,7 +621,8 @@
       const text = title.querySelector(".group-title-text")?.textContent?.trim() || "";
       const availableWidth = Number(node?.dataset.canvasWidth || 0) * scale;
       const widthFit = availableWidth / Math.max(1, text.length * 0.58);
-      const titleSize = Math.max(9, Math.min(12 + 6 * Math.min(scale, 1), widthFit));
+      const titleScale = 1 + 0.5 * Math.max(0, Math.min(1, (scale - 0.1) / 0.65));
+      const titleSize = Math.max(9, Math.min((12 + 6 * Math.min(scale, 1)) * titleScale, widthFit));
       title.style.setProperty("--group-title-size", `${titleSize}px`);
     }
     const edgeLabelScale = Math.min(3.75, 1.25 / Math.sqrt(Math.max(scale, 0.01)));
