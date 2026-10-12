@@ -609,7 +609,9 @@
     zoomCanvas.style.setProperty("--line-factor", lineFactor.toFixed(2));
     const overviewProgress = Math.round(Math.max(0, Math.min(1, (0.25 - scale) / 0.05)) * 100) / 100;
     const isNight = document.body.classList.contains("theme-night");
-    const fillStrength = `${isNight ? 44 + overviewProgress * 48 : overviewProgress * 84}%`;
+    // Group fill fades between 75% (start) and 15% (end) zoom
+    const fillProgress = Math.round(Math.max(0, Math.min(1, (0.75 - scale) / 0.6)) * 100) / 100;
+    const fillStrength = `${isNight ? 44 + fillProgress * 48 : fillProgress * 84}%`;
     if (zoomCanvas.style.getPropertyValue("--group-fill-strength") !== fillStrength) {
       zoomCanvas.style.setProperty("--group-fill-strength", fillStrength);
     }
